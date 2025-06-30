@@ -3,5 +3,9 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+
+    $action = new  \App\Actions\CreateProductOnBlingErpAction();
+
+    dd($action->execute([]));
+    // return view(view: 'welcome');
 });
