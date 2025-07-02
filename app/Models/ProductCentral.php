@@ -36,6 +36,9 @@ class ProductCentral extends Model
         'synced_erp',
         'synced_ml',
         'ai_adapted_the_content',
+        'url_product_ml',
+        'product_erp_id',
+        'product_ml_id',
     ];
 
     protected $casts = [
