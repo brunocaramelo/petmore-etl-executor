@@ -8,12 +8,13 @@ return new class extends Migration
 {
 
     protected $connection = 'mongodb';
-    protected $collection = 'product_centrals';
+    protected $collection = 'product_erps';
 
 
     public function up()
     {
-        Schema::connection($this->connection)->create($this->collection, function ($collection) {
+        Schema::connection($this->connection)
+                ->create($this->collection, function ($collection) {
             $collection->index('identify');
         });
 

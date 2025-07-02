@@ -9,6 +9,7 @@
         "php": "^8.2",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
+        "maatwebsite/excel": "^3.1",
         "mongodb/laravel-mongodb": "^5.4"
     },
     "require-dev": {

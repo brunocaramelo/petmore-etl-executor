@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model;
+use App\Models\ProductCentral;
 
-class Product extends Model
+class ProductErp extends Model
 {
-    protected $collection = 'products_central';
+    protected $collection = 'product_erps';
 
     protected $fillable = [
         'name',
@@ -25,5 +26,9 @@ class Product extends Model
         'details' => 'array',
     ];
 
+    public function productCentral()
+    {
+        return $this->belongsTo(ProductCentral::class, 'product_erp_id');
+    }
 
 }
