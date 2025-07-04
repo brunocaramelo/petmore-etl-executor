@@ -17,9 +17,10 @@ class MercadoLivreScrapperConsumer
     public function getProductByUrl(string $identifyParam)
     {
         $identify = base64_encode($identifyParam);
-
+        \Log::info($this->baseApiPath.'/products/by-url-encoded/'.$identify);
         $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    // ->withToken($this->tokenAuth)
                     ->get($this->baseApiPath.'/products/by-url-encoded/'.$identify);
 
         if ($response->successful()) {

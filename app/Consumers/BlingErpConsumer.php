@@ -26,6 +26,7 @@ class BlingErpConsumer
     {
         $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
+                    ->timeout(8999)
                     ->post($this->baseApiPath.'/produtos');
 
         if ($response->successful()) {
@@ -39,6 +40,7 @@ class BlingErpConsumer
     {
         $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
+                    ->timeout(8999)
                     ->get($this->baseApiPath.'/produtos/'.$identify);
 
         if ($response->successful()) {
@@ -52,6 +54,7 @@ class BlingErpConsumer
     {
         $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
+                    ->timeout(8999)
                     ->put($this->baseApiPath.'/produtos/'.$identify);
 
         if ($response->successful()) {
