@@ -3,12 +3,15 @@
 return [
     'apis' => [
         'bling_erp' => [
-            'base_path' => env('BLING_ERP_CLIENT_ID'),
+            'base_path' => env('BLING_ERP_BASE_PATH'),
             'client_id' => env('BLING_ERP_CLIENT_ID'),
             'client_secret' => env('BLING_ERP_CLIENT_SECRET'),
             'redirect_uri' => env('BLING_ERP_REDIRECT_URI'),
             'access_token' => env('BLING_ERP_ACCESS_TOKEN'),
             'refresh_token' => env('BLING_ERP_REFRESH_TOKEN'),
+        ],
+        'mercado_livre_scrapper' => [
+            'base_path' => env('MERCADO_LIVRE_SCRAPPER_BASE_PATH'),
         ]
     ]
 

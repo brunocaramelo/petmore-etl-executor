@@ -40,6 +40,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
                 "ploutos_estoque_atual_rv" => $row["estoque_atual_rv"],
                 "ploutos_custo_medio_rv" => $row["custo_medio_rv"],
                 "ploutos_preco_venda" => $row["preco_venda"],
+                "url_product_ml" => $row["url_product_ml"],
               ];
         }
     }
@@ -78,6 +79,12 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
 
         $dataExists = ($inst instanceof ProductCentral);
 
+        $codePloutosClean = str_replace(['.','/',' '],
+                                        ['','',''],
+                                        $row['ploutos_cod']
+                                    );
+
+        $row['sku'] = $inst->sku ?? 'PM'.str_pad($codePloutosClean, 8, "0", STR_PAD_LEFT);
         $row['is_to_sell'] = $inst->is_to_sell ?? true;
         $row['is_active'] =  $inst->is_active ?? true;
         $row['synced_erp'] =  $inst->synced_erp ?? false;

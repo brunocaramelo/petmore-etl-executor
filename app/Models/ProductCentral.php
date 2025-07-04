@@ -39,6 +39,7 @@ class ProductCentral extends Model
         'url_product_ml',
         'product_erp_id',
         'product_ml_id',
+        'sku',
     ];
 
     protected $casts = [

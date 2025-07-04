@@ -11,21 +11,23 @@ class ProductMl extends Model
     protected $collection = 'product_mls';
 
     protected $fillable = [
-        'name',
-        'description',
+        'id',
+        'url',
+        'title',
         'price',
-        'category',
-        'tags',
-        'details',
-        'is_active'
+        'description',
+        'specifications',
+        'images',
+        'variations',
+        'metadata',
     ];
 
-    protected $casts = [
-        'price' => 'float',
-        'is_active' => 'boolean',
-        'tags' => 'array',
-        'details' => 'array',
-    ];
+    // protected $casts = [
+    //     'price' => 'float',
+    //     'is_active' => 'boolean',
+    //     'tags' => 'array',
+    //     'details' => 'array',
+    // ];
 
     public function productCentral()
     {
