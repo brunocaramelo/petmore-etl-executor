@@ -40,13 +40,10 @@ class ImportPendingProductFromMercadoLivre extends Command
 
         foreach ($pendingItems as $pending) {
 
-            $intervalRandom = rand(3,39);
-
-            $delayToJob = Carbon::now()->addSeconds($intervalRandom);
+            $delayToJob = Carbon::now()->addSeconds(rand(20,49));
 
             MercadoLivreImportProductByUriAndAttachToProductCentralJob::dispatch($pending)
-                                 ->delay($delayToJob)
-                                 ->onQueue('buscar_produto_mercado_livre_scrapper');
+                                 ->delay($delayToJob);
 
             \Log::info("(ImportPendingProductFromMercadoLivre) Job para item ".($pending->sku ?? 'sku')." de busca no mercado livre despachado com atraso para: " . $delayToJob." , para o produto: ".($pending->url_product_ml ?? 'URL'));
 

@@ -12,6 +12,13 @@ return [
         ],
         'mercado_livre_scrapper' => [
             'base_path' => env('MERCADO_LIVRE_SCRAPPER_BASE_PATH'),
+        ],
+        'ai_api' => [
+            'base_path' => env('AI_API_BASE_PATH'),
+            'api_key' => env('AI_API_KEY'),
+            'prompts' => [
+                          'modify_product_to_not_copyright' => env('AI_API_PROMPT_MODIFY_PRODUCT_TO_NOT_COPYRIGHT')
+                        ],
         ]
     ]
 

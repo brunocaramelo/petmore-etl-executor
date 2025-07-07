@@ -14,6 +14,7 @@ class MercadoLivreImportProductByUriAndAttachToProductCentralJob implements Shou
     use Queueable;
 
     private $productCentral;
+    public array $backoff = [60, 100, 300];
 
     public function __construct(ProductCentral $productCentral)
     {

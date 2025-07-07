@@ -5,13 +5,18 @@ namespace App\Models;
 use MongoDB\Laravel\Eloquent\Model;
 
 use App\Models\{ProductErp,
-                ProductMl
+                ProductMl,
+                ProductRewrited
                 };
 
+use App\Traits\HasUuid;
 
 class ProductCentral extends Model
 {
+    use HasUuid;
+    protected $hidden = ['_id'];
     protected $collection = 'product_centrals';
+    protected $primaryKey = 'uuid';
 
     protected $fillable = [
         'ploutos_cod',
@@ -39,20 +44,29 @@ class ProductCentral extends Model
         'url_product_ml',
         'product_erp_id',
         'product_ml_id',
+        'product_rewrited_id',
+        'ml_identify',
         'sku',
     ];
 
     protected $casts = [
+        'specifications' => 'array',
+        'variations' => 'array',
     ];
 
     public function productErp()
     {
-        return $this->hasOne(ProductErp::class, 'product_erp_id');
+        return $this->belongsTo(ProductErp::class, 'product_erp_id', 'uuid');
     }
 
     public function productMl()
     {
-        return $this->hasOne(ProductMl::class, 'product_ml_id');
+        return $this->belongsTo(ProductMl::class, 'product_ml_id',  'uuid');
+    }
+
+    public function productRewrited()
+    {
+        return $this->belongsTo(ProductRewrited::class, 'product_rewrited_id','uuid');
     }
 
 }

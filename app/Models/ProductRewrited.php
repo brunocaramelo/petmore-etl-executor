@@ -8,11 +8,11 @@ use App\Models\ProductCentral;
 
 use App\Traits\HasUuid;
 
-class ProductMl extends Model
+class ProductRewrited extends Model
 {
     use HasUuid;
     protected $hidden = ['_id'];
-    protected $collection = 'product_mls';
+    protected $collection = 'product_rewriteds';
     protected $primaryKey = 'uuid';
 
     protected $fillable = [
@@ -36,7 +36,7 @@ class ProductMl extends Model
 
     public function productCentral()
     {
-        return $this->hasMany(ProductCentral::class, 'product_ml_id');
+        return $this->hasMany(ProductCentral::class, 'product_rewrited_id');
     }
 
 }

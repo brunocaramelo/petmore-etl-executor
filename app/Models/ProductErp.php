@@ -5,9 +5,14 @@ namespace App\Models;
 use MongoDB\Laravel\Eloquent\Model;
 use App\Models\ProductCentral;
 
+use App\Traits\HasUuid;
+
 class ProductErp extends Model
 {
+    use HasUuid;
+    protected $hidden = ['_id'];
     protected $collection = 'product_erps';
+    protected $primaryKey = 'uuid';
 
     protected $fillable = [
         'name',
@@ -28,7 +33,7 @@ class ProductErp extends Model
 
     public function productCentral()
     {
-        return $this->belongsTo(ProductCentral::class, 'product_erp_id');
+        return $this->hasMany(ProductCentral::class, 'product_erp_id');
     }
 
 }
