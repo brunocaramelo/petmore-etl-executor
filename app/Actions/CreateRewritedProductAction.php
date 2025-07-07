@@ -103,6 +103,11 @@ class CreateRewritedProductAction
 
     private function downloadAndTransformMlImagesToLocalAndReturnPath($urlRemote, $skuSelf, $subDir)
     {
+
+        if (filter_var($urlRemote, FILTER_VALIDATE_URL) == false) {
+            return null;
+        }
+
         $manager = new ImageManager(
             new \Intervention\Image\Drivers\Gd\Driver()
         );
