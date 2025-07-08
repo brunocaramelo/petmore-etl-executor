@@ -35,12 +35,12 @@ class ModifyContentCopyRight extends Command
     {
 
         $pendingItems = ProductCentral::where('synced_ml', true)
-        ->where('is_active', true)
-        ->whereNotNull('url_product_ml')
-        ->has('productMl')
-        ->with('productMl')
-        ->where('ai_adapted_the_content', false)
-        ->get();
+            ->where('is_active', true)
+            ->whereNotNull('url_product_ml')
+            ->has('productMl')
+            ->with('productMl')
+            ->where('ai_adapted_the_content', false)
+            ->get();
 
 
         \Log::info("(ModifyContentCopyRight) Itens pendentes encontrados para serem processados ".$pendingItems->count());

@@ -42,7 +42,6 @@ class CreateRewritedProductAction
 
     private function modifyDescriptionFromEntityAndReturn($aiConsumer, $entity)
     {
-
         $jsonElement = json_encode([
             'description' => $entity->description['html'],
             'specifications' => $entity->specifications,
@@ -157,15 +156,18 @@ class CreateRewritedProductAction
 
         return $listLocalImages;
     }
+
     private function reparseVariationsImagesToLocalAndReplaceEntity($listVariationsOriginal, $sku)
     {
         $listVariations = $listVariationsOriginal;
 
         foreach ($listVariations as $indexVariations => $valueVariations) {
-            $valuesAttributes = collect($valueVariations['attributes'])->pluck('value');
-            $sluggedValues = $valuesAttributes->map(function ($value) {
-                return \Str::slug(trim($value));
+
+            $valuesAttributes = collect($valueVariations['attributes'])->map(function ($item) {
+                return \Str::slug(trim(empty($item[1]['value']) ? 'no_category' : $item[1]['value']));
             });
+
+            $sluggedValues = $valuesAttributes->implode('-');
 
             foreach ($valueVariations['images'] as $indexImage => $valueImage) {
                 if(!empty($valueImage['thumbnail'])) $listVariations[$indexVariations]['images'][$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['thumbnail'], $sku, $sluggedValues);
@@ -173,6 +175,7 @@ class CreateRewritedProductAction
                 if(!empty($valueImage['full_size'])) $listVariations[$indexVariations]['images'][$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['full_size'], $sku, $sluggedValues);
             }
         }
+
         return $listVariations;
     }
 
