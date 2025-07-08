@@ -21,6 +21,10 @@ class MercadoLivreImportProductByUriAndAttachToProductCentralJob implements Shou
         $this->productCentral = $productCentral;
     }
 
+    public function timeout(): int
+    {
+        return 1500;
+    }
     /**
      * Execute the job.
      */

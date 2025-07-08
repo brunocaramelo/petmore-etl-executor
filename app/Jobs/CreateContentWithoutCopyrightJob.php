@@ -23,6 +23,11 @@ class CreateContentWithoutCopyrightJob implements ShouldQueue
         $this->entityCentral = $entityCentral;
     }
 
+    public function timeout(): int
+    {
+        return 1500;
+    }
+
     /**
      * Execute the job.
      */

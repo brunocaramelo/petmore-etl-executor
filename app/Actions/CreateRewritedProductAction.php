@@ -31,7 +31,7 @@ class CreateRewritedProductAction
             'api_key' => config('custom-services.apis.ai_api.api_key'),
         ]);
 
-        $toRewrite = $this->modifyDescriptionFromEntityAndReturn($aiConsumer,$instanceToNew);
+        $toRewrite = $this->modifyDescriptionFromEntityAndReturn($aiConsumer,$toRewrite);
 
         $instance->product_rewrited_id = $toRewrite->uuid;
         $instance->ai_adapted_the_content = true;
@@ -42,6 +42,7 @@ class CreateRewritedProductAction
 
     private function modifyDescriptionFromEntityAndReturn($aiConsumer, $entity)
     {
+
         $jsonElement = json_encode([
             'description' => $entity->description['html'],
             'specifications' => $entity->specifications,
@@ -49,24 +50,24 @@ class CreateRewritedProductAction
 
         $promptTxt = config('custom-services.apis.ai_api.prompts.modify_product_to_not_copyright').': '.$jsonElement;
 
-        // $aiResponse = $aiConsumer->sendContentToModelAi([
-        //     'contents' => [
-        //         'parts' => [
-        //             'text' => $promptTxt
-        //         ]
-        //     ]
-        // ]);
+        $aiResponse = $aiConsumer->sendContentToModelAi([
+            'contents' => [
+                'parts' => [
+                    'text' => $promptTxt
+                ]
+            ]
+        ]);
 
-        // $responseApiFilled = $this->fillJustJsonMessageFromResponse(
-        //             $aiResponse['candidates'][0]['content']['parts'][0]['text']
-        //             )['array'];
+        $responseApiFilled = $this->fillJustJsonMessageFromResponse(
+                    $aiResponse['candidates'][0]['content']['parts'][0]['text']
+                    )['array'];
 
-        // $entity->description = [
-        //                        'html' => $responseApiFilled['description'],
-        //                        'text' => strip_tags($responseApiFilled['description']),
-        //                     ];
+        $entity->description = [
+                               'html' => $responseApiFilled['description'],
+                               'text' => strip_tags($responseApiFilled['description']),
+                            ];
 
-        // $entity->specifications = $responseApiFilled['specifications'];
+        $entity->specifications = $responseApiFilled['specifications'];
 
         $entity->images = $this->reparseImagesToLocalAndReplaceEntity($entity->images, $entity->sku);
 
@@ -130,7 +131,7 @@ class CreateRewritedProductAction
 
         $pathCompletoOriginal = Storage::disk('local')->path($caminhoOriginalLocalStorage);
 
-        if (!Storage::disk('local')->exists($caminhoOutStorageDir)) {
+        if (!is_dir($caminhoOutStorageDir)) {
             mkdir($caminhoOutStorageDir, 0755, true);
         }
 
@@ -159,23 +160,23 @@ class CreateRewritedProductAction
 
         return $listLocalImages;
     }
-    private function reparseVariationsImagesToLocalAndReplaceEntity($listImages, $sku)
+    private function reparseVariationsImagesToLocalAndReplaceEntity($listVariationsOriginal, $sku)
     {
-        $listLocalImages = [];
+        $listVariations = $listVariationsOriginal;
 
-        foreach ($listImages as $indexImage => $valueImage) {
-            $valuesAttributes = collect($valueImage['attributes'])->pluck('value');
+        foreach ($listVariations as $indexVariations => $valueVariations) {
+            $valuesAttributes = collect($valueVariations['attributes'])->pluck('value');
             $sluggedValues = $valuesAttributes->map(function ($value) {
-                $cleanValue = trim(str_replace(["\n", "\r"], '', $value));
-                return \Str::slug($cleanValue);
+                return \Str::slug(trim($value));
             });
 
-            if(!empty($valueImage['images'][$indexImage]['thumbnail'])) $listLocalImages['images'][$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['images'][$indexImage]['thumbnail'], $sku, $sluggedValues);
-            if(!empty($valueImage['images'][$indexImage]['mid_size'])) $listLocalImages['images'][$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['images'][$indexImage]['mid_size'], $sku, $sluggedValues);
-            if(!empty($valueImage['images'][$indexImage]['full_size'])) $listLocalImages['images'][$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['images'][$indexImage]['full_size'], $sku, $sluggedValues);
+            foreach ($valueVariations['images'] as $indexImage => $valueImage) {
+                if(!empty($valueImage['thumbnail'])) $listVariations[$indexVariations]['images'][$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['thumbnail'], $sku, $sluggedValues);
+                if(!empty($valueImage['mid_size'])) $listVariations[$indexVariations]['images'][$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['mid_size'], $sku, $sluggedValues);
+                if(!empty($valueImage['full_size'])) $listVariations[$indexVariations]['images'][$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['full_size'], $sku, $sluggedValues);
+            }
         }
-
-        return $listLocalImages;
+        return $listVariations;
     }
 
 }
