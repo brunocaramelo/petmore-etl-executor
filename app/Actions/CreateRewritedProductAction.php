@@ -73,10 +73,7 @@ class CreateRewritedProductAction
 
         $entity->variations = $this->reparseVariationsImagesToLocalAndReplaceEntity($entity->variations, $entity->sku);
 
-
         $entity->save();
-
-        \Log::info($entity->toArray());
 
         return $entity;
     }
