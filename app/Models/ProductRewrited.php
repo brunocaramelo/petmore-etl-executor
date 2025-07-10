@@ -20,6 +20,7 @@ class ProductRewrited extends Model
         'url',
         'title',
         'price',
+        'sku',
         'description',
         'specifications',
         'images',

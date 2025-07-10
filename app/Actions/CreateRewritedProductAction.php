@@ -21,6 +21,8 @@ class CreateRewritedProductAction
         $instanceToNew = $instance->productMl()->first();
         $instanceToNewArr = $instanceToNew->toArray();
 
+        $instanceToNewArr['sku'] = $instance->sku;
+
         if(isset($instanceToNewArr['_id'])) unset($instanceToNewArr['_id']);
         if(isset($instanceToNewArr['id'])) unset($instanceToNewArr['id']);
 
@@ -31,7 +33,10 @@ class CreateRewritedProductAction
             'api_key' => config('custom-services.apis.ai_api.api_key'),
         ]);
 
-        $toRewrite = $this->modifyDescriptionFromEntityAndReturn($aiConsumer,$toRewrite);
+        $toRewriteReturn = $this->modifyDescriptionFromEntityAndReturn(
+                                $aiConsumer,
+                                            ProductRewrited::find($toRewrite->uuid)
+                                );
 
         $instance->product_rewrited_id = $toRewrite->uuid;
         $instance->ai_adapted_the_content = true;
@@ -98,6 +103,26 @@ class CreateRewritedProductAction
         throw new \Exception("Bloco JSON não encontrado no texto: ".$text);
     }
 
+    private function downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($urlRemote, $skuSelf, $subDir)
+    {
+        $localFile = $this->downloadAndTransformMlImagesToLocalAndReturnPath($urlRemote, $skuSelf, $subDir);
+
+        $pathSavedFile = str_replace(['.webp', 'images-products-to-erp'],
+                                    ['.jpge', 'products-catalog'] ,
+                            'images-products-to-erp/'.$skuSelf.'/'.$subDir.'/'.basename($urlRemote)
+        );
+
+        Storage::disk('choiced_cloud_storage')->put(
+                                                        $pathSavedFile,
+                                                    Storage::disk('local')->get(
+                                                            str_replace(Storage::disk('local')->path('') ,
+                                                                                            '' ,
+                                                                                        $localFile)
+                                                        )
+                                                    );
+        return Storage::disk('choiced_cloud_storage')->url($pathSavedFile);
+    }
+
     private function downloadAndTransformMlImagesToLocalAndReturnPath($urlRemote, $skuSelf, $subDir)
     {
 
@@ -109,7 +134,7 @@ class CreateRewritedProductAction
             new \Intervention\Image\Drivers\Gd\Driver()
         );
 
-        $caminhoOriginalLocalDirStorage = 'tmp/original/images-products-to-erp/'.$skuSelf.$subDir;
+        $caminhoOriginalLocalDirStorage = 'tmp/original/images-products-to-erp/'.$skuSelf.'/'.$subDir;
         $caminhoOriginalLocalStorage = $caminhoOriginalLocalDirStorage.'/'.basename( $urlRemote);
 
         $caminhoOutStorageDir = Storage::disk('local')
@@ -149,9 +174,9 @@ class CreateRewritedProductAction
         $listLocalImages = [];
 
         foreach ($listImages as $indexImage => $valueImage) {
-            if(!empty($valueImage['thumbnail'])) $listLocalImages[$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['thumbnail'], $sku, 'base');
-            if(!empty($valueImage['mid_size'])) $listLocalImages[$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['mid_size'], $sku, 'base');
-            if(!empty($valueImage['full_size'])) $listLocalImages[$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['full_size'], $sku, 'base');
+            if(!empty($valueImage['thumbnail'])) $listLocalImages[$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['thumbnail'], $sku, 'base');
+            if(!empty($valueImage['mid_size'])) $listLocalImages[$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['mid_size'], $sku, 'base');
+            if(!empty($valueImage['full_size'])) $listLocalImages[$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['full_size'], $sku, 'base');
         }
 
         return $listLocalImages;
@@ -170,9 +195,9 @@ class CreateRewritedProductAction
             $sluggedValues = $valuesAttributes->implode('-');
 
             foreach ($valueVariations['images'] as $indexImage => $valueImage) {
-                if(!empty($valueImage['thumbnail'])) $listVariations[$indexVariations]['images'][$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['thumbnail'], $sku, $sluggedValues);
-                if(!empty($valueImage['mid_size'])) $listVariations[$indexVariations]['images'][$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['mid_size'], $sku, $sluggedValues);
-                if(!empty($valueImage['full_size'])) $listVariations[$indexVariations]['images'][$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToLocalAndReturnPath($valueImage['full_size'], $sku, $sluggedValues);
+                if(!empty($valueImage['thumbnail'])) $listVariations[$indexVariations]['images'][$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['thumbnail'], $sku, $sluggedValues);
+                if(!empty($valueImage['mid_size'])) $listVariations[$indexVariations]['images'][$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['mid_size'], $sku, $sluggedValues);
+                if(!empty($valueImage['full_size'])) $listVariations[$indexVariations]['images'][$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['full_size'], $sku, $sluggedValues);
             }
         }
 

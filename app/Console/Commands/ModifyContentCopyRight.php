@@ -38,7 +38,6 @@ class ModifyContentCopyRight extends Command
             ->where('is_active', true)
             ->whereNotNull('url_product_ml')
             ->has('productMl')
-            ->with('productMl')
             ->where('ai_adapted_the_content', false)
             ->get();
 
@@ -47,7 +46,7 @@ class ModifyContentCopyRight extends Command
 
         foreach ($pendingItems as $pending) {
 
-            $delayToJob = Carbon::now()->addSeconds(rand(20,49));
+            $delayToJob = Carbon::now()->addSeconds(rand(40,109));
 
             CreateContentWithoutCopyrightJob::dispatch(new CreateRewritedProductAction(), $pending)
                                  ->delay($delayToJob);

@@ -10,8 +10,6 @@ use Illuminate\Console\Command;
 
 use App\Jobs\SendMappedProductToErpJob;
 
-use App\Actions\SendMappedProductToErpAction;
-
 class SendMappedProductToErp extends Command
 {
 
@@ -32,9 +30,9 @@ class SendMappedProductToErp extends Command
 
         foreach ($pendingItems as $pending) {
 
-            $delayToJob = Carbon::now()->addSeconds(rand(25,54));
+            $delayToJob = Carbon::now()->addSeconds(rand(45,124));
 
-            SendMappedProductToErpJob::dispatch(new SendMappedProductToErpAction(), $pending)
+            SendMappedProductToErpJob::dispatch( $pending)
                                  ->delay($delayToJob);
 
            \Log::info("(SendMappedProductToErp) Job para item ".($pending->sku ?? 'sku')." de busca no mercado livre despachado com atraso para: " . $delayToJob);
