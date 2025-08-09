@@ -8,6 +8,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class ProductToErpTransformResource extends JsonResource
 {
 
+    private function getUnidadeByParentProduct($param)
+    {
+        return match($param) {
+            'UNIDADE' => 'UN',
+            // 'UNIDADE' => 'UN',
+            // 'UNIDADE' => 'UN',
+        };
+    }
+
     public function toArray($request): array
     {
         $parentProduct = $this;
@@ -17,33 +26,33 @@ class ProductToErpTransformResource extends JsonResource
             "id" => null,
             "nome" => $preparedProduct->title ?? 'Produto sem Nome',
             "codigo" => null,
-            "preco" => (float) ($preparedProduct->price->current ?? 0),
+            "preco" => (float) ($preparedProduct->price['current'] ?? 0),
             "tipo" => "P",
             "situacao" => "A",
             "formato" => "S",
             "descricaoCurta" => substr($preparedProduct->description['text'] ?? '', 0, 255),
             "dataValidade" => null,
-            "unidade" => "UN",
+            "unidade" => $this->getUnidadeByParentProduct($parentProduct->ploutos_unidade_de_medida),
             "pesoLiquido" => (float) str_replace(',', '.', (preg_replace('/[^0-9,]/', '', $preparedProduct->specifications[4]->rows[2]->value ?? '0'))),
             "pesoBruto" => (float) str_replace(',', '.', (preg_replace('/[^0-9,]/', '', $preparedProduct->specifications[4]->rows[2]->value ?? '0'))),
             "volumes" => 1,
             "itensPorCaixa" => 1,
-            "gtin" => "1234567890123",
-            "gtinEmbalagem" => "1234567890123",
+            "gtin" => null, //@TODO- VER GTIN
+            "gtinEmbalagem" => null,//@TODO- VER GTIN
             "tipoProducao" => "P",
             "condicao" => 0,
             "freteGratis" => false,
-            "marca" => $preparedProduct->specifications->rows[2]->value ?? 'Marca Desconhecida',
-            "descricaoComplementar" => $preparedProduct->description->html ?? '',
-            "linkExterno" => $preparedProduct->url ?? '',
+            "marca" => $parentProduct->ploutos_marca ?? 'Marca Desconhecida',
+            "descricaoComplementar" => $preparedProduct->description['html'] ?? '',
+            // "linkExterno" => $preparedProduct->url ?? '',
             "observacoes" => null,
-            "descricaoEmbalagemDiscreta" => "Produto teste",
+            "descricaoEmbalagemDiscreta" => null,
             "categoria" => [
-                "id" => 123456789
+                "id" => $parentProduct->category->bling_identify
             ],
             "estoque" => [
                 "minimo" => 1,
-                "maximo" => 100,
+                "maximo" => 10000,
                 "crossdocking" => 1,
                 "localizacao" => "14A",
             ],
@@ -81,14 +90,11 @@ class ProductToErpTransformResource extends JsonResource
                 "tipoArmamento" => 0,
                 "descricaoCompletaArmamento" => "",
                 "dadosAdicionais" => "",
-                "grupoProduto" => [
-                    "id" => 123456789
-                ]
+                // "grupoProduto" => [
+                //     "id" => 123456789
+                // ]
             ],
             "midia" => [
-                "video" => [
-                    "url" => "https://www.youtube.com/watch?v=1",
-                ],
                 "imagens" => [
                     "imagensURL" => collect($preparedProduct->images ?? [])->map(function ($image) {
                         return [
@@ -110,18 +116,20 @@ class ProductToErpTransformResource extends JsonResource
                     ]
                 ]
             ],
-            "camposCustomizados" => [
-                [
-                    "idCampoCustomizado" => 123456789,
-                    "idVinculo" => "Utilize para atualizar o valor existente. Ex: 123456789",
-                    "valor" => "256GB",
-                    "item" => "Opção A",
-                ]
-            ],
         ];
 
+        if (isset($preparedProduct->specifications) && is_array($preparedProduct->specifications)) {
+            $data["camposCustomizados"] = collect($preparedProduct->variations)->map(function ($variation, $index) use ($preparedProduct) {
+                // return [
+                //     "idCampoCustomizado" => 123456789,
+                //     "idVinculo" => "Utilize para atualizar o valor existente. Ex: 123456789",
+                //     "valor" => "256GB",
+                //     "item" => "Opção A",
+                // ];
+        });
+
         if (isset($preparedProduct->variations) && is_array($preparedProduct->variations)) {
-            $data["variacoes"] = collect($preparedProduct->variations)->map(function ($variation, $index) use ($preparedProduct) {
+            $data["variacoes"] = collect($preparedProduct->variations)->map(function ($variation, $index) use ($preparedProduct, $parentProduct) {
                 $attributes = collect($variation->attributes ?? [])->map(function ($attr) {
                     return $attr->label . ':' . $attr[2]->value;
                 })->implode(';');
@@ -133,10 +141,10 @@ class ProductToErpTransformResource extends JsonResource
                 $pesoUnidade = $pesoUnidadeAttr ? (float) str_replace(',', '.', (preg_replace('/[^0-9,]/', '', $pesoUnidadeAttr[2]->value ?? '0'))) : 0;
 
                 return [
-                    "id" => 123456789 + $index,
+                    // "id" => 123456789 + $index,
                     "nome" => $variation->title ?? '',
                     "codigo" => null,
-                    "preco" => (float) ($variation->price->current ?? 0),
+                    "preco" => (float) ($variation->price['current'] ?? 0),
                     "tipo" => "P",
                     "situacao" => "A",
                     "formato" => "S",
@@ -152,13 +160,13 @@ class ProductToErpTransformResource extends JsonResource
                     "tipoProducao" => "P",
                     "condicao" => 0,
                     "freteGratis" => false,
-                    "marca" => $preparedProduct->specifications->rows[2]->value ?? 'Marca Desconhecida',
+                    "marca" => $parentProduct->ploutos_marca ?? 'Marca Desconhecida',
                     "descricaoComplementar" => $preparedProduct->description->html ?? '',
                     "linkExterno" => $preparedProduct->url ?? '',
                     "observacoes" => null,
                     "descricaoEmbalagemDiscreta" => "Produto teste",
                     "categoria" => [
-                        "id" => 123456789,
+                        "id" => $parentProduct->category->bling_identify,
                     ],
                     "estoque" => [
                         "minimo" => 1,
@@ -200,9 +208,9 @@ class ProductToErpTransformResource extends JsonResource
                         "tipoArmamento" => 0,
                         "descricaoCompletaArmamento" => "",
                         "dadosAdicionais" => "",
-                        "grupoProduto" => [
-                            "id" => 123456789
-                        ]
+                        // "grupoProduto" => [
+                        //     "id" => 123456789
+                        // ]
                     ],
                     "midia" => [
                         "imagens" => [
@@ -226,14 +234,14 @@ class ProductToErpTransformResource extends JsonResource
                             ]
                         ]
                     ],
-                    "camposCustomizados" => [
-                        [
-                            "idCampoCustomizado" => 123456789,
-                            "idVinculo" => "Utilize para atualizar o valor existente. Ex: 123456789",
-                            "valor" => "256GB",
-                            "item" => "Opção A",
-                        ]
-                    ],
+                    // "camposCustomizados" => [
+                        // [
+                        //     "idCampoCustomizado" => 123456789,
+                        //     "idVinculo" => "Utilize para atualizar o valor existente. Ex: 123456789",
+                        //     "valor" => "256GB",
+                        //     "item" => "Opção A",
+                        // ]
+                    // ],
                     "variacao" => [
                         "nome" => $attributes,
                         "ordem" => $index + 1,
@@ -243,8 +251,11 @@ class ProductToErpTransformResource extends JsonResource
                     ]
                 ];
             })->toArray();
-        }
+            }
 
-        return $data;
+            dd($data);
+
+            return $data;
+        }
     }
 }

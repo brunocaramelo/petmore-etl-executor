@@ -10,6 +10,8 @@ use Carbon\Carbon;
 use App\Casts\ValueCast;
 
 use App\Models\ProductCentral;
+use App\Models\ProductCategory;
+use Illuminate\Support\Str;
 
 class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
 {
@@ -90,6 +92,10 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         $row['synced_erp'] =  $inst->synced_erp ?? false;
         $row['synced_ml'] =  $inst->synced_ml ?? false;
         $row['ai_adapted_the_content'] =  $inst->ai_adapted_the_content ?? false;
+        $row['category_id'] =  ProductCategory::where(
+                                                        'slug',
+                                                        Str::slug($row['ploutos_categoria'])
+                                                    )->first()->uuid ?? null;
 
         $row = $this->castValuesArray($row);
 

@@ -14,15 +14,17 @@ class BlingOauthConsumer
     private $authorizationUrl;
     private $tokenUrl;
     private $refreshToken;
+    private $basicAuthAuthorization;
 
     public function __construct()
     {
-        $this->authorizationUrl = config('services.bling_erp.client_id');
-        $this->tokenUrl = config('services.bling_erp.client_id');
-        $this->clientId = config('services.bling_erp.client_id');
-        $this->clientSecret = config('services.bling_erp.client_secret');
-        $this->redirectUri = config('services.bling_erp.redirect_uri');
+        $this->authorizationUrl = config('custom-services.apis.bling_erp.client_id');
+        $this->tokenUrl = config('custom-services.apis.bling_erp.base_path').'/oauth/token';
+        $this->clientId = config('custom-services.apis.bling_erp.client_id');
+        $this->clientSecret = config('custom-services.apis.bling_erp.client_secret');
+        $this->redirectUri = config('custom-services.apis.bling_erp.redirect_uri');
         $this->refreshToken = config('custom-services.apis.bling_erp.refresh_token');
+        $this->basicAuthAuthorization = base64_encode("{$this->clientId}:{$this->clientSecret}");
 
     }
 
@@ -50,7 +52,11 @@ class BlingOauthConsumer
 
         try {
 
-            $response = Http::asForm()->post($this->tokenUrl, [
+            $response = Http::asForm()
+            ->withHeaders([
+                'Authorization' => "Basic {$this->basicAuthAuthorization}",
+            ])
+            ->post($this->tokenUrl, [
                 'grant_type' => 'authorization_code',
                 'code' => $authorizationCode,
                 'client_id' => $this->clientId,
@@ -87,7 +93,9 @@ class BlingOauthConsumer
 
     public function byStoredRefreshToken()
     {
-        return $this->refreshToken($this->refreshToken);
+        return cache()->remember('BlingErpCurrentToken', 21600, function () {
+            return $this->refreshToken($this->refreshToken);
+        });
     }
 
     public function refreshToken(string $refreshToken)
@@ -96,7 +104,10 @@ class BlingOauthConsumer
 
         try {
 
-            $response = Http::asForm()->post($this->tokenUrl, [
+            $response = Http::asForm()
+            ->withHeaders([
+                'Authorization' => "Basic {$this->basicAuthAuthorization}",
+            ])->post($this->tokenUrl, [
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $refreshToken,
                 'client_id' => $this->clientId,
@@ -107,13 +118,19 @@ class BlingOauthConsumer
 
             if (isset($data['access_token'])) {
                 Log::info('Token de acesso do Bling refrescado com sucesso.');
+                Log::info($data);
                 return $data;
             }
 
             Log::error('Falha ao refrescar token de acesso do Bling.', [
                 'status' => $response->status(),
                 'response_body' => $response->body(),
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $refreshToken,
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
             ]);
+
 
             return null;
 

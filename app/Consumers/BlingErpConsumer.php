@@ -10,6 +10,7 @@ class BlingErpConsumer
     private $tokenAuth;
     private $config;
     private $authInstance;
+
     public function __construct($authInstance, array $config)
     {
         $this->baseApiPath = $config['base_path'];
@@ -27,7 +28,8 @@ class BlingErpConsumer
         $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
-                    ->post($this->baseApiPath.'/produtos');
+                    ->post($this->baseApiPath.'/produtos', $params)
+                    ->throw();
 
         if ($response->successful()) {
             return $response->json();

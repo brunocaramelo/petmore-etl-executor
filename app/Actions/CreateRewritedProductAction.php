@@ -33,10 +33,10 @@ class CreateRewritedProductAction
             'api_key' => config('custom-services.apis.ai_api.api_key'),
         ]);
 
-        $toRewriteReturn = $this->modifyDescriptionFromEntityAndReturn(
-                                $aiConsumer,
-                                            ProductRewrited::find($toRewrite->uuid)
-                                );
+        $this->modifyDescriptionFromEntityAndReturn(
+            $aiConsumer,
+                        ProductRewrited::find($toRewrite->uuid)
+            );
 
         $instance->product_rewrited_id = $toRewrite->uuid;
         $instance->ai_adapted_the_content = true;

@@ -35,7 +35,7 @@ class SendMappedProductToErp extends Command
             SendMappedProductToErpJob::dispatch( $pending)
                                  ->delay($delayToJob);
 
-           \Log::info("(SendMappedProductToErp) Job para item ".($pending->sku ?? 'sku')." de busca no mercado livre despachado com atraso para: " . $delayToJob);
+           \Log::info("(SendMappedProductToErp) Job para item ".($pending->sku ?? 'sku')." para envio ao bling com atraso para: " . $delayToJob);
 
         }
 

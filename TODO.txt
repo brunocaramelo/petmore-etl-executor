@@ -1,0 +1,1 @@
+- Criar metodo, que criar categoria e subcategoria no BLING , e armazena no NoSQL, de acordo com dado ja armazenado.

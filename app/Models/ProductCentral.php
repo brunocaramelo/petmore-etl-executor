@@ -6,7 +6,8 @@ use MongoDB\Laravel\Eloquent\Model;
 
 use App\Models\{ProductErp,
                 ProductMl,
-                ProductRewrited
+                ProductRewrited,
+                productCategory
                 };
 
 use App\Traits\HasUuid;
@@ -46,6 +47,7 @@ class ProductCentral extends Model
         'product_ml_id',
         'product_rewrited_id',
         'ml_identify',
+        'category_id',
         'sku',
     ];
 
@@ -67,6 +69,11 @@ class ProductCentral extends Model
     public function productRewrited()
     {
         return $this->belongsTo(ProductRewrited::class, 'product_rewrited_id','uuid');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(productCategory::class, 'category_id','uuid');
     }
 
 }
