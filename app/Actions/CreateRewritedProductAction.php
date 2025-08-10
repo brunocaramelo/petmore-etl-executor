@@ -71,6 +71,8 @@ class CreateRewritedProductAction
                                'text' => strip_tags($responseApiFilled['description']),
                             ];
 
+        $entity->small_description = strip_tags($responseApiFilled['small_description']);
+
         $entity->specifications = $responseApiFilled['specifications'];
 
         $entity->images = $this->reparseImagesToLocalAndReplaceEntity($entity->images, $entity->sku);

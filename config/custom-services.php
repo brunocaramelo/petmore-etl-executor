@@ -9,6 +9,20 @@ return [
             'redirect_uri' => env('BLING_ERP_REDIRECT_URI'),
             'access_token' => env('BLING_ERP_ACCESS_TOKEN'),
             'refresh_token' => env('BLING_ERP_REFRESH_TOKEN'),
+            'settings' => [
+                'custom_fields' => [
+                    'types' => [
+                        'string' => env('BLING_ERP_SETTINGS_CUSTOM_STRING_FIELD_ID', 4),
+                        'long_string' => env('BLING_ERP_SETTINGS_CUSTOM_LONG_STRING_FIELD_ID', 4)
+                    ],
+                    'groupers' => [
+                        'default' => env('BLING_ERP_SETTINGS_CUSTOM_FIELD_GROUPER_ID', 11806652),
+                    ],
+                    'modules' => [
+                        'default' => env('BLING_ERP_SETTINGS_CUSTOM_FIELD_MODULE_ID', 98309),
+                    ],
+                ]
+            ]
         ],
         'mercado_livre_scrapper' => [
             'base_path' => env('MERCADO_LIVRE_SCRAPPER_BASE_PATH'),

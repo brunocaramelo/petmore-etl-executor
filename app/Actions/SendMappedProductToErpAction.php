@@ -18,14 +18,14 @@ class SendMappedProductToErpAction
 
         $dataTransformed = (new ProductToErpTransformResource($productCentral))->toArray([]);
 
-        $consumer = new BlingErpConsumer( new BlingOauthConsumer(), [
-            'auto_login' => true,
-            'base_path' => config('custom-services.apis.bling_erp.base_path'),
-        ]);
+        // $consumer = new BlingErpConsumer( new BlingOauthConsumer(), [
+        //     'auto_login' => true,
+        //     'base_path' => config('custom-services.apis.bling_erp.base_path'),
+        // ]);
 
         \Log::info($dataTransformed );
 
-        return $consumer->createProduct($dataTransformed);
+        // return $consumer->createProduct($dataTransformed);
 
         } catch (RequestException $e) {
             \Log::error('Erro em SendMappedProductToErpAction:', [

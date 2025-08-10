@@ -7,7 +7,7 @@ use MongoDB\Laravel\Eloquent\Model;
 use App\Models\{ProductErp,
                 ProductMl,
                 ProductRewrited,
-                productCategory
+                ProductCategory
                 };
 
 use App\Traits\HasUuid;

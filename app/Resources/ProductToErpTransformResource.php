@@ -2,6 +2,7 @@
 
 namespace App\Resources;
 
+use App\Actions\Bling\FindOrCreateCustomAttributeAction;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -90,15 +91,12 @@ class ProductToErpTransformResource extends JsonResource
                 "tipoArmamento" => 0,
                 "descricaoCompletaArmamento" => "",
                 "dadosAdicionais" => "",
-                // "grupoProduto" => [
-                //     "id" => 123456789
-                // ]
             ],
             "midia" => [
                 "imagens" => [
                     "imagensURL" => collect($preparedProduct->images ?? [])->map(function ($image) {
                         return [
-                            "link" => $image->full_size ?? $image->mid_size ?? $image->thumbnail ?? null
+                            "link" => $image['full_size'] ?? $image['mid_size'] ?? $image['thumbnail'] ?? null
                         ];
                     })->filter()->values()->toArray()
                 ]
@@ -119,14 +117,20 @@ class ProductToErpTransformResource extends JsonResource
         ];
 
         if (isset($preparedProduct->specifications) && is_array($preparedProduct->specifications)) {
-            $data["camposCustomizados"] = collect($preparedProduct->variations)->map(function ($variation, $index) use ($preparedProduct) {
-                // return [
-                //     "idCampoCustomizado" => 123456789,
-                //     "idVinculo" => "Utilize para atualizar o valor existente. Ex: 123456789",
-                //     "valor" => "256GB",
-                //     "item" => "Opção A",
-                // ];
-        });
+            $data["camposCustomizados"] = collect($preparedProduct->specifications)->flatMap(function ($specification) {
+                return collect($specification['rows'])->map(function ($row) {
+                    $customFieldProcessed = app(FindOrCreateCustomAttributeAction::class)->execute([
+                        'name' => $row['label']
+                    ]);
+
+                    return [
+                        "idCampoCustomizado" => $customFieldProcessed['bling_identify'],
+                        "idVinculo" => $customFieldProcessed['bling_identify'],
+                        "valor" => $row['value'],
+                    ];
+                });
+
+            });
 
         if (isset($preparedProduct->variations) && is_array($preparedProduct->variations)) {
             $data["variacoes"] = collect($preparedProduct->variations)->map(function ($variation, $index) use ($preparedProduct, $parentProduct) {
@@ -141,7 +145,6 @@ class ProductToErpTransformResource extends JsonResource
                 $pesoUnidade = $pesoUnidadeAttr ? (float) str_replace(',', '.', (preg_replace('/[^0-9,]/', '', $pesoUnidadeAttr[2]->value ?? '0'))) : 0;
 
                 return [
-                    // "id" => 123456789 + $index,
                     "nome" => $variation->title ?? '',
                     "codigo" => null,
                     "preco" => (float) ($variation->price['current'] ?? 0),
@@ -208,15 +211,12 @@ class ProductToErpTransformResource extends JsonResource
                         "tipoArmamento" => 0,
                         "descricaoCompletaArmamento" => "",
                         "dadosAdicionais" => "",
-                        // "grupoProduto" => [
-                        //     "id" => 123456789
-                        // ]
                     ],
                     "midia" => [
                         "imagens" => [
                             "imagensURL" => collect($variation->images ?? [])->map(function ($image) {
                                 return [
-                                    "link" => $image->full_size ?? $image->mid_size ?? $image->thumbnail ?? null
+                                    "link" => $image['full_size'] ?? $image['mid_size'] ?? $image['thumbnail'] ?? null
                                 ];
                             })->filter()->values()->toArray()
                         ]
@@ -234,14 +234,21 @@ class ProductToErpTransformResource extends JsonResource
                             ]
                         ]
                     ],
-                    // "camposCustomizados" => [
-                        // [
-                        //     "idCampoCustomizado" => 123456789,
-                        //     "idVinculo" => "Utilize para atualizar o valor existente. Ex: 123456789",
-                        //     "valor" => "256GB",
-                        //     "item" => "Opção A",
-                        // ]
-                    // ],
+                    "camposCustomizados" => collect($preparedProduct->specifications)->flatMap(function ($specification) {
+                            return collect($specification['rows'])->map(function ($row) {
+                                $customFieldProcessed = app(FindOrCreateCustomAttributeAction::class)->execute([
+                                    'name' => $row['label']
+                                ]);
+
+                                return [
+                                    "idCampoCustomizado" => $customFieldProcessed['bling_identify'],
+                                    "idVinculo" => $customFieldProcessed['bling_identify'],
+                                    "valor" => $row['value'],
+                                ];
+                            });
+
+                        })->filter()->values()->toArray()
+                    ,
                     "variacao" => [
                         "nome" => $attributes,
                         "ordem" => $index + 1,
@@ -252,8 +259,6 @@ class ProductToErpTransformResource extends JsonResource
                 ];
             })->toArray();
             }
-
-            dd($data);
 
             return $data;
         }
