@@ -23,30 +23,34 @@ class FindOrCreateCustomAttributeAction
         ]);
 
         if ($findLocaly instanceof ProductCustomAttribute) {
+
             $actualGroups = $findLocaly->bling_group_field ?? [];
 
             if (!in_array($params['category'], $actualGroups)) {
 
                 $actualGroups[] = $params['category'];
 
+                $actualGroupsFinal = collect($actualGroups)->map(function ($value) {
+                                                return ['id' => $value];
+                                            });
+
                 $this->upsertAttributeInternal([
                     'action' => 'update',
                     'data' => [
                         'name' => $params['name'],
-                        'agrupadores' => collect($actualGroups)->map(function ($value) {
-                                                return ['id' => $value];
-                                            })
+                        'agrupadores' => $actualGroupsFinal
                     ],
                     'entityInstance' => $findLocaly,
                     'consumerInstance' => $consumer,
                 ]);
+
             }
 
             return [
                 'slug' => $slugAttribute,
                 'name' => $findLocaly->name,
                 'bling_identify' => $findLocaly->bling_identify,
-                'bling_group_field_identify' => $actualGroups,
+                'bling_group_field_identify' => $actualGroupsFinal,
             ];
         }
 
@@ -89,13 +93,13 @@ class FindOrCreateCustomAttributeAction
                 ]
         ];
 
-        if ($params['action'] == 'update') {
+        if ($params['action'] === 'update') {
 
             $params['consumerInstance']->updateCustomField($params['entityInstance']->bling_identify, $arrToupSert)['data'];
 
-                $params['entityInstance']->update(['bling_group_field' => $params['data']['agrupadores']]);
+            $params['entityInstance']->update(['bling_group_field' => $params['data']['agrupadores']]);
 
-                return $params['entityInstance'];
+            return $params['entityInstance'];
         }
 
         $createdExternalField = $params['consumerInstance']->createCustomField($arrToupSert)['data'];

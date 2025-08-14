@@ -5,6 +5,7 @@ namespace App\Resources;
 use App\Actions\Bling\FindOrCreateCustomAttributeAction;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
 class ProductToErpTransformResource extends JsonResource
 {
@@ -47,7 +48,6 @@ class ProductToErpTransformResource extends JsonResource
             "freteGratis" => false,
             "marca" => $parentProduct->ploutos_marca ?? 'Marca Desconhecida',
             "descricaoComplementar" => null,
-            // "linkExterno" => $preparedProduct->url ?? '',
             "observacoes" => null,
             "descricaoEmbalagemDiscreta" => null,
             "categoria" => [
@@ -134,6 +134,7 @@ class ProductToErpTransformResource extends JsonResource
                 });
 
             });
+        }
 
         if ($haveVariations) {
             $data["variacoes"] = collect($preparedProduct->variations)->map(function ($variation, $index) use ($preparedProduct, $parentProduct) {
@@ -149,7 +150,7 @@ class ProductToErpTransformResource extends JsonResource
 
                 $pesoUnidade = $pesoUnidadeAttr ? (float) str_replace(',', '.', (preg_replace('/[^0-9,]/', '', $pesoUnidadeAttr[2]['value'] ?? '0'))) : 0;
 
-                $skuVariation = $preparedProduct->sku.'-'.\Str::slug(str_replace([':'] ,['-'], $attributes));
+                $skuVariation = $preparedProduct->sku.'-'.Str::slug(str_replace([':'] ,['-'], $attributes));
 
                 return [
                     "nome" => $variation['title'] ?? '',
@@ -267,7 +268,6 @@ class ProductToErpTransformResource extends JsonResource
             })->toArray();
         }
 
-            return $data;
-        }
+        return $data;
     }
 }
