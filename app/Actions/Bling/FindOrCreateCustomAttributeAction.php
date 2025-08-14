@@ -29,28 +29,17 @@ class FindOrCreateCustomAttributeAction
 
                 $actualGroups[] = $params['category'];
 
-                $listItemsToUpdate = collect($actualGroups)->map(function ($value) {
-                    return ['id' => $value];
-                });
-
-                 $updatedExternalField = $consumer->updateCustomField($findLocaly->bling_identify, [
-                    'nome' => $params['name'],
-                    'situacao' => 1,
-                    'largura' => 2,
-                    'placeholder' => 'Informe o(a) '.strtolower($params['name']),
-                    'obrigatorio' => false,
-                    'tipoCampo' => [
-                        'id' => config('custom-services.apis.bling_erp.settings.custom_fields.types.string'),
+                $this->upsertAttributeInternal([
+                    'action' => 'update',
+                    'data' => [
+                        'name' => $params['name'],
+                        'agrupadores' => collect($actualGroups)->map(function ($value) {
+                                                return ['id' => $value];
+                                            })
                     ],
-                    'modulo' => [
-                        'id' => config('custom-services.apis.bling_erp.settings.custom_fields.modules.default'),
-                    ],
-                    'agrupadores' => [
-                        $listItemsToUpdate,
-                    ],
-                ])['data'];
-
-                $findLocaly->update(['bling_group_field' => $listItemsToUpdate]);
+                    'entityInstance' => $findLocaly,
+                    'consumerInstance' => $consumer,
+                ]);
             }
 
             return [
@@ -61,11 +50,33 @@ class FindOrCreateCustomAttributeAction
             ];
         }
 
-        $createdExternalField = $consumer->createCustomField([
-                'nome' => $params['name'],
+        $createdLocaly = $this->upsertAttributeInternal([
+                    'action' => 'create',
+                    'data' => [
+                        'slug' => $slugAttribute,
+                        'name' => $params['name'],
+                        'agrupadores' => ['id' => $params['category']]
+                    ],
+                    'entityInstance' => $findLocaly,
+                    'consumerInstance' => $consumer,
+        ]);
+
+        return [
+            'slug' => $createdLocaly->slug,
+            'name' => $createdLocaly->name,
+            'bling_identify' => $createdLocaly->bling_identify,
+            'bling_group_field_identify' => $createdLocaly->bling_group_field_identify,
+        ];
+
+    }
+
+    private function upsertAttributeInternal($params)
+    {
+        $arrToupSert = [
+                'nome' => $params['data']['name'],
                 'situacao' => 1,
                 'largura' => 2,
-                'placeholder' => 'Informe o(a) '.strtolower($params['name']),
+                'placeholder' => 'Informe o(a) '.strtolower($params['data']['name']),
                 'obrigatorio' => false,
                 'tipoCampo' => [
                     'id' => config('custom-services.apis.bling_erp.settings.custom_fields.types.string'),
@@ -74,23 +85,29 @@ class FindOrCreateCustomAttributeAction
                     'id' => config('custom-services.apis.bling_erp.settings.custom_fields.modules.default'),
                 ],
                 'agrupadores' => [
-                    ['id' => $params['category']],
-                ],
-        ])['data'];
+                    $params['data']['agrupadores'],
+                ]
+        ];
 
-        $createdLocaly = ProductCustomAttribute::create([
-                'slug' => $slugAttribute,
-                'name' => $params['name'],
+        if ($params['action'] == 'update') {
+
+            $params['consumerInstance']->updateCustomField($params['entityInstance']->bling_identify, $arrToupSert)['data'];
+
+                $params['entityInstance']->update(['bling_group_field' => $params['data']['agrupadores']]);
+
+                return $params['entityInstance'];
+        }
+
+        $createdExternalField = $params['consumerInstance']->createCustomField($arrToupSert)['data'];
+
+        return ProductCustomAttribute::create([
+                'slug' => $params['data']['slug'],
+                'name' => $params['data']['name'],
                 'bling_identify' => $createdExternalField['id'],
                 'bling_group_field' => $createdExternalField['idsVinculosAgrupadores'][0],
         ]);
-
-        return [
-            'slug' => $createdLocaly->slug,
-            'name' => $createdLocaly->name,
-            'bling_identify' => $createdLocaly->bling_identify,
-            '' => $createdLocaly->bling_group_field_identify,
-        ];
-
     }
+
+
+
 }
