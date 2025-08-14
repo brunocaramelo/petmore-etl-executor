@@ -20,9 +20,12 @@ class ProductCustomAttribute extends Model
         'slug',
         'name',
         'bling_identify',
-        'bling_group_field_identify',
+        'bling_group_field',
     ];
 
+    protected $casts = [
+        'bling_group_field' => 'array',
+    ];
 
 
 }

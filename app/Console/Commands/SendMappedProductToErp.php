@@ -24,13 +24,14 @@ class SendMappedProductToErp extends Command
             ->has('productRewrited')
             ->with('productRewrited')
             ->where('ai_adapted_the_content', true)
+            // ->where('sku', 'PM12501486')
             ->get();
 
         \Log::info("(SendMappedProductToErp) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
         foreach ($pendingItems as $pending) {
 
-            $delayToJob = Carbon::now()->addSeconds(rand(45,124));
+            $delayToJob = Carbon::now()->addSeconds(rand(59,198));
 
             SendMappedProductToErpJob::dispatch( $pending)
                                  ->delay($delayToJob);

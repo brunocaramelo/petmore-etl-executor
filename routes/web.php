@@ -50,12 +50,6 @@ Route::get('/manter-categorias-bling', function () {
     die('processou ok');
 });
 
-Route::get('/bling-test-auth', function () {
-    //  $consumer = new BlingErpConsumer( new BlingOauthConsumer(), [
-    //         'auto_login' => true,
-    //         'base_path' => config('custom-services.apis.bling_erp.base_path'),
-    //     ]);
-});
 
 Route::get('/just-test', function () {
 //    \App\Models\ProductCentral::raw()->updateMany(
@@ -66,4 +60,11 @@ Route::get('/just-test', function () {
 //             ]
 //         ]
 //     );
+});
+
+Route::get('/refreshtoken', function () {
+    $consumer = new BlingErpConsumer( new BlingOauthConsumer(), [
+             'auto_login' => true,
+             'base_path' => config('custom-services.apis.bling_erp.base_path'),
+         ]);
 });

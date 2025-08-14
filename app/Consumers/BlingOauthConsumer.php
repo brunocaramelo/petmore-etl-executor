@@ -93,7 +93,7 @@ class BlingOauthConsumer
 
     public function byStoredRefreshToken()
     {
-        return cache()->remember('BlingErpCurrentToken', 21600, function () {
+        return cache()->remember('BlingErpCurrentToken', 21500, function () {
             return $this->refreshToken($this->refreshToken);
         });
     }
@@ -110,9 +110,7 @@ class BlingOauthConsumer
             ])->post($this->tokenUrl, [
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $refreshToken,
-                'client_id' => $this->clientId,
-                'client_secret' => $this->clientSecret,
-            ]);
+             ])->throw();
 
             $data = $response->json();
 

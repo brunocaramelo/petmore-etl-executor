@@ -35,7 +35,7 @@ class CreateRewritedProductAction
 
         $this->modifyDescriptionFromEntityAndReturn(
             $aiConsumer,
-                        ProductRewrited::find($toRewrite->uuid)
+            ProductRewrited::find($toRewrite->uuid)
             );
 
         $instance->product_rewrited_id = $toRewrite->uuid;
@@ -70,8 +70,6 @@ class CreateRewritedProductAction
                                'html' => $responseApiFilled['description'],
                                'text' => strip_tags($responseApiFilled['description']),
                             ];
-
-        $entity->small_description = strip_tags($responseApiFilled['small_description']);
 
         $entity->specifications = $responseApiFilled['specifications'];
 

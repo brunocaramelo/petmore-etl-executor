@@ -53,6 +53,21 @@ class BlingErpConsumer
         return null;
     }
 
+    public function updateCustomField($id, array $params)
+    {
+        $response = Http::retry(3, 10)
+                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    ->put($this->baseApiPath.'/campos-customizados/'.$id, $params)
+                    ->throw();
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
     public function getProduct($identify)
     {
         $response = Http::retry(3, 10)

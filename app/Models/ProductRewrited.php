@@ -22,7 +22,6 @@ class ProductRewrited extends Model
         'price',
         'sku',
         'description',
-        'small_description',
         'specifications',
         'images',
         'variations',
