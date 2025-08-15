@@ -2,7 +2,8 @@
 
 namespace App\Actions\Bling;
 
-use App\Models\ProductCustomAttribute;
+use App\Models\{ProductCustomAttribute,
+                ProductCategory};
 
 use App\Consumers\{BlingErpConsumer,
                    BlingOauthConsumer};
@@ -30,9 +31,12 @@ class FindOrCreateCustomAttributeAction
 
                 $actualGroups[] = $params['category'];
 
-                $actualGroupsFinal = collect($actualGroups)->map(function ($value) {
-                                                return ['id' => $value];
-                                            });
+                $actualGroupsFinal = collect($actualGroups)
+                                            ->filter(function ($item) {
+                                                return ProductCategory::where('bling_identify', $item)->exists();
+                                            })->map(function ($value) {
+                                                return ['id' => (int) $value];
+                                            })->values()->toArray();
 
                 $this->upsertAttributeInternal([
                     'action' => 'update',
@@ -59,7 +63,7 @@ class FindOrCreateCustomAttributeAction
                     'data' => [
                         'slug' => $slugAttribute,
                         'name' => $params['name'],
-                        'agrupadores' => ['id' => $params['category']]
+                        'agrupadores' => ['id' => (int) $params['category']]
                     ],
                     'entityInstance' => $findLocaly,
                     'consumerInstance' => $consumer,
@@ -88,9 +92,8 @@ class FindOrCreateCustomAttributeAction
                 'modulo' => [
                     'id' => config('custom-services.apis.bling_erp.settings.custom_fields.modules.default'),
                 ],
-                'agrupadores' => [
-                    $params['data']['agrupadores'],
-                ]
+                'agrupadores' => $params['data']['agrupadores'],
+
         ];
 
         if ($params['action'] === 'update') {

@@ -51,16 +51,16 @@ Route::get('/manter-categorias-bling', function () {
 });
 
 
-Route::get('/just-test', function () {
+// Route::get('/just-test', function () {
 //    \App\Models\ProductCentral::raw()->updateMany(
 //         [], // O filtro está vazio, o que seleciona todos os documentos
 //         [
 //             '$set' => [
-//                 'category_id' => '8da30a83-0727-4a19-9dd8-1816a4bfd73b'
+//                 'category_id' => '3c82a076-f6d2-40c0-a8f0-c962090330c9'
 //             ]
 //         ]
 //     );
-});
+// });
 
 Route::get('/refreshtoken', function () {
     $consumer = new BlingErpConsumer( new BlingOauthConsumer(), [
