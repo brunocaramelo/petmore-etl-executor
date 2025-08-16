@@ -18,23 +18,12 @@ class AttachMercadoLivreProductToProductCentralAction
 
         \Log::info("(AttachMercadoLivreProductToProductCentralAction) Buscando ".$instance->sku." em : ".$instance->url_product_ml);
 
-        $responseApi = $consumer->getProductByUrl($instance->url_product_ml ?? 'none');
+        $consumer->invokeProductWebHook([
+            'targetUrl' => $instance->url_product_ml,
+            'callbackUrl' => config('custom-services.apis.mercado_livre_scrapper.callback_url'),
+            'externalId' => $instance->uuid,
+        ]);
 
-        $responseApi['ml_identify'] = $responseApi['id'] ?? 'not_found';
-
-        if(isset($responseApi['id'])) {
-            unset($responseApi['id']);
-        }
-        if(isset($responseApi['_id'])) unset($responseApi['_id']);
-
-        $instance->product_ml_id = ProductMl::create($responseApi)->uuid;
-
-        $instance->synced_ml = true;
-        $instance->ml_identify = $responseApi['ml_identify'];
-
-        $instance->save();
-
-
-        \Log::info("(AttachMercadoLivreProductToProductCentralAction)".$instance->sku." importado com sucesso");
+        \Log::info("(AttachMercadoLivreProductToProductCentralAction)".$instance->sku." agendado com sucesso");
     }
 }

@@ -25,6 +25,7 @@ return [
             ]
         ],
         'mercado_livre_scrapper' => [
+            'callback_url' => env('MERCADO_LIVRE_WEBHOOK_TARGET'),
             'base_path' => env('MERCADO_LIVRE_SCRAPPER_BASE_PATH'),
         ],
         'ai_api' => [

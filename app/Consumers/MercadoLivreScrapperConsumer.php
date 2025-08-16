@@ -31,4 +31,18 @@ class MercadoLivreScrapperConsumer
         return null;
     }
 
+    public function invokeProductWebHook(array $param)
+    {
+
+        $response = Http::retry(3, 10)
+                    ->timeout(8999)
+                    ->post($this->baseApiPath.'/products/scrapping-async', $param);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
 }

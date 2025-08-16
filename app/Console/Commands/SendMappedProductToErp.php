@@ -18,6 +18,8 @@ class SendMappedProductToErp extends Command
 
     public function handle()
     {
+        $delayToJob = Carbon::now();
+
         $pendingItems = ProductCentral::where('synced_ml', true)
             ->where('is_active', true)
             ->whereNotNull('url_product_ml')
@@ -31,7 +33,7 @@ class SendMappedProductToErp extends Command
 
         foreach ($pendingItems as $pending) {
 
-            $delayToJob = Carbon::now()->addSeconds(rand(59,198));
+            $delayToJob->addSeconds(rand(61, 123));
 
             SendMappedProductToErpJob::dispatch( $pending)
                                  ->delay($delayToJob);

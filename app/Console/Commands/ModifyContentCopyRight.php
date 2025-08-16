@@ -33,6 +33,7 @@ class ModifyContentCopyRight extends Command
      */
     public function handle()
     {
+        $delayToJob = Carbon::now();
 
         $pendingItems = ProductCentral::where('synced_ml', true)
             ->where('is_active', true)
@@ -46,7 +47,7 @@ class ModifyContentCopyRight extends Command
 
         foreach ($pendingItems as $pending) {
 
-            $delayToJob = Carbon::now()->addSeconds(rand(40,109));
+            $delayToJob->addSeconds(rand(65,135));
 
             CreateContentWithoutCopyrightJob::dispatch(new CreateRewritedProductAction(), $pending)
                                  ->delay($delayToJob);
