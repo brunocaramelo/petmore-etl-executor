@@ -41,6 +41,7 @@ class SendMappedProductToErp extends Command
            \Log::info("(SendMappedProductToErp) Job para item ".($pending->sku ?? 'sku')." para envio ao bling com atraso para: " . $delayToJob);
 
         }
+        \Log::info("(SendMappedProductToErp) Processo finalizado");
 
     }
 }

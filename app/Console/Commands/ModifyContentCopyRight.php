@@ -55,5 +55,6 @@ class ModifyContentCopyRight extends Command
            \Log::info("(ModifyContentCopyRight) Job para item ".($pending->sku ?? 'sku')." de busca no mercado livre despachado com atraso para: " . $delayToJob);
 
         }
+        \Log::info("(ModifyContentCopyRight) Processo finalizado");
     }
 }

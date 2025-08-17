@@ -50,5 +50,7 @@ class ImportPendingProductFromMercadoLivre extends Command
             \Log::info("(ImportPendingProductFromMercadoLivre) Job para item ".($pending->sku ?? 'sku')." de busca no mercado livre despachado com atraso para: " . $delayToJob." , para o produto: ".($pending->url_product_ml ?? 'URL'));
 
         }
+
+        \Log::info("(ImportPendingProductFromMercadoLivre) Processo finalizado");
     }
 }
