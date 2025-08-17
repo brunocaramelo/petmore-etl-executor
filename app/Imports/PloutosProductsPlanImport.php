@@ -51,6 +51,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
     {
         return (
             !empty($row['cod'])
+            && !empty($row['url_product_ml'])
         );
     }
 
