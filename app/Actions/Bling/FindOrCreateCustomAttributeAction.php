@@ -63,7 +63,9 @@ class FindOrCreateCustomAttributeAction
                     'data' => [
                         'slug' => $slugAttribute,
                         'name' => $params['name'],
-                        'agrupadores' => ['id' => (int) $params['category']]
+                        'agrupadores' => [
+                            ['id' => (int) $params['category']]
+                        ]
                     ],
                     'entityInstance' => $findLocaly,
                     'consumerInstance' => $consumer,
@@ -95,6 +97,7 @@ class FindOrCreateCustomAttributeAction
                 'agrupadores' => $params['data']['agrupadores'],
 
         ];
+
 
         if ($params['action'] === 'update') {
 

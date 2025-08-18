@@ -39,7 +39,7 @@ class ModifyContentCopyRight extends Command
             ->where('is_active', true)
             ->whereNotNull('url_product_ml')
             ->has('productMl')
-            ->where('ai_adapted_the_content', true)
+            ->where('ai_adapted_the_content', false)
             ->get();
 
 
