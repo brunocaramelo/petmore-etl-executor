@@ -25,7 +25,7 @@ class FindOrCreateCustomAttributeAction
 
         if ($findLocaly instanceof ProductCustomAttribute) {
 
-            $actualGroups = $findLocaly->bling_group_field ?? [];
+            $actualGroups = $findLocaly->bling_group_field_identify ?? [];
 
             if (!in_array($params['category'], $actualGroups)) {
 
