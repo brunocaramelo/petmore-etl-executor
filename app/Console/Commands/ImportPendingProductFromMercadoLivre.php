@@ -42,7 +42,7 @@ class ImportPendingProductFromMercadoLivre extends Command
 
         foreach ($pendingItems as $pending) {
 
-           $delayToJob->addSeconds(rand(75, 159));
+           $delayToJob->addSeconds(rand(175, 319));
 
             MercadoLivreImportProductByUriAndAttachToProductCentralJob::dispatch($pending)
                                  ->delay($delayToJob);
