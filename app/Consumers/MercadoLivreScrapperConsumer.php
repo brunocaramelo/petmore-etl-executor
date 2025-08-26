@@ -21,6 +21,9 @@ class MercadoLivreScrapperConsumer
         \Log::info($this->baseApiPath.'/products/by-url-encoded/'.$identify);
 
         $response = Http::retry(3, 10)
+                    ->withHeaders([
+                        'ngrok-skip-browser-warning' => 'yes'
+                    ])
                     ->timeout(8999)
                     ->get($this->baseApiPath.'/products/by-url-encoded/'.$identify);
 
@@ -36,6 +39,9 @@ class MercadoLivreScrapperConsumer
 
         $response = Http::retry(3, 10)
                     ->timeout(8999)
+                    ->withHeaders([
+                        'ngrok-skip-browser-warning' => 'yes'
+                    ])
                     ->post($this->baseApiPath.'/products/scrapping-async', $param);
 
         if ($response->successful()) {

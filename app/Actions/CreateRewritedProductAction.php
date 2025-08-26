@@ -67,13 +67,14 @@ class CreateRewritedProductAction
                     $aiResponse['candidates'][0]['content']['parts'][0]['text']
                     )['array'];
 
-        $entity->description = ['complement' => [
-                                    'html' => $responseApiFilled['description'],
-                                    'text' => strip_tags($responseApiFilled['description']),
+        $entity->description = [
+                                'complement' => [
+                                    'html' => $responseApiFilled['complement'],
+                                    'text' => strip_tags($responseApiFilled['complement']),
                                 ],
                                 'small' => [
-                                    'html' => $responseApiFilled['description'],
-                                    'text' => strip_tags($responseApiFilled['description']),
+                                    'html' => $responseApiFilled['small'],
+                                    'text' => strip_tags($responseApiFilled['small']),
                                 ],
                             ];
 
