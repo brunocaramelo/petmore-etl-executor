@@ -48,7 +48,8 @@ class CreateRewritedProductAction
     private function modifyDescriptionFromEntityAndReturn($aiConsumer, $entity)
     {
         $jsonElement = json_encode([
-            'description' => $entity->description['html'],
+            'complement' => $entity->description['complement']['html'],
+            'small' => $entity->description['small']['html'],
             'specifications' => $entity->specifications,
         ]);
 
@@ -66,9 +67,14 @@ class CreateRewritedProductAction
                     $aiResponse['candidates'][0]['content']['parts'][0]['text']
                     )['array'];
 
-        $entity->description = [
-                               'html' => $responseApiFilled['description'],
-                               'text' => strip_tags($responseApiFilled['description']),
+        $entity->description = ['complement' => [
+                                    'html' => $responseApiFilled['description'],
+                                    'text' => strip_tags($responseApiFilled['description']),
+                                ],
+                                'small' => [
+                                    'html' => $responseApiFilled['description'],
+                                    'text' => strip_tags($responseApiFilled['description']),
+                                ],
                             ];
 
         $entity->specifications = $responseApiFilled['specifications'];
