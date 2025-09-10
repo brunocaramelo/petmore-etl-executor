@@ -132,7 +132,6 @@ class CreateRewritedProductAction
 
     private function downloadAndTransformMlImagesToLocalAndReturnPath($urlRemote, $skuSelf, $subDir)
     {
-
         if (filter_var($urlRemote, FILTER_VALIDATE_URL) == false) {
             return null;
         }
@@ -145,33 +144,53 @@ class CreateRewritedProductAction
         $caminhoOriginalLocalStorage = $caminhoOriginalLocalDirStorage.'/'.basename( $urlRemote);
 
         $caminhoOutStorageDir = Storage::disk('local')
-                            ->path('images-products-to-erp/'.$skuSelf.$subDir);
+                            ->path('images-products-to-erp/'.$skuSelf.'/'.$subDir);
 
         $caminhoOutStorage = $caminhoOutStorageDir.'/'.basename(
                                 str_replace(['.webp'],['.jpge'],$urlRemote)
                                 );
 
-        $response = Http::get($urlRemote);
+        try {
 
-        Storage::disk('local')
+            $response = Http::get($urlRemote);
+
+            if ($response->failed()) {
+                return null;
+            }
+
+            Storage::disk('local')
                 ->put($caminhoOriginalLocalStorage, $response->body());
 
+            $pathCompletoOriginal = Storage::disk('local')->path($caminhoOriginalLocalStorage);
 
-        $pathCompletoOriginal = Storage::disk('local')->path($caminhoOriginalLocalStorage);
+            if (!is_dir($caminhoOutStorageDir)) {
+                mkdir($caminhoOutStorageDir, 0755, true);
+            }
 
-        if (!is_dir($caminhoOutStorageDir)) {
-            mkdir($caminhoOutStorageDir, 0755, true);
+            $image = $manager->read($pathCompletoOriginal);
+
+            $originalWidth = $image->width();
+            $originalHeight = $image->height();
+
+            $minusSizeResizePixelValue = rand(1, 2);
+
+            $newWidth = max(0, $originalWidth - $minusSizeResizePixelValue);
+            $newHeight = max(0, $originalHeight - $minusSizeResizePixelValue);
+
+            $image->resize($newWidth, $newHeight);
+
+            $encoded = $image->toJpeg(97);
+
+            $encoded->save($caminhoOutStorage);
+
+            Storage::disk(name: 'local')->delete($caminhoOriginalLocalStorage);
+
+            return $caminhoOutStorage;
+
+        } catch (\Exception $e) {
+            \Log::error('Falha ao processar a imagem do Mercado Livre: ' . $e->getMessage());
+            return null;
         }
-
-        $image = $manager->read($pathCompletoOriginal);
-
-        $encoded = $image->toJpeg(97);
-
-        $encoded->save($caminhoOutStorage);
-
-        Storage::disk(name: 'local')->delete($caminhoOriginalLocalStorage);
-
-        return $caminhoOutStorage;
     }
 
     private function reparseImagesToLocalAndReplaceEntity($images, $sku)
