@@ -24,6 +24,12 @@ return [
                 ]
             ]
         ],
+        'self_ecommerce' => [
+            'base_url' => env('ECOMMERCE_BASE_URL'),
+            'admin_username' => env('ECOMMERCE_CONSUMER_USER'),
+            'admin_password' => env('ECOMMERCE_CONSUMER_PASSWORD'),
+            'store_default_code' => env('ECOMMERCE_TENANT_CODE'),
+        ],
         'mercado_livre_scrapper' => [
             'callback_url' => env('MERCADO_LIVRE_WEBHOOK_TARGET'),
             'base_path' => env('MERCADO_LIVRE_SCRAPPER_BASE_PATH'),

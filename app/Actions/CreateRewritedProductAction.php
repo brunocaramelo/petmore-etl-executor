@@ -41,12 +41,15 @@ class CreateRewritedProductAction
         $instance->product_rewrited_id = $toRewrite->uuid;
         $instance->ai_adapted_the_content = true;
 
+        \Log::info('item processado com sucesso');
+
         return $instance->save();
     }
 
 
     private function modifyDescriptionFromEntityAndReturn($aiConsumer, $entity)
     {
+
         $jsonElement = json_encode([
             'complement' => $entity->description['complement']['html'],
             'small' => $entity->description['small']['html'],
@@ -62,6 +65,8 @@ class CreateRewritedProductAction
                 ]
             ]
         ]);
+
+        \Log::info('respoosta obtida de IA', $aiResponse);
 
         $responseApiFilled = $this->fillJustJsonMessageFromResponse(
                     $aiResponse['candidates'][0]['content']['parts'][0]['text']
@@ -115,7 +120,7 @@ class CreateRewritedProductAction
         $localFile = $this->downloadAndTransformMlImagesToLocalAndReturnPath($urlRemote, $skuSelf, $subDir);
 
         $pathSavedFile = str_replace(['.webp', 'images-products-to-erp'],
-                                    ['.jpge', 'products-catalog'] ,
+                                    ['.jpg', 'products-catalog'] ,
                             'images-products-to-erp/'.$skuSelf.'/'.$subDir.'/'.basename($urlRemote)
         );
 
@@ -127,6 +132,7 @@ class CreateRewritedProductAction
                                                                                         $localFile)
                                                         )
                                                     );
+
         return Storage::disk('choiced_cloud_storage')->url($pathSavedFile);
     }
 
@@ -147,7 +153,7 @@ class CreateRewritedProductAction
                             ->path('images-products-to-erp/'.$skuSelf.'/'.$subDir);
 
         $caminhoOutStorage = $caminhoOutStorageDir.'/'.basename(
-                                str_replace(['.webp'],['.jpge'],$urlRemote)
+                                str_replace(['.webp'],['.jpg'],$urlRemote)
                                 );
 
         try {

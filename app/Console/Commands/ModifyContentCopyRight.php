@@ -52,7 +52,7 @@ class ModifyContentCopyRight extends Command
             CreateContentWithoutCopyrightJob::dispatch(new CreateRewritedProductAction(), $pending)
                                  ->delay($delayToJob);
 
-           \Log::info("(ModifyContentCopyRight) Job para item ".($pending->sku ?? 'sku')." de busca no mercado livre despachado com atraso para: " . $delayToJob);
+           \Log::info("(ModifyContentCopyRight) Job para item ".($pending->sku ?? 'sku')." de busca no conteudo para copy right free despachado com atraso para: " . $delayToJob);
 
         }
         \Log::info("(ModifyContentCopyRight) Processo finalizado");

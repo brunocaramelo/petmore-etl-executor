@@ -11,43 +11,44 @@ use App\Models\ProductCategory;
 Route::get('/manter-categorias-bling', function () {
 
     $content = \Storage::disk('local')->get('ploutos-plans/categorias-bling.json');
-    $parsed = json_decode($content);
+$parsed = json_decode($content);
 
-    foreach($parsed->data as $open) {
-        $open->slug = Str::slug($open->descricao);
+/**
+ * Função recursiva para processar uma categoria e suas filhas.
+ */
+function processCategoryRecursive($category, $parent = null, $hierarchy = [])
+{
+    $slug = Str::slug($category->descricao);
 
-        $categoryParent = ProductCategory::firstOrCreate(
-            ['slug' => $open->slug]
-            ,[
-                'name' => $open->descricao,
-                'hierarquie' => [$open->slug],
-                'slug' => $open->slug,
-                'bling_identify' => $open->id,
-            ]
-        );
+    $currentHierarchy = array_merge($hierarchy, [$slug]);
 
-        foreach ($open->filha as $child) {
-            $slugItem = Str::slug($child->descricao);
-            $child->slug = Str::slug($open->slug.' '.$slugItem);
+    $fullSlug = implode('-', $currentHierarchy);
 
-            ProductCategory::firstOrCreate(
-                ['slug' => $child->slug]
-                ,[
-                    'name' => $child->descricao,
-                    'hierarquie' => [$categoryParent->slug, $slugItem],
-                    'slug' => $child->slug,
-                    'bling_identify' => $child->id,
-                    'bling_parent_identify' => $child->id,
-                    'parent_id' => $categoryParent->uuid,
-                ]
-            );
+    $categoryModel = ProductCategory::firstOrCreate(
+        ['slug' => $fullSlug],
+        [
+            'name' => $category->descricao,
+            'hierarquie' => $currentHierarchy,
+            'slug' => $fullSlug,
+            'bling_identify' => $category->id,
+            'bling_parent_identify' => $parent?->id,
+            'parent_id' => $parent?->uuid,
+        ]
+    );
 
+    if (!empty($category->filha)) {
+        foreach ($category->filha as $child) {
+                processCategoryRecursive($child, $categoryModel, $currentHierarchy);
+            }
         }
-
-
     }
 
-    die('processou ok');
+    foreach ($parsed->data as $rootCategory) {
+        processCategoryRecursive($rootCategory);
+    }
+
+    die('processou ok ✅');
+
 });
 
 
