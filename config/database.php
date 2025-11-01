@@ -2,6 +2,18 @@
 
 use Illuminate\Support\Str;
 
+$optionsToMongoDb = [];
+
+if (env('MONGO_REPLICA_SET', null) != null) {
+    $optionsToMongoDb = [
+             'database' => env('MONGO_DB_AUTH_SOURCE', 'admin'), // Define o banco de dados de autenticação
+            'ssl' => env('MONGO_DB_USE_SSL', false),
+            'replicaSet' => env('MONGO_REPLICA_SET', null),
+            'readPreference' => 'primary',
+        ];
+}
+
+
 return [
 
     /*
@@ -119,12 +131,7 @@ return [
             'database' => env('DB_DATABASE', 'your_mongodb_database'),
             'username' => env('DB_USERNAME'),
             'password' => env('DB_PASSWORD'),
-            'options' => [
-                // 'database' => env('MONGO_DB_AUTH_SOURCE', null), // Define o banco de dados de autenticação
-                // 'ssl' => env('MONGO_DB_USE_SSL', false),
-                // 'replicaSet' => env('MONGO_REPLICA_SET', null),
-                // 'readPreference' => null,
-            ]
+            'options' => $optionsToMongoDb
         ],
 
     ],
