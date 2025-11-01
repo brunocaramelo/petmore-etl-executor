@@ -4,7 +4,7 @@ use Illuminate\Support\Str;
 
 $optionsToMongoDb = [];
 
-if (env('MONGO_REPLICA_SET', null) != null) {
+if (env('MONGO_EXTERNAL_INSTANCE', false)) {
     $optionsToMongoDb = [
              'database' => env('MONGO_DB_AUTH_SOURCE', 'admin'), // Define o banco de dados de autenticação
             'ssl' => env('MONGO_DB_USE_SSL', false),
