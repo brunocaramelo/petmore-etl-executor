@@ -14,8 +14,6 @@ class ProductToErpTransformResource extends JsonResource
     {
         return match($param) {
             'UNIDADE' => 'UN',
-            // 'UNIDADE' => 'UN',
-            // 'UNIDADE' => 'UN',
         };
     }
 

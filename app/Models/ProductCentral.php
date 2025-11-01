@@ -73,7 +73,7 @@ class ProductCentral extends Model
 
     public function category()
     {
-        return $this->belongsTo(productCategory::class, 'category_id','uuid');
+        return $this->belongsTo(ProductCategory::class, 'category_id','uuid');
     }
 
 }

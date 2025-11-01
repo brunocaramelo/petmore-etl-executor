@@ -23,6 +23,21 @@ class SelfEcommerceConsumer
 
     }
 
+    public function createAttibuteSet(array $params)
+    {
+        $response = Http::retry(3, 10)
+                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    ->post($this->baseApiPath.'/eav/attribute-sets', $params)
+                    ->throw();
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
     public function createProduct(array $params)
     {
         $response = Http::retry(3, 10)
