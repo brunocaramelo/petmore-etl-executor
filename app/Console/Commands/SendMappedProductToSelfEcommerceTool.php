@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 use Illuminate\Console\Command;
 
-use App\Jobs\SendMappedProductToErpJob;
+use App\Jobs\SendMappedProductToSelfEcommerceJob;
 
 class SendMappedProductToSelfEcommerceTool extends Command
 {
@@ -26,10 +26,7 @@ class SendMappedProductToSelfEcommerceTool extends Command
             ->has('productRewrited')
             ->with('productRewrited')
             ->where('ai_adapted_the_content', true)
-            ->orWhere('sku', 'PM04034081')
             ->get();
-
-            //@TODO apagar esse SKU
 
         \Log::info("(SendMappedProductToErp) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
@@ -38,7 +35,7 @@ class SendMappedProductToSelfEcommerceTool extends Command
             // $delayToJob->addSeconds(rand(61, 123));
             $delayToJob->addSeconds(rand(1, 2));
 
-            SendMappedProductToErpJob::dispatch( $pending)
+            SendMappedProductToSelfEcommerceJob::dispatch( $pending)
                                  ->delay($delayToJob);
 
            \Log::info("(SendMappedProductToErp) Job para item ".($pending->sku ?? 'sku')." para envio ao bling com atraso para: " . $delayToJob);

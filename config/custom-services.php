@@ -26,8 +26,8 @@ return [
         ],
         'self_ecommerce' => [
             'base_url' => env('ECOMMERCE_BASE_URL'),
-            'admin_username' => env('ECOMMERCE_CONSUMER_USER'),
-            'admin_password' => env('ECOMMERCE_CONSUMER_PASSWORD'),
+            'admin_username' => env('ECOMMERCE_CONSUMER_USER', 'none'),
+            'admin_password' => env('ECOMMERCE_CONSUMER_PASSWORD', 'none'),
             'store_default_code' => env('ECOMMERCE_TENANT_CODE'),
         ],
         'mercado_livre_scrapper' => [

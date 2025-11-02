@@ -18,7 +18,8 @@ class ProductGroupAttribute extends Model
         'slug',
         'breadcrumb',
         'name',
-        'self_ecommerce_id'
+        'sort_order',
+        'self_ecommerce_id',
     ];
 
     protected $casts = [

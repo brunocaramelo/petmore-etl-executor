@@ -4,18 +4,22 @@ namespace App\UseCases;
 
 use App\Consumers\SelfEcommerceConsumer;
 
-use App\Resources\ProductToSelfEccommerceTransformResource;
-use App\Actions\SelfEcommerce\FindOrCreateProductGroupAttributeAction;
-use App\Models\ProductRewrited;
+use App\Actions\SelfEcommerce\{FindOrCreateProductGroupAttributeAction,
+                               FindOrCreateProductGroupAttributeItemsAction};
 
-class CreateProductSelfEcommerceUseCase
+use App\Models\{ProductRewrited,
+                ProductCategory
+                };
+
+use App\UseCases\CreateProductChildSelfEcommerceUseCase;
+
+class CreateProductBaseSelfEcommerceUseCase
 {
     private $consumer;
     private $typeProduct;
     private $productnstance;
 
     public function __construct(SelfEcommerceConsumer $consumer,
-                                string $typeProduct,
                                 ProductRewrited $productnstance)
     {
         $this->consumer = $consumer;
@@ -24,24 +28,48 @@ class CreateProductSelfEcommerceUseCase
 
     public function handle()
     {
+        $productVatiations = $this->productnstance->variations ?? [];
         $categoryAttrs = $this->productnstance->category;
+        $categoryAttrsProductAttributesItems = $this->productnstance->specifications;
 
         $attributeSetId = $this->createAttributeSet([
             'slug' => $categoryAttrs->slug,
             'breadcrumb' => $categoryAttrs->hierarquie,
         ]);
 
+        $attributeSetAttributesList = $this->createAttributeSetAttributes([
+            'attribute_set_id' => $attributeSetId,
+            'items' => $categoryAttrsProductAttributesItems,
+        ]);
+
         $this->productnstance->attribute_set_id = $attributeSetId;
+        $this->productnstance->specifications = $attributeSetAttributesList;
 
-        $configurableId = $this->createProduct($this->productnstance);
+        $configurableProduct = $this->createProduct($this->productnstance);
 
-        $this->createConfigurableChildren($configurableId, $productData);
+        foreach ($productVatiations as $variationItem) {
+            $this->createVariationItem(json_decode(json_encode($variationItem)));
+        }
 
-        $this->uploadImages($productData['sku'], $productData['media_gallery_entries'] ?? []);
 
-        return $configurableId;
+        $this->createImagesIntoProduct($this->productnstance->sku, $this->productnstance->images ?? []);
+
+        return $this->productnstance;
     }
 
+    private function createVariationItem($params)
+    {
+
+    }
+
+
+    private function getCategoriesHierarquies($uuId)
+    {
+        return  ProductCategory::where('uuid', $uuId)
+                                ->first()
+                                ->getFullHierarchy();
+
+    }
 
     private function createAttributeSet(array $params): int
     {
@@ -52,8 +80,23 @@ class CreateProductSelfEcommerceUseCase
                 ]), $this->consumer)['self_ecommerce_identify'];
     }
 
+    private function createAttributeSetAttributes(array $params): array
+    {
+        $returnData = [];
+        foreach ($params as $itemAttr) {
+            $returnData[] = (new FindOrCreateProductGroupAttributeItemsAction)
+                    ->execute(collect([
+                        'group_attribute_id' => $params['group_attribute_id'],
+                        'item' => $itemAttr->rows,
+                ]), $this->consumer)['self_ecommerce_identify'];
+        }
+        return $returnData;
+    }
+
     private function createProduct(ProductRewrited $productData): ?int
     {
+        $listCategories = $this->getCategoriesHierarquies($productData->productCentral);
+
         $extensionAttributes = [
             'extension_attributes' => [
             'stock_item' => [
@@ -76,6 +119,14 @@ class CreateProductSelfEcommerceUseCase
             ]
         ];
 
+        if ($listCategories->count() > 0) {
+            $extensionAttributes['extension_attributes']['category_links'] = $listCategories->map(function ($index, $category) {
+                return [
+                    'position' => $index,
+                    'category_id' => $category->id,
+                ];
+            })->toArray();
+        }
 
         $payload = [
             "product" => [
@@ -92,32 +143,18 @@ class CreateProductSelfEcommerceUseCase
             ]
         ];
 
-        $response = $this->callMagento('products', 'POST', $payload);
-        return $response['id'] ?? null;
+        return $this->consumer->createProduct($payload);
     }
 
-    private function createConfigurableChildren(?int $parentId, array $productData): void
-    {
-        if (empty($productData['extension_attributes']['configurable_product_links'])) return;
-
-        foreach ($productData['extension_attributes']['configurable_product_links'] as $childId) {
-            $payload = [
-                "childSku" => "CHILD-{$childId}" // ou SKU real do simples
-            ];
-            $this->callMagento("configurable-products/{$productData['sku']}/child", 'POST', $payload);
-        }
-    }
-
-    private function uploadImages(string $sku, array $images): void
+    private function createImagesIntoProduct($productSku, array $images): void
     {
         foreach ($images as $img) {
+
             $path = "/var/www/html/media" . $img['file'];
             if (!file_exists($path)) {
                 echo "⚠️ Imagem não encontrada: {$path}\n";
                 continue;
             }
-
-            $base64 = base64_encode(file_get_contents($path));
 
             $payload = [
                 "entry" => [
@@ -127,14 +164,14 @@ class CreateProductSelfEcommerceUseCase
                     "disabled" => false,
                     "types" => $img['types'] ?? ['image', 'small_image', 'thumbnail'],
                     "content" => [
-                        "base64_encoded_data" => $base64,
+                        "base64_encoded_data" => base64_encode(file_get_contents($path)),
                         "type" => "image/jpeg",
                         "name" => basename($path)
                     ]
                 ]
             ];
 
-            $this->callMagento("products/{$sku}/media", 'POST', $payload);
+            $this->consumer->createMediaImagesIntoProductSku($productSku, $payload);
         }
     }
 

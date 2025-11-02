@@ -18,11 +18,14 @@ class FindOrCreateProductGroupAttributeAction
 
         $findLocaly = ProductGroupAttribute::where('slug', $slugAttribute)->first();
 
+        $tableCounter = ProductGroupAttribute::count();
+
         if ($findLocaly instanceof ProductGroupAttribute) {
             return [
                 'id' => $findLocaly->id,
                 'slug' => $findLocaly->slug,
                 'name' => $findLocaly->name,
+                'sort_order' => $findLocaly->sort_order,
                 'self_ecommerce_id' => $findLocaly->self_ecommerce_id,
                 'breadcrumb' => $findLocaly->breadcrumb,
             ];
@@ -33,6 +36,7 @@ class FindOrCreateProductGroupAttributeAction
                 'slug' => $slugAttribute,
                 'name' => $slugAttribute,
                 'breadcrumb' => $param['breadcrumb'],
+                'sort_order' => $tableCounter,
             ],
             'consumerInstance' => $consumer,
         ]);
@@ -40,6 +44,7 @@ class FindOrCreateProductGroupAttributeAction
         return [
             'slug' => $createdLocaly->slug,
             'name' => $createdLocaly->name,
+            'sort_order' => $findLocaly->sort_order,
             'self_ecommerce_identify' => $createdLocaly->attribute_set_id,
         ];
 
@@ -60,6 +65,7 @@ class FindOrCreateProductGroupAttributeAction
         return ProductGroupAttribute::create([
                 'slug' => $params['data']['slug'],
                 'name' => $params['data']['name'],
+                'sort_order' => $params['data']['sort_order'],
                 'self_ecommerce_identify' => $createdExternal['attribute_set_id'],
         ]);
     }

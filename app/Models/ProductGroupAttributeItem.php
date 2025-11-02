@@ -18,8 +18,9 @@ class ProductGroupAttributeItem extends Model
         'slug',
         'name',
         'type',
-        'product_group_attribute_id',
-        'self_ecommerce_id',
+        'sort_order',
+        'group_attribute_id',
+        'self_ecommerce_identify',
     ];
 
 }

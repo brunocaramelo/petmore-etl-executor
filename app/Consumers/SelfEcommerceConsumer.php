@@ -38,12 +38,59 @@ class SelfEcommerceConsumer
         return null;
     }
 
+    public function createAttibuteSetItem(array $params)
+    {
+        $response = Http::retry(3, 10)
+                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    ->post($this->baseApiPath.'/products/attributes', $params)
+                    ->throw();
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
+
+    public function attachAttibuteIntoGroupAttrSet(array $params)
+    {
+        $response = Http::retry(3, 10)
+                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    ->post($this->baseApiPath.'/products/attribute-sets/attributes', $params)
+                    ->throw();
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
+
     public function createProduct(array $params)
     {
         $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
-                    ->post($this->baseApiPath.'/produtos', $params)
+                    ->post($this->baseApiPath.'/products', $params)
+                    ->throw();
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
+    public function createMediaImagesIntoProductSku($productSku ,array $params)
+    {
+        $response = Http::retry(3, 10)
+                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    ->post($this->baseApiPath."products/{$productSku}/media", $params)
                     ->throw();
 
         if ($response->successful()) {
