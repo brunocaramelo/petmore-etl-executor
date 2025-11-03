@@ -19,8 +19,10 @@ class SendMappedProductToSelfEcommerceAction
                 new SelfEcommerceAuthConsumer(
                     config('custom-services.apis.self_ecommerce.admin_username'),
                     config('custom-services.apis.self_ecommerce.admin_password')
-                )
-        );
+                ), [
+            'base_path' => config('custom-services.apis.self_ecommerce.base_url'),
+            'auto_login' => true,
+        ]);
 
         (new CreateProductBaseSelfEcommerceUseCase($consumerInstance ,
                 $productCentral->productRewrited))
@@ -30,9 +32,7 @@ class SendMappedProductToSelfEcommerceAction
         // \Log::info(json_encode($dataTransformed));
 
         } catch (Exception $e) {
-            \Log::error('Erro em SendMappedProductToErpAction:', [
-                    'status' => $e->getStack(),
-            ]);
+            report($e);
 
             throw new \Exception('SendMappedProductToErpAction exception : '.$e->getMessage());
         }

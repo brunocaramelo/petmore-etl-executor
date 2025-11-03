@@ -40,12 +40,12 @@ class SelfEcommerceAuthConsumer
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
-            ])->post($this->baseUrl.'/rest/V1/integration/admin/token', [
+            ])->post($this->baseUrl.'/integration/admin/token', [
                 'username' => $this->authUsername,
                 'password' => $this->authPassword
             ])->throw();
 
-            $this->currentToken = $response->body();
+            $this->currentToken = str_replace('"','', $response->body());
 
             return $this->currentToken;
 

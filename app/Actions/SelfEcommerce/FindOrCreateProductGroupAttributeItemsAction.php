@@ -12,6 +12,8 @@ class FindOrCreateProductGroupAttributeItemsAction
 {
     public function execute(Collection $param, SelfEcommerceConsumer $consumer)
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $uniqueString = $param['slug'];
 
         $slugAttribute = Str::slug($uniqueString);
@@ -40,6 +42,8 @@ class FindOrCreateProductGroupAttributeItemsAction
             'consumerInstance' => $consumer,
         ]);
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+
         return [
             'slug' => $createdLocaly->slug,
             'name' => $createdLocaly->name,
@@ -50,6 +54,8 @@ class FindOrCreateProductGroupAttributeItemsAction
 
     private function addAttributeInternal($params)
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $createdExternal = $params['consumerInstance']->createAttibuteSetItem([
                 "attribute" => [
                     "attribute_code" => $params['data']['slug'],
@@ -69,6 +75,8 @@ class FindOrCreateProductGroupAttributeItemsAction
             "attributeCode" => $params['slug'],
             "sortOrder" => $params['sort_order']
         ]);
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return ProductGroupAttributeItem::create([
                 'slug' => $params['data']['slug'],

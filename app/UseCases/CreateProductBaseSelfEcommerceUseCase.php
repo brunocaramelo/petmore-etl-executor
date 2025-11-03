@@ -28,9 +28,11 @@ class CreateProductBaseSelfEcommerceUseCase
 
     public function handle()
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $productVatiations = $this->productnstance->variations ?? [];
-        $categoryAttrs = $this->productnstance->category;
-        $categoryAttrsProductAttributesItems = $this->productnstance->specifications;
+        $categoryAttrs = $this->productnstance?->productCentral()->first()->category()->first() ?? null;
+        $categoryAttrsProductAttributesItems = $this->productnstance?->specifications ?? null;
 
         $attributeSetId = $this->createAttributeSet([
             'slug' => $categoryAttrs->slug,
@@ -41,6 +43,13 @@ class CreateProductBaseSelfEcommerceUseCase
             'attribute_set_id' => $attributeSetId,
             'items' => $categoryAttrsProductAttributesItems,
         ]);
+
+        \Log::info('produto ', [
+            'category' => $this->productnstance?->productCentral()->first()->category()->first(),
+            'productCentral' => $this->productnstance->productCentral,
+        ]);
+
+        return;
 
         $this->productnstance->attribute_set_id = $attributeSetId;
         $this->productnstance->specifications = $attributeSetAttributesList;
@@ -53,6 +62,8 @@ class CreateProductBaseSelfEcommerceUseCase
 
 
         $this->createImagesIntoProduct($this->productnstance->sku, $this->productnstance->images ?? []);
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return $this->productnstance;
     }
@@ -73,6 +84,8 @@ class CreateProductBaseSelfEcommerceUseCase
 
     private function createAttributeSet(array $params): int
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         return (new FindOrCreateProductGroupAttributeAction)
                 ->execute(collect([
                     'slug' => $params['slug'],
@@ -82,6 +95,8 @@ class CreateProductBaseSelfEcommerceUseCase
 
     private function createAttributeSetAttributes(array $params): array
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $returnData = [];
         foreach ($params as $itemAttr) {
             $returnData[] = (new FindOrCreateProductGroupAttributeItemsAction)
@@ -90,6 +105,9 @@ class CreateProductBaseSelfEcommerceUseCase
                         'item' => $itemAttr->rows,
                 ]), $this->consumer)['self_ecommerce_identify'];
         }
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+
         return $returnData;
     }
 
@@ -123,7 +141,7 @@ class CreateProductBaseSelfEcommerceUseCase
             $extensionAttributes['extension_attributes']['category_links'] = $listCategories->map(function ($index, $category) {
                 return [
                     'position' => $index,
-                    'category_id' => $category->id,
+                    'category_id' => $category->self_ecommerce_id,
                 ];
             })->toArray();
         }

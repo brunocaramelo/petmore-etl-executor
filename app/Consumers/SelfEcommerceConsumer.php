@@ -161,7 +161,6 @@ class SelfEcommerceConsumer
     public function sendAuthApi()
     {
         $responseApi = $this->authInstance->byStoredToken();
-
         $this->tokenAuth = $responseApi;
     }
 

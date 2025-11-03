@@ -7,4 +7,7 @@ php artisan queue:work --tries=10 --timeout=36001
 
 php artisan create:modified-content-copy-right
 
-php artisan export:mapped-product-to-erp
+-- deprecated
+# php artisan export:mapped-product-to-erp
+
+php export:mapped-product-to-self-ecommerce-tool

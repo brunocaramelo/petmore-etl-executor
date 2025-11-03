@@ -26,9 +26,10 @@ class SendMappedProductToSelfEcommerceTool extends Command
             ->has('productRewrited')
             ->with('productRewrited')
             ->where('ai_adapted_the_content', true)
+            ->where('sku', '=' ,'PM12405432')
             ->get();
 
-        \Log::info("(SendMappedProductToErp) Itens pendentes encontrados para serem processados ".$pendingItems->count());
+        \Log::info("(SendMappedProductToSelfEcommerceTool) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
         foreach ($pendingItems as $pending) {
 
@@ -38,10 +39,10 @@ class SendMappedProductToSelfEcommerceTool extends Command
             SendMappedProductToSelfEcommerceJob::dispatch( $pending)
                                  ->delay($delayToJob);
 
-           \Log::info("(SendMappedProductToErp) Job para item ".($pending->sku ?? 'sku')." para envio ao bling com atraso para: " . $delayToJob);
+           \Log::info("(SendMappedProductToSelfEcommerceTool) Job para item ".($pending->sku ?? 'sku')." para envio ao bling com atraso para: " . $delayToJob);
 
         }
-        \Log::info("(SendMappedProductToErp) Processo finalizado");
+        \Log::info("(SendMappedProductToSelfEcommerceTool) Processo finalizado");
 
     }
 }
