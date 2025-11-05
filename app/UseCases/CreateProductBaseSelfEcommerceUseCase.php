@@ -13,8 +13,9 @@ use App\Models\{ProductRewrited,
 
 use App\UseCases\CreateProductChildSelfEcommerceUseCase;
 
-use Illuminate\Support\Facades\Storage;
+use App\Jobs\UploadImageJpgToSelfCommerceToProductJob;
 
+use Carbon\Carbon;
 class CreateProductBaseSelfEcommerceUseCase
 {
     private $consumer;
@@ -58,8 +59,6 @@ class CreateProductBaseSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createProduct');
 
         $configurableProduct = $this->createProduct($this->productnstance);
-
-        $this->applySleep(10);
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createProduct');
 
@@ -188,52 +187,30 @@ class CreateProductBaseSelfEcommerceUseCase
 
     private function createImagesIntoProduct($productSku, array $images): void
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        $delayToJob = Carbon::now();
 
-        $clearHttpPathStorage = 'https://petmore-public.br-se1.magaluobjects.com/petmore-public/';
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         foreach ($images as $img) {
 
-            $this->applySleep(1);
+            $delayToJob->addSeconds(rand(15,40));
 
-            $clearPath = str_replace([$clearHttpPathStorage],[''], $img['full_size']);
+            UploadImageJpgToSelfCommerceToProductJob::dispatch(
+                $productSku,
+                $img['full_size'],
+                    $this->consumer
+            )->delay($delayToJob);
 
-            $baseFileNameToSend = str_replace(['.jpge', '.jpeg'],['.jpg','.jpg'], basename($clearPath));
-
-            $fileContentTarget = Storage::disk('choiced_cloud_storage')->get($clearPath);
-
-            $payload = [
-                "entry" => [
-                    "media_type" => "image",
-                    "label" => $img['label'] ?? '',
-                    "position" => $img['position'] ?? 1,
-                    "disabled" => false,
-                    "types" => $img['types'] ?? ['image', 'small_image', 'thumbnail'],
-                    "content" => [
-                        "name" => $baseFileNameToSend,
-                        "type" => "image/jpeg",
-                        "base64_encoded_data" => base64_encode($fileContentTarget),
-                    ]
-                ]
-            ];
-
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') before send createMediaImagesIntoProductSku', [
-               $productSku,
-                $payload
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') enviando item para UploadImageJpgToSelfCommerceToProductJob', [
+              'productSku' => $productSku,
+              'imageFull' => $img['full_size'],
+              'runAt' => $delayToJob,
             ]);
-
-            $this->consumer->createMediaImagesIntoProductSku($productSku, $payload);
-
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') after send createMediaImagesIntoProductSku');
 
         }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
     }
 
-    private function applySleep($time)
-    {
-        sleep($time);
-    }
 
 }
