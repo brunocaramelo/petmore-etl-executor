@@ -15,6 +15,7 @@ use App\UseCases\CreateProductChildSelfEcommerceUseCase;
 
 use App\Jobs\UploadImageJpgToSelfCommerceToProductJob;
 
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 class CreateProductBaseSelfEcommerceUseCase
 {
@@ -133,6 +134,38 @@ class CreateProductBaseSelfEcommerceUseCase
         return $returnData;
     }
 
+    private function getFormatedCustomAttributesList(array $params): array
+    {
+
+        $returnData = [];
+        foreach ($params['items'] as $itemAttrItems) {
+            foreach ($itemAttrItems['rows'] as $itemAttr) {
+                $returnData[] = [
+                    'attribute_code' => Str::slug($itemAttr['label'], '_'),
+                    'value' => $itemAttr['value'],
+                ];
+            }
+        }
+
+        $returnData[] = [
+            "attribute_code" => "description",
+            "value" => $this->productnstance->productCentral()
+                            ->first()
+                            ->description['small']['complement'] ?? "description",
+        ];
+
+        $returnData[] = [
+            "attribute_code" => "short_description",
+            "value" => $this->productnstance->productCentral()
+                            ->first()
+                            ->description['small']['html'] ?? "short_description",
+        ];
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+
+        return $returnData;
+    }
+
     private function createProduct(ProductRewrited $productData): ?array
     {
         $listCategories = $this->getCategoriesHierarquies($productData->productCentral()->first()->category_id);
@@ -176,7 +209,7 @@ class CreateProductBaseSelfEcommerceUseCase
                 "type_id" => $this->typeProduct,
                 "weight" => 1,
                 "extension_attributes" => $extensionAttributes,
-                "custom_attributes" => $productData['custom_attributes'] ?? []
+                "custom_attributes" =>  $this->getFormatedCustomAttributesList($this->productnstance?->specifications ?? []),
             ]
         ];
 
