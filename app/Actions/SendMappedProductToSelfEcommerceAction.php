@@ -10,6 +10,8 @@ use Exception;
 use App\Consumers\{SelfEcommerceAuthConsumer,
                   SelfEcommerceConsumer};
 
+use Illuminate\Http\Client\RequestException;
+
 class SendMappedProductToSelfEcommerceAction
 {
     public function execute(ProductCentral $productCentral)
@@ -31,8 +33,15 @@ class SendMappedProductToSelfEcommerceAction
         // \Log::info('(SendMappedProductToErpAction) payload para o bling abaixo sem: ');
         // \Log::info(json_encode($dataTransformed));
 
+        } catch (RequestException $error) {
+            $response = $error->response;
+
+            \Log::error('HTTP error', ['code'=> $response->status(),
+                                        'body' => $response->body()
+                                    ]);
         } catch (Exception $e) {
             report($e);
+
 
             throw new \Exception('SendMappedProductToErpAction exception : '.$e->getMessage());
         }
