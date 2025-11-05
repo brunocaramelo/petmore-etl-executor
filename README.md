@@ -10,4 +10,4 @@ php artisan create:modified-content-copy-right
 -- deprecated
 # php artisan export:mapped-product-to-erp
 
-php export:mapped-product-to-self-ecommerce-tool
+php artisan export:mapped-product-to-self-ecommerce-tool
