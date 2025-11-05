@@ -105,7 +105,7 @@ class SelfEcommerceConsumer
         $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
-                    ->post($this->baseApiPath."products/{$productSku}/media", $params)
+                    ->post($this->baseApiPath."/products/{$productSku}/media", $params)
                     ->throw();
 
         if ($response->successful()) {
