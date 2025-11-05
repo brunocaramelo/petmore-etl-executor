@@ -54,9 +54,6 @@ class CreateProductBaseSelfEcommerceUseCase
             : 'simple'
         );
 
-        $this->productnstance->attribute_set_id = $attributeSetArr['self_ecommerce_identify'];
-        $this->productnstance->specifications = $attributeSetAttributesList;
-
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createProduct');
 
         $configurableProduct = $this->createProduct($this->productnstance);
@@ -67,6 +64,9 @@ class CreateProductBaseSelfEcommerceUseCase
         // foreach ($productVatiations as $variationItem) {
         //     $this->createVariationItem(json_decode(json_encode($variationItem)));
         // }
+
+        $this->productnstance->attribute_set_id = $attributeSetArr['self_ecommerce_identify'];
+        $this->productnstance->specifications = $attributeSetAttributesList;
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createImagesIntoProduct');
 
@@ -134,14 +134,13 @@ class CreateProductBaseSelfEcommerceUseCase
         return $returnData;
     }
 
-    private function getFormatedCustomAttributesList(array $params): array
+    private function getFormatedCustomAttributesList($params): array
     {
-
         $returnData = [];
         foreach ($params['items'] as $itemAttrItems) {
             foreach ($itemAttrItems['rows'] as $itemAttr) {
                 $returnData[] = [
-                    'attribute_code' => Str::slug($itemAttr['label'], '_'),
+                    'attribute_code' => Str::slug($itemAttr['label'], '_').'_text',
                     'value' => $itemAttr['value'],
                 ];
             }
@@ -209,7 +208,9 @@ class CreateProductBaseSelfEcommerceUseCase
                 "type_id" => $this->typeProduct,
                 "weight" => 1,
                 "extension_attributes" => $extensionAttributes,
-                "custom_attributes" =>  $this->getFormatedCustomAttributesList($this->productnstance?->specifications ?? []),
+                "custom_attributes" =>  $this->getFormatedCustomAttributesList([
+                    'items' => $this->productnstance?->specifications ?? []
+                ]),
             ]
         ];
 
