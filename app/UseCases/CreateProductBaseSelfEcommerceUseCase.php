@@ -59,6 +59,8 @@ class CreateProductBaseSelfEcommerceUseCase
 
         $configurableProduct = $this->createProduct($this->productnstance);
 
+        $this->applySleep(10);
+
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createProduct');
 
 
@@ -69,6 +71,8 @@ class CreateProductBaseSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createImagesIntoProduct');
 
         $this->createImagesIntoProduct($this->productnstance->sku, $this->productnstance->images ?? []);
+
+
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createImagesIntoProduct');
 
@@ -190,7 +194,11 @@ class CreateProductBaseSelfEcommerceUseCase
 
         foreach ($images as $img) {
 
+            $this->applySleep(1);
+
             $clearPath = str_replace([$clearHttpPathStorage],[''], $img['full_size']);
+
+            $baseFileNameToSend = str_replace(['.jpge', '.jpeg'],['.jpg','.jpg'], basename($clearPath));
 
             $fileContentTarget = Storage::disk('choiced_cloud_storage')->get($clearPath);
 
@@ -202,9 +210,9 @@ class CreateProductBaseSelfEcommerceUseCase
                     "disabled" => false,
                     "types" => $img['types'] ?? ['image', 'small_image', 'thumbnail'],
                     "content" => [
-                        "base64_encoded_data" => base64_encode($fileContentTarget),
+                        "name" => $baseFileNameToSend,
                         "type" => "image/jpeg",
-                        "name" => basename($clearPath)
+                        "base64_encoded_data" => base64_encode($fileContentTarget),
                     ]
                 ]
             ];
@@ -221,6 +229,11 @@ class CreateProductBaseSelfEcommerceUseCase
         }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+    }
+
+    private function applySleep($time)
+    {
+        sleep($time);
     }
 
 }
