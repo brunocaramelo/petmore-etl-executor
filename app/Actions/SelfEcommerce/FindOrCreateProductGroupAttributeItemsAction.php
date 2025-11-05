@@ -78,7 +78,7 @@ class FindOrCreateProductGroupAttributeItemsAction
                     "is_required" => false,
                     "is_user_defined" => true,
                     "is_visible" => true,
-                    "scope" => "global",
+                    "scope" => "store",
                     "entity_type_id" => 4
                 ]
         ]);
