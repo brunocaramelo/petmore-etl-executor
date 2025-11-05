@@ -69,6 +69,21 @@ class SelfEcommerceConsumer
         return null;
     }
 
+    public function addGroupAttibuteIntoAttributeSet(array $params)
+    {
+        $response = Http::retry(3, 10)
+                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    ->post($this->baseApiPath.'/products/attribute-sets/groups', $params)
+                    ->throw();
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
 
     public function createProduct(array $params)
     {

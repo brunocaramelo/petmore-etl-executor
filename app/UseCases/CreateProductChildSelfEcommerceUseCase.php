@@ -32,6 +32,7 @@ class CreateProductChildSelfEcommerceUseCase
 
         $attributeSetId = $this->createAttributeSet([
             'slug' => $categoryAttrs->slug,
+            'group_attribute_name' => '',
             'breadcrumb' => $categoryAttrs->hierarquie,
         ]);
 
@@ -71,12 +72,14 @@ class CreateProductChildSelfEcommerceUseCase
     private function createAttributeSetAttributes(array $params): array
     {
         $returnData = [];
-        foreach ($params as $itemAttr) {
+        foreach ($params['items'] as $itemAttr) {
             $returnData[] = (new FindOrCreateProductGroupAttributeItemsAction)
                     ->execute(collect([
                         'group_attribute_id' => $params['group_attribute_id'],
-                        'item' => $itemAttr->rows,
-                ]), $this->consumer)['self_ecommerce_identify'];
+                        'item' => $itemAttr,
+                ]),
+                $params['group_attribute_id'],
+                $this->consumer)['self_ecommerce_identify'];
         }
         return $returnData;
     }
