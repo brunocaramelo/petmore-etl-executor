@@ -5,7 +5,7 @@ namespace App\UseCases;
 use App\Consumers\SelfEcommerceConsumer;
 
 use App\Actions\SelfEcommerce\{FindOrCreateProductGroupAttributeAction,
-                               FindOrCreateProductGroupAttributeItemsAction};
+                               FindOrCreateProductGroupAttributeTextItemsAction};
 
 use App\Models\{ProductRewrited,
                 ProductCategory
@@ -73,7 +73,7 @@ class CreateProductChildSelfEcommerceUseCase
     {
         $returnData = [];
         foreach ($params['items'] as $itemAttr) {
-            $returnData[] = (new FindOrCreateProductGroupAttributeItemsAction)
+            $returnData[] = (new FindOrCreateProductGroupAttributeTextItemsAction)
                     ->execute(collect([
                         'group_attribute_id' => $params['group_attribute_id'],
                         'item' => $itemAttr,
