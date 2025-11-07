@@ -107,6 +107,8 @@ class FindOrCreateProductGroupAttributeAction
                             $params['consumerInstance']
         );
 
+        usleep(100);
+
         $createdInstance->self_ecommerce_group_fields = $foundedGroup;
 
         return $createdInstance;
@@ -137,6 +139,9 @@ class FindOrCreateProductGroupAttributeAction
             $currentGroups[] = $newGroup;
             $foundGroup = $newGroup;
         }
+
+        usleep(100);
+
 
         $productGroupAttrInstance->self_ecommerce_group_fields = $currentGroups;
 

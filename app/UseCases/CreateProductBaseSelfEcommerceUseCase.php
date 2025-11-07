@@ -5,7 +5,8 @@ namespace App\UseCases;
 use App\Consumers\SelfEcommerceConsumer;
 
 use App\Actions\SelfEcommerce\{FindOrCreateProductGroupAttributeAction,
-                               FindOrCreateProductGroupAttributeTextItemsAction};
+                               FindOrCreateProductGroupAttributeTextItemsAction,
+                               FindOrCreateProductGroupAttributeOptionItemsAction};
 
 use App\Models\{ProductRewrited,
                 ProductCategory
@@ -40,8 +41,11 @@ class CreateProductBaseSelfEcommerceUseCase
 
         $attributeSetArr = $this->createAttributeSet([
             'slug' => $categoryAttrs->slug,
+            'group_attribute_name' => 'Attributes',
             'breadcrumb' => $categoryAttrs->hierarquie,
         ]);
+
+        // \Log::info('testando', [$attributeSetArr]); die();
 
         $attributeSetAttributesList = $this->createAttributeSetAttributes([
             'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
@@ -63,15 +67,24 @@ class CreateProductBaseSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createProduct');
 
 
-        // foreach ($productVatiations as $variationItem) {
-        //     $this->createVariationItem(json_decode(json_encode($variationItem)));
-        // }
+        foreach ($productVatiations as $indexVariation => $variationItem) {
+            $this->createVariationItem(
+        $this->productnstance,
+                [
+                    'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
+                    'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
+                    'index_variation' => $indexVariation,
+                    'attribute_set_slug' => $categoryAttrs->slug,
+                    'attribute_set_group_attribute_name' => 'Variações',
+                    'attribute_set_breadcrumb' => $categoryAttrs->hierarquie,
+                ],
+                json_decode(json_encode($variationItem)) ?? []
+            );
+        }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createImagesIntoProduct');
 
         $this->createImagesIntoProduct($this->productnstance->sku, $this->productnstance->images ?? []);
-
-
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createImagesIntoProduct');
 
@@ -81,8 +94,23 @@ class CreateProductBaseSelfEcommerceUseCase
         return $this->productnstance;
     }
 
-    private function createVariationItem($params)
+    private function createVariationItem($productParent, $auxArr , $childItem)
     {
+        $attributeSetArr = $this->createAttributeSet([
+            'slug' => $auxArr['attribute_set_slug'],
+            'group_attribute_name' => $auxArr['attribute_set_group_attribute_name'],
+            'breadcrumb' => $auxArr['attribute_set_hierarquie'],
+        ]);
+
+        $getListAttributesForVariationOption = $this->createAttributeSetAttributesVariations([
+            'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
+            'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
+            'item' => $childItem['variations']
+        ]);
+
+
+
+
     }
 
 
@@ -102,8 +130,35 @@ class CreateProductBaseSelfEcommerceUseCase
                 ->execute(collect([
                     'slug' => $params['slug'],
                     'breadcrumb' => $params['breadcrumb'],
-                    'group_attribute_name' => 'Attributes',
+                    'group_attribute_name' => $params['group_attribute_name'],
                 ]), $this->consumer);
+    }
+
+    private function createAttributeSetAttributesVariations(array $params): array
+    {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
+        $returnData = [];
+        foreach ($params['items'] as $itemAttrItems) {
+            foreach ($itemAttrItems['rows'] as $itemAttr) {
+
+            $returnData[] = (new FindOrCreateProductGroupAttributeTextItemsAction)
+                    ->execute(collect([
+                        'group_attribute_id' => $params['group_attribute_id'],
+                        'item' => $itemAttr,
+                ]),
+           [
+                        'group_attribute_subgroup_id' => $params['group_attribute_subgroup_id'],
+                        'group_attribute_id' => $params['group_attribute_id'],
+                        'sufix' => '_text',
+                    ],
+                 $this->consumer)['self_ecommerce_identify'];
+            }
+        }
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+
+        return $returnData;
     }
 
     private function createAttributeSetAttributes(array $params): array
@@ -139,7 +194,7 @@ class CreateProductBaseSelfEcommerceUseCase
         foreach ($params['items'] as $itemAttrItems) {
             foreach ($itemAttrItems['rows'] as $itemAttr) {
                 $returnData[] = [
-                    'attribute_code' => Str::slug($itemAttr['label'], '_').'_text',
+                    'attribute_code' => Str::slug($itemAttr['label'], '_').$params['sufix'],
                     'value' => $itemAttr['value'],
                 ];
             }
@@ -208,7 +263,8 @@ class CreateProductBaseSelfEcommerceUseCase
                 "weight" => 1,
                 "extension_attributes" => $extensionAttributes,
                 "custom_attributes" =>  $this->getFormatedCustomAttributesList([
-                    'items' => $this->productnstance?->specifications ?? []
+                    'items' => $this->productnstance?->specifications ?? [],
+                    'sufix' => '_text'
                 ]),
             ]
         ];

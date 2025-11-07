@@ -26,7 +26,7 @@ class SendMappedProductToSelfEcommerceTool extends Command
             ->has('productRewrited')
             ->with('productRewrited')
             ->where('ai_adapted_the_content', true)
-            ->where('sku', '=' ,'PM12405432')
+            ->where('sku', '=' ,'PM12378082')
             ->get();
 
         \Log::info("(SendMappedProductToSelfEcommerceTool) Itens pendentes encontrados para serem processados ".$pendingItems->count());
