@@ -69,6 +69,21 @@ class SelfEcommerceConsumer
         return null;
     }
 
+    public function attachOptionIntoAttibuteAttrSet($attributeId, array $params)
+    {
+        $response = Http::retry(3, 10)
+                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    ->post($this->baseApiPath.'/products/attributes/'.$attributeId.'/options', $params)
+                    ->throw();
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
     public function attachOptionToAttributeItem($attrCode, array $option)
     {
         $response = Http::retry(3, 10)

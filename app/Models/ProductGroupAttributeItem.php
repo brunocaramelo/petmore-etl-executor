@@ -10,7 +10,7 @@ class ProductGroupAttributeItem extends Model
 {
     use HasUuid;
     protected $hidden = ['_id'];
-    protected $collection = 'product_group_attributes_item';
+    protected $collection = 'product_group_attributes_items';
     protected $primaryKey = 'uuid';
 
     protected $casts = [

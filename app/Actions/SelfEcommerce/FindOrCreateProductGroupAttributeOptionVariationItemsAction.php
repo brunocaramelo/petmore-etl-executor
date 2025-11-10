@@ -12,13 +12,9 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 {
    public function execute(Collection $param, $options, SelfEcommerceConsumer $consumer)
     {
-        $item = $param['item'];
+        $slugAttribute = Str::slug($param['item'], '_').$options['sufix'];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
-
-        $uniqueString = $item['label'];
-
-        $slugAttribute = Str::slug($uniqueString, '_').$options['sufix'];
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init', [$slugAttribute, $param, $options]);
 
         $findLocaly = ProductGroupAttributeItem::where('slug', $slugAttribute)
                                                 ->first();
@@ -28,6 +24,17 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
         if ($findLocaly instanceof ProductGroupAttributeItem
             && $findLocaly->group_attribute_id == $options['group_attribute_id']
         ) {
+
+            if (array_filter($findLocaly->options ?? [], fn($item) => ($item['label'] ?? null) === $param['option'])) {
+                $findLocaly->options = $this->addNewOptionAndReturn(
+                        $findLocaly,
+                        $param['option'],
+                        $consumer,
+                    );
+
+                $findLocaly->save();
+            }
+
             return [
                 'id' => $findLocaly->id,
                 'slug' => $findLocaly->slug,
@@ -44,7 +51,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
                 'has_founded' => ($findLocaly instanceof ProductGroupAttributeItem),
                 'find_localy' => $findLocaly,
                 'slug' => $slugAttribute,
-                'name' => $item['label'],
+                'name' => $param['item'],
                 'option' => $param['option'],
                 'sort_order' => $countTableItems,
                 'group_attribute_id' => $options['group_attribute_id'],
@@ -74,9 +81,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 
             $params['data']['find_localy']->options = $this->addNewOptionAndReturn(
                 $params['data']['find_localy'],
-                 [
-                            'label' => $params['option']['label']
-                        ],
+                 $params['data']['option'],
                 $params['consumerInstance'],
             );
 
@@ -87,7 +92,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
             $createdExternal = $params['consumerInstance']->createAttibuteSetItem([
                     "attribute" => [
                         "attribute_code" => $params['data']['slug'],
-                        "frontend_input" => "text",
+                        "frontend_input" => "select",
                         "default_frontend_label" => $params['data']['name'],
                         "is_required" => false,
                         "is_user_defined" => true,
@@ -98,10 +103,10 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
                     ]
             ]);
 
-            usleep(100);
+            usleep(rand(100, 300));
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success', $createdExternal);
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success');
 
         $params['consumerInstance']->attachAttibuteIntoGroupAttrSet([
             "attributeSetId" => $params['data']['group_attribute_id'],
@@ -113,32 +118,55 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
         \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success');
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
-        usleep(100);
+        usleep(rand(50, 210));
 
-        return ProductGroupAttributeItem::create([
+        $createdItem = ProductGroupAttributeItem::create([
                 'slug' => $params['data']['slug'],
                 'name' => $params['data']['name'],
                 'type' => 'option',
                 'group_attribute_id' => $params['data']['group_attribute_id'],
                 'self_ecommerce_identify' => $createdExternal['attribute_id'],
-                "options" => [
-                    "label" => $params['option']['label'],
-                    "value" => 1,
-                ]
         ]);
+
+        $createdItem->options = $this->addNewOptionAndReturn(
+            $createdItem,
+                $params['data']['option'],
+            $params['consumerInstance'],
+        );
+
+        return $createdItem;
     }
 
-    private function addNewOptionAndReturn($attributte , array $option, $consumer)
+    private function addNewOptionAndReturn($attributte , $optionLabel, $consumer)
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $listOptions = $attributte->options ?? [];
 
-        $option['value'] = (count($listOptions) + 1);
+        $option = [
+            'label' => $optionLabel,
+            'value' => (count($listOptions) + 1)
+        ];
 
-        if (array_filter($option['label'], fn($item) => ($item['label'] ?? null) === $option['label'])) {
+        if (array_filter($listOptions, fn($item) => ($item['label'] ?? null) === $optionLabel)) {
             return $listOptions;
         }
 
-        $consumer->attachAttibuteIntoGroupAttrSet($attributte->slug, $option);
+        $reponseApi = $consumer->attachOptionIntoAttibuteAttrSet($attributte->slug, [
+            'option' => [
+                'label' => $option['label'],
+                'sort_order' => $option['value'],
+                'is_default' => false,
+                'store_labels' => [
+                    [
+                        'store_id' => 1,
+                        'label' => $option['label']
+                    ]
+                ]
+            ]
+        ]);
+
+        usleep(rand(80, 110));
 
         $listOptions[] = $option;
 

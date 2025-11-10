@@ -28,11 +28,11 @@ class FindOrCreateProductGroupAttributeAction
             \Log::info(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName to execute');
 
             $foundedGroup = $this->createAndGetGroupOfAttributeSetByName($findLocaly,
-                    [
-                                'group_attribute_name' => $param['group_attribute_name'],
-                                'attribute_set_id' => $findLocaly->self_ecommerce_identify,
-                            ],
-                            $consumer);
+            [
+                        'group_attribute_name' => $param['group_attribute_name'],
+                        'attribute_set_id' => $findLocaly->self_ecommerce_identify,
+                    ],
+                    $consumer);
 
             \Log::info(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName to executed');
             \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
@@ -107,7 +107,7 @@ class FindOrCreateProductGroupAttributeAction
                             $params['consumerInstance']
         );
 
-        usleep(100);
+        usleep(rand(40, 90));
 
         $createdInstance->self_ecommerce_group_fields = $foundedGroup;
 
@@ -150,7 +150,7 @@ class FindOrCreateProductGroupAttributeAction
             $foundGroup = $newGroup;
         }
 
-        usleep(100);
+        usleep(rand(86, 113));
 
 
         $productGroupAttrInstance->self_ecommerce_group_fields = $currentGroups;

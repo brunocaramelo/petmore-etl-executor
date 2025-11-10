@@ -37,6 +37,8 @@ class CreateProductBaseSelfEcommerceUseCase
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
+        $delayToJob = Carbon::now();
+
         $productVatiations = $this->productnstance->variations ?? [];
         $categoryAttrs = $this->productnstance?->productCentral()->first()->category()->first() ?? null;
         $categoryAttrsProductAttributesItems = $this->productnstance?->specifications ?? null;
@@ -69,7 +71,10 @@ class CreateProductBaseSelfEcommerceUseCase
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createImagesIntoProduct');
 
-        $returnProductImages = $this->createImagesIntoProduct($this->productnstance->sku, $this->productnstance->images ?? []);
+        $this->createImagesIntoProduct(
+                                $this->productnstance->sku,
+                                $this->productnstance->images ?? [],
+                                $delayToJob);
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createImagesIntoProduct');
 
@@ -82,6 +87,7 @@ class CreateProductBaseSelfEcommerceUseCase
             [
                 'attributeSetData' => $attributeSetArr,
                 'categoryAttrData' => $categoryAttrs,
+                'last_run' => $delayToJob,
         ]);
 
 
@@ -97,33 +103,20 @@ class CreateProductBaseSelfEcommerceUseCase
         foreach ($childItems as $variationItemAttr) {
 
             $attributeSetArr = $this->createAttributeSet([
-            'slug' => $configsVariations['attributeSetData']['slug'],
-            'group_attribute_name' => 'Variações',
-            'breadcrumb' => $configsVariations['attributeSetData']['breadcrumb'],
+                'slug' => $configsVariations['attributeSetData']['slug'],
+                'group_attribute_name' => 'Variações',
+                'breadcrumb' => $configsVariations['attributeSetData']['breadcrumb'],
             ]);
 
-             \Log::info('variations values before' ,[
-                'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
-                'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
-                'item' => $variationItemAttr->attributes
-            ]);
-
-            $getListAttributesForVariationOption = $this->createAttributeSetAttributesVariations([
-                'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
-                'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
-                'item' => $variationItemAttr->attributes
-            ]);
-
-
-
-            \Log::info('variations values All' ,[
-            'attributeSetArr' => $attributeSetArr,
-            'getListAttributesForVariationOption' => $getListAttributesForVariationOption,
-            ]);
-
+            foreach($variationItemAttr->attributes ?? [] as $itemAttrVariation) {
+                $this->createAttributeSetAttributesVariations([
+                    'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
+                    'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
+                    'item' => $itemAttrVariation[0]['label'],
+                    'option' => $itemAttrVariation[1]['value'],
+                ]);
+            }
         }
-
-        die();
 
         foreach ($childItems as $indexVariation => $variationItem) {
 
@@ -144,13 +137,10 @@ class CreateProductBaseSelfEcommerceUseCase
             );
         }
 
-
     }
 
     private function createVariationItem($productParent, $auxArr , $childItem, $lastCarbonInstance)
     {
-
-
         SendProductChidrenAndAttachParentJob::dispatch(
             $childItem
             ,$productParent
@@ -186,21 +176,18 @@ class CreateProductBaseSelfEcommerceUseCase
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
-        $returnData = [];
-        foreach ($params as $itemAttr) {
-            $returnData[] = (new FindOrCreateProductGroupAttributeOptionVariationItemsAction)
-                    ->execute(collect([
-                        'group_attribute_id' => $params['group_attribute_id'],
-                        'item' => $itemAttr[0]['label'],
-                        'option' => ['lable' => $itemAttr[1]['value']],
-                ]),
-                [
-                        'group_attribute_subgroup_id' => $params['group_attribute_subgroup_id'],
-                        'group_attribute_id' => $params['group_attribute_id'],
-                        'sufix' => '_option',
-                ],
-                 $this->consumer)['self_ecommerce_identify'];
-            }
+        $returnData[] = (new FindOrCreateProductGroupAttributeOptionVariationItemsAction)
+                ->execute(collect([
+                    'group_attribute_id' => $params['group_attribute_id'],
+                    'item' => $params['item'],
+                    'option' => $params['option'],
+            ]),
+            [
+                    'group_attribute_subgroup_id' => $params['group_attribute_subgroup_id'],
+                    'group_attribute_id' => $params['group_attribute_id'],
+                    'sufix' => '_option',
+            ],
+                $this->consumer)['self_ecommerce_identify'];
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
@@ -320,10 +307,8 @@ class CreateProductBaseSelfEcommerceUseCase
         return $this->consumer->createProduct($payload);
     }
 
-    private function createImagesIntoProduct($productSku, array $images): array
+    private function createImagesIntoProduct($productSku, array $images,  $delayToJob): array
     {
-        $delayToJob = Carbon::now();
-
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         foreach ($images as $img) {
@@ -336,11 +321,7 @@ class CreateProductBaseSelfEcommerceUseCase
                     $this->consumer
             )->delay($delayToJob);
 
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') enviando item para UploadImageJpgToSelfCommerceToProductJob', [
-              'productSku' => $productSku,
-              'imageFull' => $img['full_size'],
-              'runAt' => $delayToJob,
-            ]);
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') enviando item para UploadImageJpgToSelfCommerceToProductJob');
 
         }
 
