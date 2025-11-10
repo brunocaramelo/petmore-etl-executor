@@ -6,7 +6,7 @@ use App\Consumers\SelfEcommerceConsumer;
 
 use App\Actions\SelfEcommerce\{FindOrCreateProductGroupAttributeAction,
                                FindOrCreateProductGroupAttributeTextItemsAction,
-                               FindOrCreateProductGroupAttributeOptionItemsAction};
+                               FindOrCreateProductGroupAttributeOptionVariationItemsAction};
 
 use App\Models\{ProductRewrited,
                 ProductCategory
@@ -14,7 +14,9 @@ use App\Models\{ProductRewrited,
 
 use App\UseCases\CreateProductChildSelfEcommerceUseCase;
 
-use App\Jobs\UploadImageJpgToSelfCommerceToProductJob;
+use App\Jobs\{UploadImageJpgToSelfCommerceToProductJob,
+             SendProductChidrenAndAttachParentJob}
+;
 
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -45,8 +47,6 @@ class CreateProductBaseSelfEcommerceUseCase
             'breadcrumb' => $categoryAttrs->hierarquie,
         ]);
 
-        // \Log::info('testando', [$attributeSetArr]); die();
-
         $attributeSetAttributesList = $this->createAttributeSetAttributes([
             'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
             'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
@@ -67,49 +67,97 @@ class CreateProductBaseSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createProduct');
 
 
-        foreach ($productVatiations as $indexVariation => $variationItem) {
-            $this->createVariationItem(
-        $this->productnstance,
-                [
-                    'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
-                    'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
-                    'index_variation' => $indexVariation,
-                    'attribute_set_slug' => $categoryAttrs->slug,
-                    'attribute_set_group_attribute_name' => 'Variações',
-                    'attribute_set_breadcrumb' => $categoryAttrs->hierarquie,
-                ],
-                json_decode(json_encode($variationItem)) ?? []
-            );
-        }
-
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createImagesIntoProduct');
 
-        $this->createImagesIntoProduct($this->productnstance->sku, $this->productnstance->images ?? []);
+        $returnProductImages = $this->createImagesIntoProduct($this->productnstance->sku, $this->productnstance->images ?? []);
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createImagesIntoProduct');
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') before createVariationAsyncItems');
+
+
+
+        $this->prepareAndcreateVariationItems($this->productnstance,
+            collect($productVatiations)->map(fn($i) => (object)$i) ?? [],
+            [
+                'attributeSetData' => $attributeSetArr,
+                'categoryAttrData' => $categoryAttrs,
+        ]);
+
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') after createVariationAsyncItems');
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return $this->productnstance;
     }
 
-    private function createVariationItem($productParent, $auxArr , $childItem)
+    private function prepareAndcreateVariationItems($productParent, $childItems, $configsVariations)
     {
-        $attributeSetArr = $this->createAttributeSet([
-            'slug' => $auxArr['attribute_set_slug'],
-            'group_attribute_name' => $auxArr['attribute_set_group_attribute_name'],
-            'breadcrumb' => $auxArr['attribute_set_hierarquie'],
-        ]);
+        foreach ($childItems as $variationItemAttr) {
 
-        $getListAttributesForVariationOption = $this->createAttributeSetAttributesVariations([
-            'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
-            'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
-            'item' => $childItem['variations']
-        ]);
+            $attributeSetArr = $this->createAttributeSet([
+            'slug' => $configsVariations['attributeSetData']['slug'],
+            'group_attribute_name' => 'Variações',
+            'breadcrumb' => $configsVariations['attributeSetData']['breadcrumb'],
+            ]);
+
+             \Log::info('variations values before' ,[
+                'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
+                'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
+                'item' => $variationItemAttr->attributes
+            ]);
+
+            $getListAttributesForVariationOption = $this->createAttributeSetAttributesVariations([
+                'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
+                'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
+                'item' => $variationItemAttr->attributes
+            ]);
 
 
 
+            \Log::info('variations values All' ,[
+            'attributeSetArr' => $attributeSetArr,
+            'getListAttributesForVariationOption' => $getListAttributesForVariationOption,
+            ]);
+
+        }
+
+        die();
+
+        foreach ($childItems as $indexVariation => $variationItem) {
+
+            $configsVariations['last_run']->addSeconds(rand(37, 70));
+
+            $this->createVariationItem(
+            $this->productnstance,
+                [
+                    'group_attribute_id' => $configsVariations['attributeSetData']['self_ecommerce_identify'],
+                    'group_attribute_subgroup_id' => $configsVariations['attributeSetData']['self_ecommerce_group_fields']['id'],
+                    'index_variation' => $indexVariation,
+                    'attribute_set_slug' => $configsVariations['categoryAttrData']->slug,
+                    'attribute_set_group_attribute_name' => 'Variações',
+                    'attribute_set_breadcrumb' => $configsVariations['categoryAttrData']->hierarquie,
+                ],
+                $variationItem,
+                $configsVariations['last_run']
+            );
+        }
+
+
+    }
+
+    private function createVariationItem($productParent, $auxArr , $childItem, $lastCarbonInstance)
+    {
+
+
+        SendProductChidrenAndAttachParentJob::dispatch(
+            $childItem
+            ,$productParent
+            ,[
+                'last_carbon_time_dispatch' => $lastCarbonInstance
+            ]
+        )->delay($lastCarbonInstance);
 
     }
 
@@ -139,22 +187,20 @@ class CreateProductBaseSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         $returnData = [];
-        foreach ($params['items'] as $itemAttrItems) {
-            foreach ($itemAttrItems['rows'] as $itemAttr) {
-
-            $returnData[] = (new FindOrCreateProductGroupAttributeTextItemsAction)
+        foreach ($params as $itemAttr) {
+            $returnData[] = (new FindOrCreateProductGroupAttributeOptionVariationItemsAction)
                     ->execute(collect([
                         'group_attribute_id' => $params['group_attribute_id'],
-                        'item' => $itemAttr,
+                        'item' => $itemAttr[0]['label'],
+                        'option' => ['lable' => $itemAttr[1]['value']],
                 ]),
-           [
+                [
                         'group_attribute_subgroup_id' => $params['group_attribute_subgroup_id'],
                         'group_attribute_id' => $params['group_attribute_id'],
-                        'sufix' => '_text',
-                    ],
+                        'sufix' => '_option',
+                ],
                  $this->consumer)['self_ecommerce_identify'];
             }
-        }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
@@ -274,7 +320,7 @@ class CreateProductBaseSelfEcommerceUseCase
         return $this->consumer->createProduct($payload);
     }
 
-    private function createImagesIntoProduct($productSku, array $images): void
+    private function createImagesIntoProduct($productSku, array $images): array
     {
         $delayToJob = Carbon::now();
 
@@ -299,7 +345,12 @@ class CreateProductBaseSelfEcommerceUseCase
         }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+
+        return [
+            'last_run' => $delayToJob,
+        ];
     }
+
 
 
 }

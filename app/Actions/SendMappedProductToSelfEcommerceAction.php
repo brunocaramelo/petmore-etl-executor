@@ -39,6 +39,9 @@ class SendMappedProductToSelfEcommerceAction
             \Log::error('HTTP error', ['code'=> $response->status(),
                                         'body' => $response->body()
                                     ]);
+
+            throw new \Exception('SendMappedProductToErpAction exception : '.$error->getMessage());
+
         } catch (Exception $e) {
             report($e);
 

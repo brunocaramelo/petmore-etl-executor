@@ -69,6 +69,55 @@ class SelfEcommerceConsumer
         return null;
     }
 
+    public function attachOptionToAttributeItem($attrCode, array $option)
+    {
+        $response = Http::retry(3, 10)
+                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    ->post($this->baseApiPath.'/products/attributes/'.$attrCode.'/options', [
+                        'option' => [
+                            'label' => $option['label'],
+                            'value' => (string) $option['value'],
+                            'sort_order' => $option['label'],
+                            'is_default' => false,
+                        ]
+                    ])->throw();
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
+    public function getGroupsFromAttributeSet(int $attributeSetId, ?string $groupName = null)
+    {
+        $url = $this->baseApiPath . "/products/attribute-sets/groups/list";
+        $query = [
+            'searchCriteria[filterGroups][0][filters][0][field]' => 'attribute_set_id',
+            'searchCriteria[filterGroups][0][filters][0][value]' => $attributeSetId,
+            'searchCriteria[filterGroups][0][filters][0][condition_type]' => 'eq',
+        ];
+
+        if ($groupName) {
+            $query['searchCriteria[filterGroups][1][filters][0][field]'] = 'attribute_group_name';
+            $query['searchCriteria[filterGroups][1][filters][0][value]'] = "%{$groupName}%";
+            $query['searchCriteria[filterGroups][1][filters][0][condition_type]'] = 'like';
+        }
+
+        $response = Http::retry(3, 10)
+            ->withToken($this->tokenAuth)
+            ->timeout(30)
+            ->get($url, $query)
+            ->throw();
+
+        if ($response->successful()) {
+            return $response->json()['items'] ?? [];
+        }
+
+        return [];
+    }
+
     public function addGroupAttibuteIntoAttributeSet(array $params)
     {
         $response = Http::retry(3, 10)

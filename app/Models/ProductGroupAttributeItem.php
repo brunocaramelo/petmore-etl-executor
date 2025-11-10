@@ -13,12 +13,17 @@ class ProductGroupAttributeItem extends Model
     protected $collection = 'product_group_attributes_item';
     protected $primaryKey = 'uuid';
 
+    protected $casts = [
+        'options' => 'array',
+    ];
+
     protected $fillable = [
         'id',
         'slug',
         'name',
         'type',
         'sort_order',
+        'options',
         'group_attribute_id',
         'self_ecommerce_identify',
     ];

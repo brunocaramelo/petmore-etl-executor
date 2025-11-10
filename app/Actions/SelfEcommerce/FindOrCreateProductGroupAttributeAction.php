@@ -124,12 +124,22 @@ class FindOrCreateProductGroupAttributeAction
         $foundGroup = $filtered ? reset($filtered) : null;
 
         if (!$foundGroup) {
-            $createdExternalGroup = $consumer->addGroupAttibuteIntoAttributeSet([
-                "group" => [
-                    "attribute_group_name" => $params['group_attribute_name'],
-                    "attribute_set_id" => $params['attribute_set_id'],
-                ]
-            ]);
+
+            $createdExternalGroup = $consumer->getGroupsFromAttributeSet(
+                    $params['attribute_set_id'],
+                    $params['group_attribute_name']
+            )[0] ?? null;
+
+            \Log::info('vendo se tem esse atributo getGroupsFromAttributeSet', $createdExternalGroup);
+
+            if (empty($createdExternalGroup['attribute_group_id'])) {
+                $createdExternalGroup = $consumer->addGroupAttibuteIntoAttributeSet([
+                    "group" => [
+                        "attribute_group_name" => $params['group_attribute_name'],
+                        "attribute_set_id" => $params['attribute_set_id'],
+                    ]
+                ]);
+            }
 
             $newGroup = [
                 'id' => $createdExternalGroup['attribute_group_id'],
