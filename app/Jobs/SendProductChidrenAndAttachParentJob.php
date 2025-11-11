@@ -7,22 +7,29 @@ use Illuminate\Foundation\Queue\Queueable;
 
 use Illuminate\Support\Facades\Storage;
 
+use App\UseCases\CreateProductChildSelfEcommerceUseCase;
+
 class SendProductChidrenAndAttachParentJob implements ShouldQueue
 {
     use Queueable;
 
-    private $childrenProduct;
+    private $currentProduct;
     private $parentProduct;
     private $consumer;
     private $configsParams;
 
+    public int $tries = 3;
+    public int $maxExceptions = 3;
+    public int $backoff = 60;
+    public int $timeout = 120;
+
     public function __construct(
-        $childrenProduct,
+        $currentProduct,
         $parentProduct,
         $consumer,
         $configsParams
     ) {
-        $this->childrenProduct = $childrenProduct;
+        $this->currentProduct = $currentProduct;
         $this->parentProduct = $parentProduct;
         $this->consumer = $consumer;
         $this->configsParams = $configsParams;
@@ -31,7 +38,11 @@ class SendProductChidrenAndAttachParentJob implements ShouldQueue
 
     public function handle(): void
     {
-
-
+        (new CreateProductChildSelfEcommerceUseCase(
+                $this->consumer,
+                $this->currentProduct,
+                $this->parentProduct,
+                $this->configsParams
+        ))->handle();
     }
 }
