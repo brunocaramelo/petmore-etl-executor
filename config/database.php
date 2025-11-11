@@ -2,17 +2,19 @@
 
 use Illuminate\Support\Str;
 
-$optionsToMongoDb = [];
+$optionsToMongoDb = [
+    'retryWrites' => false,
+    'useTransactions' => false,
+];
 
 if (env('MONGO_EXTERNAL_INSTANCE', false)) {
     $optionsToMongoDb = [
-             'database' => env('MONGO_DB_AUTH_SOURCE', 'admin'), // Define o banco de dados de autenticação
+            'database' => env('MONGO_DB_AUTH_SOURCE', 'admin'),
             'ssl' => env('MONGO_DB_USE_SSL', false),
             'replicaSet' => env('MONGO_REPLICA_SET', null),
             'readPreference' => 'primary',
         ];
 }
-
 
 return [
 

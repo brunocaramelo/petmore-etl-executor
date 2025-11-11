@@ -21,13 +21,12 @@ class FindOrCreateProductGroupAttributeTextItemsAction
         $slugAttribute = Str::slug($uniqueString, '_').$options['sufix'];
 
         $findLocaly = ProductGroupAttributeItem::where('slug', $slugAttribute)
+                                                ->where('group_attribute_id', $options['group_attribute_id'])
                                                 ->first();
 
         $countTableItems = ProductGroupAttributeItem::count();
 
-        if ($findLocaly instanceof ProductGroupAttributeItem
-            && $findLocaly->group_attribute_id == $options['group_attribute_id']
-        ) {
+        if ($findLocaly instanceof ProductGroupAttributeItem) {
             return [
                 'id' => $findLocaly->id,
                 'slug' => $findLocaly->slug,
@@ -39,12 +38,7 @@ class FindOrCreateProductGroupAttributeTextItemsAction
             ];
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') toSend' ,[
-            'slug' => $slugAttribute,
-            'name' => $item['label'],
-            'sort_order' => $countTableItems,
-            'group_attribute_id' => $options['group_attribute_id'],
-        ]);
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') toSend');
 
         $createdLocaly = $this->addAttributeInternal([
             'data' => [
@@ -75,7 +69,7 @@ class FindOrCreateProductGroupAttributeTextItemsAction
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         if ($params['data']['has_founded']) {
-            $createdExternal['attribute_id'] = $params['data']['find_localy']->id;
+            $createdExternal['attribute_id'] = $params['data']['find_localy']->self_ecommerce_identify;
         }
 
         if (!$params['data']['has_founded']) {

@@ -10,33 +10,40 @@ use Illuminate\Support\Str;
 
 class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 {
-   public function execute(Collection $param, $options, SelfEcommerceConsumer $consumer)
+   public function execute(Collection $param, $options, SelfEcommerceConsumer $consumer) : ProductGroupAttributeItem
     {
         $slugAttribute = Str::slug($param['item'], '_').$options['sufix'];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init', [$slugAttribute, $param, $options]);
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         $findLocaly = ProductGroupAttributeItem::where('slug', $slugAttribute)
+                                                ->where('group_attribute_id', $options['group_attribute_id'])
                                                 ->first();
 
         $countTableItems = ProductGroupAttributeItem::count();
 
-        if ($findLocaly instanceof ProductGroupAttributeItem
-            && $findLocaly->group_attribute_id == $options['group_attribute_id']
-        ) {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') working 0');
 
-            if (array_filter($findLocaly->options ?? [], fn($item) => ($item['label'] ?? null) === $param['option'])) {
+        if ($findLocaly instanceof ProductGroupAttributeItem) {
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') working 0.5');
+
+            if (!array_filter($findLocaly->options ?? [], fn($item) => ($item['label'] ?? null) === $param['option'])) {
                 $findLocaly->options = $this->addNewOptionAndReturn(
                         $findLocaly,
                         $param['option'],
                         $consumer,
                     );
+                \Log::info(__CLASS__.' ('.__FUNCTION__.') working 0.5.5');
 
                 $findLocaly->save();
             }
 
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') working 1.0');
+
             return $findLocaly;
         }
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') working 1.1');
 
         $createdLocaly = $this->addAttributeInternal([
             'data' => [
@@ -122,7 +129,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
         return $createdItem;
     }
 
-    private function addNewOptionAndReturn($attributte , $optionLabel, $consumer)
+    private function addNewOptionAndReturn($attributte , $optionLabel, $consumer) : array
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 

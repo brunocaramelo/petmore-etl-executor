@@ -39,9 +39,15 @@ class CreateProductBaseSelfEcommerceUseCase
 
         $delayToJob = Carbon::now();
 
+        $categoryAttrsProductAttributesItems = [];
+
         $productVatiations = $this->productnstance->variations ?? [];
         $categoryAttrs = $this->productnstance?->productCentral()->first()->category()->first() ?? null;
-        $categoryAttrsProductAttributesItems = $this->productnstance?->specifications ?? null;
+
+        if (count($productVatiations) == 0) {
+            $categoryAttrsProductAttributesItems = $this->productnstance?->specifications ?? null;
+        }
+
 
         $attributeSetArr = $this->createAttributeSet([
             'slug' => $categoryAttrs->slug,
@@ -49,7 +55,7 @@ class CreateProductBaseSelfEcommerceUseCase
             'breadcrumb' => $categoryAttrs->hierarquie,
         ]);
 
-        $attributeSetAttributesList = $this->createAttributeSetAttributes([
+        $this->createAttributeSetAttributes([
             'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
             'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
             'items' => $categoryAttrsProductAttributesItems,
@@ -100,7 +106,11 @@ class CreateProductBaseSelfEcommerceUseCase
 
     private function prepareAndcreateVariationItems($productParent, $childItems, $configsVariations)
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $listOfAttrVariationsProduct = [];
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') before createAttributeSet and createAttributeSetAttributesVariations in variations loop');
 
         foreach ($childItems as $variationItemAttr) {
 
@@ -130,12 +140,19 @@ class CreateProductBaseSelfEcommerceUseCase
             }
         }
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') after createAttributeSet and createAttributeSetAttributesVariations in variations loop');
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') before sendAndPrepareOptionsVariationsComplete', $listOfAttrVariationsProduct);
+
         $this->sendAndPrepareOptionsVariationsComplete(
             $productParent->sku,
             $listOfAttrVariationsProduct,
             $this->consumer
         );
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') after sendAndPrepareOptionsVariationsComplete');
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') before send variation to Queue');
 
         foreach ($childItems as $indexVariation => $variationItem) {
 
@@ -156,10 +173,13 @@ class CreateProductBaseSelfEcommerceUseCase
             );
         }
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') after send variation to Queue');
     }
 
     private function sendAndPrepareOptionsVariationsComplete($productSku, $arrAttrVariations, $consumer)
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         foreach ($arrAttrVariations as $arrAttrItem) {
             $consumer->attachOptionAttibuteAttrIntoConfigurableProduct($productSku, [
                 'option' => [
@@ -167,7 +187,7 @@ class CreateProductBaseSelfEcommerceUseCase
                     'label' => $arrAttrItem['name'],
                     'position' => 0,
                     'is_use_default' => false,
-                    'values' => collect($arrAttrItem->options ?? [])->map( function ($item) {
+                    'values' => collect($arrAttrItem['options'] ?? [])->map( function ($item) {
                                     return [
                                         'value_index' => $item['value']
                                     ];
@@ -177,17 +197,21 @@ class CreateProductBaseSelfEcommerceUseCase
 
             usleep(rand(20, 60));
         }
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
     }
 
     private function createVariationItem($productParent, $auxArr , $childItem, $lastCarbonInstance)
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $customVariationAttributes = collect($childItem['attributes'] ?? [])->map(function ($item) {
             $itemLabel = $item[0]['label'];
             $itemValue = $item[1]['value'];
 
             $attrOptionValueEntity = \App\Models\ProductGroupAttributeItem::where('name', $itemLabel)->first();
 
-            $filteredAttrArr = array_filter($attrOptionValueEntity->options, fn($item) => ($item['value'] ?? null) === $itemValue);
+            $filteredAttrArr = array_filter($attrOptionValueEntity['options'], fn($item) => ($item['value'] ?? null) === $itemValue);
 
             return [
                 'id' => $attrOptionValueEntity->self_ecommerce_identify,
@@ -199,6 +223,12 @@ class CreateProductBaseSelfEcommerceUseCase
                 ]
             ];
         });
+
+        \Log::info('before createVariationItem', [
+            '$customVariationAttributes' => $customVariationAttributes,
+            '$auxArr' => $auxArr,
+        ]);
+        die();
 
         SendProductChidrenAndAttachParentJob::dispatch(
             $childItem
@@ -251,7 +281,7 @@ class CreateProductBaseSelfEcommerceUseCase
                     'group_attribute_id' => $params['group_attribute_id'],
                     'sufix' => '_option',
             ],
-                $this->consumer)['self_ecommerce_identify'];
+                $this->consumer);
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
