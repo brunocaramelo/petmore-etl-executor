@@ -35,15 +35,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
                 $findLocaly->save();
             }
 
-            return [
-                'id' => $findLocaly->id,
-                'slug' => $findLocaly->slug,
-                'name' => $findLocaly->name,
-                'sort_order' => $findLocaly->sort_order,
-                'group_attribute_id' => $findLocaly->group_attribute_id,
-                'self_ecommerce_identify' => $findLocaly->self_ecommerce_identify,
-                'options' => $findLocaly->options,
-            ];
+            return $findLocaly;
         }
 
         $createdLocaly = $this->addAttributeInternal([
@@ -62,14 +54,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
-        return [
-            'slug' => $createdLocaly->slug,
-            'name' => $createdLocaly->name,
-            'sort_order' => $createdLocaly->sort_order,
-            'group_attribute_id' => $createdLocaly->group_attribute_id,
-            'self_ecommerce_identify' => $createdLocaly->self_ecommerce_identify,
-            'options' => $createdLocaly->options,
-        ];
+        return $createdLocaly;
     }
 
     private function addAttributeInternal($params)

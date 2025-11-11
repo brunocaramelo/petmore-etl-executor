@@ -84,6 +84,21 @@ class SelfEcommerceConsumer
         return null;
     }
 
+    public function attachOptionAttibuteAttrIntoConfigurableProduct($productSku, array $params)
+    {
+        $response = Http::retry(3, 10)
+                    ->withToken($this->tokenAuth)
+                    ->timeout(8999)
+                    ->post($this->baseApiPath.'/configurable-products/'.$productSku.'/options', $params)
+                    ->throw();
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
     public function attachOptionToAttributeItem($attrCode, array $option)
     {
         $response = Http::retry(3, 10)
