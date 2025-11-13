@@ -384,6 +384,7 @@ class CreateProductBaseSelfEcommerceUseCase
     private function createImagesIntoProduct($productSku, array $images,  $delayToJob): array
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        return [];
 
         foreach ($images as $img) {
 
