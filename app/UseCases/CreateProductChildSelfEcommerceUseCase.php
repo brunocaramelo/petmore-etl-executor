@@ -63,7 +63,10 @@ class CreateProductChildSelfEcommerceUseCase
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createProduct');
 
-        $configurableProduct = $this->createProduct($this->productnstance);
+        $configurableProduct = $this->createProduct(
+                                                        $this->productnstance,
+                                                        $this->parentProduct,
+                                                    );
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createProduct');
 
@@ -170,9 +173,9 @@ class CreateProductChildSelfEcommerceUseCase
         return $returnData;
     }
 
-    private function createProduct(ProductRewrited $productData): ?array
+    private function createProduct($productData, $parentProduct): ?array
     {
-        $listCategories = $this->getCategoriesHierarquies($productData->productCentral()->first()->category_id);
+        $listCategories = $this->getCategoriesHierarquies($parentProduct->productCentral()->first()->category_id);
 
         $extensionAttributes = [
             'stock_item' => [
