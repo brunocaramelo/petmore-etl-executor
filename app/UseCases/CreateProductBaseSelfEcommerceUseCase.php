@@ -25,6 +25,7 @@ class CreateProductBaseSelfEcommerceUseCase
     private $consumer;
     private $typeProduct;
     private $productnstance;
+    private $hasVariations = false;
 
     public function __construct(SelfEcommerceConsumer $consumer,
                                 ProductRewrited $productnstance)
@@ -41,10 +42,13 @@ class CreateProductBaseSelfEcommerceUseCase
 
         $categoryAttrsProductAttributesItems = [];
 
+
         $productVatiations = $this->productnstance->variations ?? [];
         $categoryAttrs = $this->productnstance?->productCentral()->first()->category()->first() ?? null;
 
-        if (count($productVatiations) == 0) {
+        $this->hasVariations = (count($productVatiations) > 0);
+
+        if (!$this->hasVariations) {
             $categoryAttrsProductAttributesItems = $this->productnstance?->specifications ?? null;
         }
 
@@ -154,23 +158,22 @@ class CreateProductBaseSelfEcommerceUseCase
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before send variation to Queue');
 
-        foreach ($childItems as $indexVariation => $variationItem) {
+        foreach ($childItems as $variationItem) {
 
             $configsVariations['last_run']->addSeconds(rand(37, 70));
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') before createVariationItem');
 
             $this->createVariationItem(
-            $this->productnstance,
+                $this->productnstance,
                 [
-                    'group_attribute_id' => $configsVariations['attributeSetData']['self_ecommerce_identify'],
-                    'group_attribute_subgroup_id' => $configsVariations['attributeSetData']['self_ecommerce_group_fields']['id'],
-                    'index_variation' => $indexVariation,
-                    'attribute_set_slug' => $configsVariations['categoryAttrData']->slug,
-                    'attribute_set_group_attribute_name' => 'Variações',
-                    'attribute_set_breadcrumb' => $configsVariations['categoryAttrData']->hierarquie,
+                    'variations_attributes' => $listOfAttrVariationsProduct,
                 ],
                 $variationItem,
                 $configsVariations['last_run']
             );
+
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') after createVariationItem');
+
         }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after send variation to Queue');
@@ -205,44 +208,18 @@ class CreateProductBaseSelfEcommerceUseCase
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
-        $customVariationAttributes = collect($childItem['attributes'] ?? [])->map(function ($item) {
-            $itemLabel = $item[0]['label'];
-            $itemValue = $item[1]['value'];
-
-            $attrOptionValueEntity = \App\Models\ProductGroupAttributeItem::where('name', $itemLabel)->first();
-
-            $filteredAttrArr = array_filter($attrOptionValueEntity['options'], fn($item) => ($item['value'] ?? null) === $itemValue);
-
-            return [
-                'id' => $attrOptionValueEntity->self_ecommerce_identify,
-                'name' => $attrOptionValueEntity->name,
-                'slug' => $attrOptionValueEntity->slug,
-                'custom_attributes' => [
-                    'attribute_code' => $item['slug'],
-                    'value' => $filteredAttrArr[0]['value'],
-                ]
-            ];
-        });
-
-        \Log::info('before createVariationItem', [
-            '$customVariationAttributes' => $customVariationAttributes,
-            '$auxArr' => $auxArr,
-        ]);
-        die();
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') send to SendProductChidrenAndAttachParentJob::dispatch');
 
         SendProductChidrenAndAttachParentJob::dispatch(
-            $childItem
-            ,$productParent
-            ,[
+            $childItem,
+            $productParent,
+            $this->consumer,
+            [
                 'last_carbon_time_dispatch' => $lastCarbonInstance,
-                'variation_attribute_data' => $customVariationAttributes,
-                'group_attribute_id' => $auxArr['group_attribute_id'],
-                'group_attribute_subgroup_id' => $auxArr['group_attribute_subgroup_id'],
-                'attribute_set_slug' => $auxArr['attribute_set_slug'],
-                'attribute_set_group_attribute_name' => 'Attributes',
-                'attribute_set_breadcrumb' => $auxArr['attribute_set_breadcrumb'],
+                'variations_attributes' => $auxArr['variations_attributes'],
             ])->delay($lastCarbonInstance);
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
     }
 
 
@@ -383,18 +360,21 @@ class CreateProductBaseSelfEcommerceUseCase
                 "sku" => $productData->sku,
                 "name" => $productData->title,
                 "attribute_set_id" => $productData->attribute_set_id,
-                "price" => $productData->price['current'],
+                "price" => $this->hasVariations == false ? $productData->price['current'] : 0,
                 "status" => 1,
                 "visibility" => 4,
                 "type_id" => $this->typeProduct,
                 "weight" => 1,
                 "extension_attributes" => $extensionAttributes,
-                "custom_attributes" =>  $this->getFormatedCustomAttributesList([
-                    'items' => $this->productnstance?->specifications ?? [],
-                    'sufix' => '_text'
-                ]),
             ]
         ];
+
+        if (!$this->hasVariations) {
+            $payload['custom_attributes'] = $this->getFormatedCustomAttributesList([
+                        'items' => $this->productnstance?->specifications ?? [],
+                        'sufix' => '_text'
+            ]);
+        }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') prepare to send $this->consumer->createProduct', $payload);
 

@@ -25,7 +25,6 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
         \Log::info(__CLASS__.' ('.__FUNCTION__.') working 0');
 
         if ($findLocaly instanceof ProductGroupAttributeItem) {
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') working 0.5');
 
             if (!array_filter($findLocaly->options ?? [], fn($item) => ($item['label'] ?? null) === $param['option'])) {
                 $findLocaly->options = $this->addNewOptionAndReturn(
@@ -33,12 +32,9 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
                         $param['option'],
                         $consumer,
                     );
-                \Log::info(__CLASS__.' ('.__FUNCTION__.') working 0.5.5');
 
                 $findLocaly->save();
             }
-
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') working 1.0');
 
             return $findLocaly;
         }
