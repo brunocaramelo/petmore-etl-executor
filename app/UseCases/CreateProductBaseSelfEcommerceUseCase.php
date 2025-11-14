@@ -107,6 +107,7 @@ class CreateProductBaseSelfEcommerceUseCase
         return $this->productnstance;
     }
 
+
     private function prepareAndcreateVariationItems($productParent, $childItems, $configsVariations)
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
@@ -144,13 +145,6 @@ class CreateProductBaseSelfEcommerceUseCase
             }
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') after createAttributeSet and createAttributeSetAttributesVariations, atributos encontrados:', [
-            'qtd' => count($listOfAttrVariationsProduct),
-            'items' => $listOfAttrVariationsProduct,
-            '$variationItemAttr->attributes' => $variationItemAttr->attributes ?? [],
-            // 'childItems' => $childItems,
-        ]);
-
         $this->sendAndPrepareOptionsVariationsComplete(
             $productParent->sku,
             $listOfAttrVariationsProduct,
@@ -182,27 +176,12 @@ class CreateProductBaseSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after send variation to Queue');
     }
 
+
     private function sendAndPrepareOptionsVariationsComplete($productSku, $arrAttrVariations, $consumer)
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         foreach ($arrAttrVariations as $arrAttrItem) {
-
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') (REMOVER) DEBUG REQUEST', [
-                'sku' => $productSku,
-                'body' => [ 'option' => [
-                    'attribute_id' => (int) $arrAttrItem['self_ecommerce_identify'],
-                    'label' => $arrAttrItem['name'],
-                    'position' => 0,
-                    "is_use_default" => true,
-                    'values' => collect($arrAttrItem['options'] ?? [])->map( function ($item) {
-                                    return [
-                                        'value_index' => (int) $item['value']
-                                    ];
-                            })->values()->toArray(),
-                    ]
-                ],
-            ]);
 
             $consumer->attachOptionAttibuteAttrIntoConfigurableProduct($productSku, [
                 'option' => [
@@ -316,16 +295,15 @@ class CreateProductBaseSelfEcommerceUseCase
     {
         $returnData = [];
 
-        if (!$this->hasVariations) {
-            foreach ($params['items'] as $itemAttrItems) {
-                foreach ($itemAttrItems['rows'] as $itemAttr) {
-                    $returnData[] = [
-                        'attribute_code' => Str::slug($itemAttr['label'], '_').$params['sufix'],
-                        'value' => $itemAttr['value'],
-                    ];
-                }
+        foreach ($params['items'] as $itemAttrItems) {
+            foreach ($itemAttrItems['rows'] as $itemAttr) {
+                $returnData[] = [
+                    'attribute_code' => Str::slug($itemAttr['label'], '_').$params['sufix'],
+                    'value' => $itemAttr['value'],
+                ];
             }
         }
+
 
         $returnData[] = [
             "attribute_code" => "description",

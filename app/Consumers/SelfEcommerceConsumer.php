@@ -200,6 +200,7 @@ class SelfEcommerceConsumer
         return null;
     }
 
+
     public function createMediaImagesIntoProductSku($productSku ,array $params)
     {
         $response = Http::retry(3, 10)
@@ -215,42 +216,13 @@ class SelfEcommerceConsumer
         return null;
     }
 
-    public function createCustomField(array $params)
-    {
-        $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
-                    ->timeout(8999)
-                    ->post($this->baseApiPath.'/campos-customizados', $params)
-                    ->throw();
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-
-        return null;
-    }
-
-    public function updateCustomField($id, array $params)
-    {
-        $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
-                    ->timeout(8999)
-                    ->put($this->baseApiPath.'/campos-customizados/'.$id, $params)
-                    ->throw();
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-
-        return null;
-    }
 
     public function getProduct($identify)
     {
         $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
-                    ->get($this->baseApiPath.'/produtos/'.$identify);
+                    ->get($this->baseApiPath.'/products/'.$identify);
 
         if ($response->successful()) {
             return $response->json();
@@ -264,7 +236,7 @@ class SelfEcommerceConsumer
         $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
-                    ->put($this->baseApiPath.'/produtos/'.$identify);
+                    ->put($this->baseApiPath.'/products/'.$identify, $params);
 
         if ($response->successful()) {
             return $response->json();
