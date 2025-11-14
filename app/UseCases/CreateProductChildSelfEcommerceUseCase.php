@@ -9,7 +9,8 @@ use App\Actions\SelfEcommerce\{FindOrCreateProductGroupAttributeAction,
                                FindOrCreateProductGroupAttributeOptionVariationItemsAction};
 
 use App\Models\{ProductRewrited,
-                ProductCategory
+                ProductCategory,
+                ProductDto
                 };
 
 use App\Jobs\{UploadImageJpgToSelfCommerceToProductJob,
@@ -26,8 +27,8 @@ class CreateProductChildSelfEcommerceUseCase
     private $configs;
 
     public function __construct(SelfEcommerceConsumer $consumer,
-                                $productnstance,
-                                $parentProduct,
+                                ProductDto $productnstance,
+                                ProductRewrited $parentProduct,
                                 $configs)
     {
         $this->consumer = $consumer;
@@ -38,7 +39,7 @@ class CreateProductChildSelfEcommerceUseCase
 
     public function handle()
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init DEBUG',['$this->configs' => $this->configs]);
 
         $delayToJob = $this->configs['last_carbon_time_dispatch'];
 
@@ -63,10 +64,10 @@ class CreateProductChildSelfEcommerceUseCase
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createProduct');
 
-        $configurableProduct = $this->createProduct(
-                                                        $this->productnstance,
-                                                        $this->parentProduct,
-                                                    );
+        $this->createProduct(
+            $this->productnstance,
+            $this->parentProduct,
+        );
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createProduct');
 
@@ -81,12 +82,16 @@ class CreateProductChildSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createImagesIntoProduct');
 
 
-        $this->consumer->attachProductChildIntoConfigurableProduct(
+        $attachChildResponde = $this->consumer->attachProductChildIntoConfigurableProduct(
             $this->parentProduct->sku,
             [
                 'childSku' => $this->productnstance->sku
             ]
         );
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') result of attachProductChildIntoConfigurableProduct', [
+            $attachChildResponde
+        ]);
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
@@ -144,6 +149,8 @@ class CreateProductChildSelfEcommerceUseCase
 
     private function getFormatedCustomAttributesList($params): array
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $returnData = [];
         foreach ($params['items'] as $itemAttrItems) {
             foreach ($itemAttrItems['rows'] as $itemAttr) {
@@ -154,19 +161,22 @@ class CreateProductChildSelfEcommerceUseCase
             }
         }
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') after configurable attributes');
+
         $returnData[] = [
             "attribute_code" => "description",
-            "value" => $this->productnstance->productCentral()
-                            ->first()
-                            ->description['small']['complement'] ?? "description",
+            "value" => $this->productnstance->description['complement']['html'] ?? "description",
         ];
+
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') after description');
 
         $returnData[] = [
             "attribute_code" => "short_description",
-            "value" => $this->productnstance->productCentral()
-                            ->first()
-                            ->description['small']['html'] ?? "short_description",
+            "value" => $this->productnstance->description['small']['html'] ?? "short_description",
         ];
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') after short_description DEBUG:',$returnData);
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
@@ -176,6 +186,8 @@ class CreateProductChildSelfEcommerceUseCase
     private function createProduct($productData, $parentProduct): ?array
     {
         $listCategories = $this->getCategoriesHierarquies($parentProduct->productCentral()->first()->category_id);
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         $extensionAttributes = [
             'stock_item' => [
@@ -196,6 +208,10 @@ class CreateProductChildSelfEcommerceUseCase
                 ],
             ];
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') declare extensionAttributes',  [
+            '$listCategories->count() > 0' => $listCategories->count() > 0
+        ]);
+
         if ($listCategories->count() > 0) {
             $extensionAttributes['category_links'] = $listCategories->map(function ($category, $index) {
                 return [
@@ -206,15 +222,32 @@ class CreateProductChildSelfEcommerceUseCase
         }
 
         $customAttrSelfPrd = $this->getFormatedCustomAttributesList([
-            'items' => $this->productnstance?->specifications ?? [],
+            'items' => $parentProduct?->specifications ?? [],
             'sufix' => '_text'
         ]);
 
-        $customAttrVariationsKeyValue = [];
+        $customAttrVariationsComplete = [];
+        $slugPartsGlobal = [];
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') prepare declare $payload');
+
+        $customAttrVariationsComplete = $this->parseCustomAttributesFromThisChild($productData, $this->configs['variations_attributes']);
+        if (!empty($customAttrVariationsComplete['slug_combined'])) {
+            $slugPartsGlobal[] = $customAttrVariationsComplete['slug_combined'];
+        }
+
+        $customAttrSelfPrd[] = [
+            "attribute_code" => "url_key",
+            "value" =>  Str::slug($productData->title.'-modelo', '-').'-'.str_replace(
+                            ['_option'],
+                            [],
+                            implode('-', $slugPartsGlobal)
+                        ),
+        ];
 
         $payload = [
             "product" => [
-                "sku" => $productData->sku,
+                "sku" => $this->generateSkuToThisProduct($parentProduct->sku , $slugPartsGlobal),
                 "name" => $productData->title,
                 "attribute_set_id" => $productData->attribute_set_id,
                 "price" => $productData->price['current'],
@@ -223,26 +256,42 @@ class CreateProductChildSelfEcommerceUseCase
                 "type_id" => $this->typeProduct,
                 "weight" => 1,
                 "extension_attributes" => $extensionAttributes,
+                'custom_attributes' => array_merge(
+                    $customAttrSelfPrd,
+                    $customAttrVariationsComplete['attributes']
+                )
             ]
         ];
 
-        foreach ($this->configs['variations_attributes'] as $itemAttr) {
-           $customAttrVariationsKeyValue[] = $this->parseCustomAttributesFromThisChild($productData, $itemAttr);
-        }
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') after declare $payload DEBUG', [
+            '$customAttrSelfPrd' => $customAttrSelfPrd,
+            'customAttrVariationsComplete[attributes]' => $customAttrVariationsComplete['attributes'],
+        ]);
 
-        $payload['custom_attributes'] = array_merge(
-            $customAttrSelfPrd,
-            $customAttrVariationsKeyValue
-        );
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') prepare to send $this->consumer->createProduct', $payload);
 
         return $this->consumer->createProduct($payload);
     }
 
+    private function generateSkuToThisProduct($baseSku, $slugPartsGlobal)
+    {
+        $this->productnstance->sku = strtoupper(Str::slug($baseSku, '_').'_'.str_replace(
+            ['_option',' ', '.'],
+            ['', '', ''],
+            implode('_', $slugPartsGlobal)
+        ));
+
+        return $this->productnstance->sku;
+    }
+
     private function parseCustomAttributesFromThisChild($currentProduct, array $attributesSelf): array
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $attrReturn = [];
+        $slugParts = [];
+
         foreach ($attributesSelf as $itemAllAttr) {
             foreach ($currentProduct->attributes as $currentItemAllAttrPrd) {
                 foreach ($itemAllAttr['options'] as $itemAllOption) {
@@ -253,18 +302,29 @@ class CreateProductChildSelfEcommerceUseCase
                             'attribute_code' => $itemAllAttr['slug'],
                             'value' => $itemAllOption['value'],
                         ];
+
+                         $slugParts[] = strtolower(
+                            $itemAllAttr['slug'] . '_' . $itemAllOption['label']
+                        );
                     }
                 }
             }
         }
 
-        return $attrReturn;
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+
+        return [
+            'attributes' => $attrReturn,
+            'slug_combined' => implode('_', $slugParts),
+        ];
+
     }
 
     private function createImagesIntoProduct($productSku, array $images,  $delayToJob): array
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
-        return [];
+        //@TODO remover isso depois
+        // return [];
 
         foreach ($images as $img) {
 

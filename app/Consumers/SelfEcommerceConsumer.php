@@ -63,7 +63,7 @@ class SelfEcommerceConsumer
                     ->throw();
 
         if ($response->successful()) {
-            return $response->json();
+            return str_replace('"','', $response->body());
         }
 
         return null;
@@ -101,6 +101,12 @@ class SelfEcommerceConsumer
 
     public function attachProductChildIntoConfigurableProduct($productSku, array $params)
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') request', [
+            'url' => $this->baseApiPath.'/configurable-products/'.$productSku.'/child',
+            'body' => $params,
+            'token' => $this->tokenAuth,
+        ]);
+
         $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)

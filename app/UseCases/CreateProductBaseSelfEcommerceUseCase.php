@@ -9,7 +9,8 @@ use App\Actions\SelfEcommerce\{FindOrCreateProductGroupAttributeAction,
                                FindOrCreateProductGroupAttributeOptionVariationItemsAction};
 
 use App\Models\{ProductRewrited,
-                ProductCategory
+                ProductCategory,
+                ProductDto
                 };
 
 use App\UseCases\CreateProductChildSelfEcommerceUseCase;
@@ -48,9 +49,7 @@ class CreateProductBaseSelfEcommerceUseCase
 
         $this->hasVariations = (count($productVatiations) > 0);
 
-        if (!$this->hasVariations) {
-            $categoryAttrsProductAttributesItems = $this->productnstance?->specifications ?? null;
-        }
+        $categoryAttrsProductAttributesItems = $this->productnstance?->specifications ?? null;
 
 
         $attributeSetArr = $this->createAttributeSet([
@@ -93,7 +92,7 @@ class CreateProductBaseSelfEcommerceUseCase
 
 
         $this->prepareAndcreateVariationItems($this->productnstance,
-            collect($productVatiations)->map(fn($i) => (object)$i) ?? [],
+            $productVatiations,
             [
                 'attributeSetData' => $attributeSetArr,
                 'categoryAttrData' => $categoryAttrs,
@@ -114,17 +113,18 @@ class CreateProductBaseSelfEcommerceUseCase
 
         $listOfAttrVariationsProduct = [];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') before createAttributeSet and createAttributeSetAttributesVariations in variations loop');
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') before createAttributeSet and createAttributeSetAttributesVariations in variations loop DEBUG:',[
+            '$childItems[0]->attributes', $childItems[0]['attributes'],
+        ]);
 
         foreach ($childItems as $variationItemAttr) {
-
             $attributeSetArr = $this->createAttributeSet([
                 'slug' => $configsVariations['attributeSetData']['slug'],
                 'group_attribute_name' => 'Variações',
                 'breadcrumb' => $configsVariations['attributeSetData']['breadcrumb'],
             ]);
 
-            foreach($variationItemAttr->attributes ?? [] as $itemAttrVariation) {
+            foreach($variationItemAttr['attributes'] ?? [] as $itemAttrVariation) {
                $responseAttrVariationOptions = $this->createAttributeSetAttributesVariations([
                     'group_attribute_id' => $attributeSetArr['self_ecommerce_identify'],
                     'group_attribute_subgroup_id' => $attributeSetArr['self_ecommerce_group_fields']['id'],
@@ -144,9 +144,12 @@ class CreateProductBaseSelfEcommerceUseCase
             }
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') after createAttributeSet and createAttributeSetAttributesVariations in variations loop');
-
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') before sendAndPrepareOptionsVariationsComplete', $listOfAttrVariationsProduct);
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') after createAttributeSet and createAttributeSetAttributesVariations, atributos encontrados:', [
+            'qtd' => count($listOfAttrVariationsProduct),
+            'items' => $listOfAttrVariationsProduct,
+            '$variationItemAttr->attributes' => $variationItemAttr->attributes ?? [],
+            // 'childItems' => $childItems,
+        ]);
 
         $this->sendAndPrepareOptionsVariationsComplete(
             $productParent->sku,
@@ -184,17 +187,34 @@ class CreateProductBaseSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         foreach ($arrAttrVariations as $arrAttrItem) {
-            $consumer->attachOptionAttibuteAttrIntoConfigurableProduct($productSku, [
-                'option' => [
-                    'attribute_id' => $arrAttrItem['self_ecommerce_identify'],
+
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') (REMOVER) DEBUG REQUEST', [
+                'sku' => $productSku,
+                'body' => [ 'option' => [
+                    'attribute_id' => (int) $arrAttrItem['self_ecommerce_identify'],
                     'label' => $arrAttrItem['name'],
                     'position' => 0,
-                    'is_use_default' => false,
+                    "is_use_default" => true,
                     'values' => collect($arrAttrItem['options'] ?? [])->map( function ($item) {
                                     return [
-                                        'value_index' => $item['value']
+                                        'value_index' => (int) $item['value']
                                     ];
-                            })->toArray(),
+                            })->values()->toArray(),
+                    ]
+                ],
+            ]);
+
+            $consumer->attachOptionAttibuteAttrIntoConfigurableProduct($productSku, [
+                'option' => [
+                    'attribute_id' => (int) $arrAttrItem['self_ecommerce_identify'],
+                    'label' => $arrAttrItem['name'],
+                    'position' => 0,
+                    "is_use_default" => true,
+                    'values' => collect($arrAttrItem['options'] ?? [])->map( function ($item) {
+                                    return [
+                                        'value_index' => (int) $item['value']
+                                    ];
+                            })->values()->toArray(),
                 ]
             ]);
 
@@ -211,7 +231,7 @@ class CreateProductBaseSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') send to SendProductChidrenAndAttachParentJob::dispatch');
 
         SendProductChidrenAndAttachParentJob::dispatch(
-            $childItem,
+            (new ProductDto())->fill($childItem),
             $productParent,
             $this->consumer,
             [
@@ -295,27 +315,31 @@ class CreateProductBaseSelfEcommerceUseCase
     private function getFormatedCustomAttributesList($params): array
     {
         $returnData = [];
-        foreach ($params['items'] as $itemAttrItems) {
-            foreach ($itemAttrItems['rows'] as $itemAttr) {
-                $returnData[] = [
-                    'attribute_code' => Str::slug($itemAttr['label'], '_').$params['sufix'],
-                    'value' => $itemAttr['value'],
-                ];
+
+        if (!$this->hasVariations) {
+            foreach ($params['items'] as $itemAttrItems) {
+                foreach ($itemAttrItems['rows'] as $itemAttr) {
+                    $returnData[] = [
+                        'attribute_code' => Str::slug($itemAttr['label'], '_').$params['sufix'],
+                        'value' => $itemAttr['value'],
+                    ];
+                }
             }
         }
 
         $returnData[] = [
             "attribute_code" => "description",
-            "value" => $this->productnstance->productCentral()
-                            ->first()
-                            ->description['small']['complement'] ?? "description",
+            "value" => $this->productnstance->description['complement']['html'] ?? "description",
         ];
 
         $returnData[] = [
             "attribute_code" => "short_description",
-            "value" => $this->productnstance->productCentral()
-                            ->first()
-                            ->description['small']['html'] ?? "short_description",
+            "value" => $this->productnstance->description['small']['html'] ?? "short_description",
+        ];
+
+        $customAttrSelfPrd[] = [
+            "attribute_code" => "url_key",
+            "value" =>  Str::slug($this->productnstance->title.'-base', '-'),
         ];
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
@@ -369,11 +393,14 @@ class CreateProductBaseSelfEcommerceUseCase
             ]
         ];
 
+        $payload['custom_attributes'] = $this->getFormatedCustomAttributesList([
+                    'items' => $this->productnstance?->specifications ?? [],
+                    'sufix' => '_text'
+        ]);
+
         if (!$this->hasVariations) {
-            $payload['custom_attributes'] = $this->getFormatedCustomAttributesList([
-                        'items' => $this->productnstance?->specifications ?? [],
-                        'sufix' => '_text'
-            ]);
+
+            $payload['saveOptions'] = true;
         }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') prepare to send $this->consumer->createProduct', $payload);
@@ -384,7 +411,8 @@ class CreateProductBaseSelfEcommerceUseCase
     private function createImagesIntoProduct($productSku, array $images,  $delayToJob): array
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
-        return [];
+        //@TODO remover isso depois
+        // return [];
 
         foreach ($images as $img) {
 

@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Storage;
 
 use App\UseCases\CreateProductChildSelfEcommerceUseCase;
 
+use App\Models\{ProductRewrited,
+                ProductDto
+                };
+
 class SendProductChidrenAndAttachParentJob implements ShouldQueue
 {
     use Queueable;
@@ -18,14 +22,14 @@ class SendProductChidrenAndAttachParentJob implements ShouldQueue
     private $consumer;
     private $configsParams;
 
-    public int $tries = 3;
-    public int $maxExceptions = 3;
-    public int $backoff = 60;
-    public int $timeout = 120;
+    // public int $tries = 3;
+    // public int $maxExceptions = 3;
+    // public int $backoff = 60;
+    // public int $timeout = 120;
 
     public function __construct(
-        $currentProduct,
-        $parentProduct,
+        ProductDto $currentProduct,
+        ProductRewrited $parentProduct,
         $consumer,
         $configsParams
     ) {

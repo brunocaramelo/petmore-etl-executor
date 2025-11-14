@@ -13,13 +13,13 @@ class SendMappedProductToSelfEcommerceJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $tries = 3;
+    // public int $tries = 3;
 
-    public int $maxExceptions = 3;
+    // public int $maxExceptions = 3;
 
-    public int $backoff = 60;
+    // public int $backoff = 60;
 
-    public int $timeout = 120;
+    // public int $timeout = 120;
 
     private $productCentral;
     public function __construct(

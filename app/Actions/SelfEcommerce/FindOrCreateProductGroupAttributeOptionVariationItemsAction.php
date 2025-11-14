@@ -86,7 +86,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
                         "is_user_defined" => true,
                         "is_visible_on_front" => true,
                         "is_visible" => true,
-                        "scope" => "store",
+                        "scope" => "global",
                         "entity_type_id" => 4
                     ]
             ]);
@@ -133,7 +133,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 
         $option = [
             'label' => $optionLabel,
-            'value' => (count($listOptions) + 1)
+            'value' => (int) (count($listOptions) + 1)
         ];
 
         if (array_filter($listOptions, fn($item) => ($item['label'] ?? null) === $optionLabel)) {
@@ -147,7 +147,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
                 'is_default' => false,
                 'store_labels' => [
                     [
-                        'store_id' => 1,
+                        'store_id' => 0,
                         'label' => $option['label']
                     ]
                 ]
@@ -155,6 +155,8 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
         ]);
 
         usleep(rand(80, 110));
+
+        $option['value'] = $reponseApi;
 
         $listOptions[] = $option;
 
