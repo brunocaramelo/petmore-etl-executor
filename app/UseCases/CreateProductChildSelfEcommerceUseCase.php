@@ -165,7 +165,7 @@ class CreateProductChildSelfEcommerceUseCase
 
         $returnData[] = [
             "attribute_code" => "description",
-            "value" => $this->productnstance->description['complement']['html'] ?? "description",
+            "value" => $this->getSafeHtmlCharsToJson($this->productnstance->description['complement']['html'] ?? "description"),
         ];
 
 
@@ -173,7 +173,7 @@ class CreateProductChildSelfEcommerceUseCase
 
         $returnData[] = [
             "attribute_code" => "short_description",
-            "value" => $this->productnstance->description['small']['html'] ?? "short_description",
+            "value" => $this->getSafeHtmlCharsToJson($this->productnstance->description['small']['html'] ?? "short_description"),
         ];
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after short_description DEBUG:',$returnData);
@@ -181,6 +181,46 @@ class CreateProductChildSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return $returnData;
+    }
+
+    private function getSafeHtmlCharsToJson($html)
+    {
+        $html = preg_replace('/\s+/', ' ', $html);
+
+        $parts = preg_split('/<br\s*\/?>/i', $html);
+        $parts = array_filter(array_map('trim', $parts));
+
+        $html = '';
+        foreach ($parts as $part) {
+            $html .= "<p>{$part}</p>";
+        }
+
+        $html = strip_tags($html, '<p><ul><li><a><strong><b>');
+
+        $html = preg_replace_callback(
+            '/<(a|p|ul|li|strong|b)([^>]*)>/i',
+            function ($matches) {
+                $tag = $matches[1];
+                $attrs = $matches[2];
+
+                $allowed = '';
+
+                if (preg_match('/href\s*=\s*"(.*?)"/i', $attrs, $m)) {
+                    $allowed .= ' href="' . $m[1] . '"';
+                }
+
+                if (preg_match('/target\s*=\s*"(.*?)"/i', $attrs, $m)) {
+                    $allowed .= ' target="' . $m[1] . '"';
+                }
+
+                return "<{$tag}{$allowed}>";
+            },
+            $html
+        );
+
+        $html = preg_replace('/\s+/', ' ', $html);
+
+        return trim($html);
     }
 
     private function createProduct($productData, $parentProduct): ?array
