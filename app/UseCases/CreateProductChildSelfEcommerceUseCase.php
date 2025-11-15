@@ -44,7 +44,7 @@ class CreateProductChildSelfEcommerceUseCase
         $delayToJob = $this->configs['last_carbon_time_dispatch'];
 
         $categoryAttrs = $this->parentProduct?->productCentral()->first()->category()->first() ?? null;
-        $categoryAttrsProductAttributesItems = $this->parentProduct?->specifications ?? null;
+        $categoryAttrsProductAttributesItems = $this->productnstance?->specifications ?? null;
 
         $attributeSetArr = $this->createAttributeSet([
             'slug' => $categoryAttrs->slug,
