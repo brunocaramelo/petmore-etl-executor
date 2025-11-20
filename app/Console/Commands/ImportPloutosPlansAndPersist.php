@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-
+use Illuminate\Support\Facades\Storage;
+use App\Imports\PloutosProductsPlanImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ImportPloutosPlansAndPersist extends Command
 {
@@ -24,23 +26,52 @@ class ImportPloutosPlansAndPersist extends Command
     /**
      * Execute the console command.
      */
+
+    private function importFromRemoteStorage()
+    {
+        $remoteFiles = array_filter(Storage::disk('choiced_cloud_storage')->files('petmore-public/import-plans'), function ($item) {
+           return strpos($item, '.xlsx');
+        });
+
+        foreach ($remoteFiles as $planName) {
+            Storage::disk('local')->put('import-plans-to-database/'.basename($planName),
+                Storage::disk('choiced_cloud_storage')->get($planName)
+            );
+        }
+    }
+
+    private function cleanLocalStore()
+    {
+         $plansPloutos = array_filter(Storage::disk('local')->files('import-plans-to-database'), function ($item) {
+            return strpos($item, '.xlsx');
+         });
+
+         foreach ($plansPloutos as $planName) {
+            Storage::disk('local')->delete($planName);
+        }
+    }
+
+
     public function handle()
     {
-        $plansPloutos = array_filter(\Storage::disk('local')->files('ploutos-plans'), function ($item) {
+        $this->cleanLocalStore();
+        $this->importFromRemoteStorage();
+
+        $plansPloutos = array_filter(Storage::disk('local')->files('import-plans-to-database'), function ($item) {
             return strpos($item, '.xlsx');
          });
 
          foreach ($plansPloutos as $planName) {
 
-            $import = new \App\Imports\PloutosProductsPlanImport();
+            $import = new PloutosProductsPlanImport();
 
-            \Maatwebsite\Excel\Facades\Excel::import($import,
-                                            \Storage::disk('local')->path($planName)
-                                        );
+            Excel::import($import,
+            Storage::disk('local')->path($planName)
+            );
 
             $import->persistData();
-
-
          }
+
+        $this->cleanLocalStore();
     }
 }

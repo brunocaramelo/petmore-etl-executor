@@ -67,9 +67,9 @@ return [
             'region'         => env('AWS_DEFAULT_REGION'),
             'bucket'         => env('AWS_BUCKET'),
             'endpoint'       => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false), // Use the .env value
-            'url'            => env('AWS_ENDPOINT') . '/' . env('AWS_BUCKET'), // Base URL for public access
-            'visibility'     => 'public', // Set default visibility if needed
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'url'            => env('AWS_ENDPOINT') . '/' . env('AWS_BUCKET'),
+            'visibility'     => 'public',
         ],
 
 
