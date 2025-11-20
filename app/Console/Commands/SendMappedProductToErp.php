@@ -35,8 +35,7 @@ class SendMappedProductToErp extends Command
 
         foreach ($pendingItems as $pending) {
 
-            // $delayToJob->addSeconds(rand(61, 123));
-            $delayToJob->addSeconds(rand(1, 2));
+            $delayToJob->addSeconds(rand(21, 123));
 
             SendMappedProductToErpJob::dispatch( $pending)
                                  ->delay($delayToJob);
