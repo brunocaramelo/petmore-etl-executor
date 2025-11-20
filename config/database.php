@@ -11,7 +11,7 @@ if (env('MONGO_EXTERNAL_INSTANCE', false)) {
     $optionsToMongoDb = [
             'database' => env('MONGO_DB_AUTH_SOURCE', 'admin'),
             'ssl' => env('MONGO_DB_USE_SSL', false),
-            'replicaSet' => env('MONGO_REPLICA_SET', null),
+            // 'replicaSet' => env('MONGO_REPLICA_SET', null),
             'readPreference' => 'primary',
         ];
 }
