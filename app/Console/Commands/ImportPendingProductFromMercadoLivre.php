@@ -36,15 +36,13 @@ class ImportPendingProductFromMercadoLivre extends Command
                                         ->where('is_active', true)
                                         ->whereNull('product_ml_id')
                                         ->whereNotNull('url_product_ml')
-                                        ->limit(2)
                                         ->get();
 
         \Log::info("(ImportPendingProductFromMercadoLivre) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
         foreach ($pendingItems as $pending) {
 
-           $delayToJob->addMinutes(rand(10, 24));
-        //    $delayToJob->addMinutes(rand(79, 169));
+           $delayToJob->addMinutes(rand(79, 169));
 
             MercadoLivreImportProductByUriAndAttachToProductCentralJob::dispatch($pending)
                                  ->delay($delayToJob);
