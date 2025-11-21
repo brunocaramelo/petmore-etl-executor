@@ -33,8 +33,6 @@ class SendMappedProductToSelfEcommerceAction
         // \Log::info('(SendMappedProductToErpAction) payload para o bling abaixo sem: ');
         // \Log::info(json_encode($dataTransformed));
 
-        $productCentral->synced_self_ecommerce = true;
-
         } catch (RequestException $error) {
             $response = $error->response;
 
