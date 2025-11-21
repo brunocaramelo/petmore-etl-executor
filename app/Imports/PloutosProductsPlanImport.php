@@ -98,19 +98,19 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
     private function persistRow(array $row)
     {
         $dataExists = true;
-        $replacedArrCategoryKey = str_replace(['>'], [], $row['ploutos_categoria']);
+        $replacedArrCategoryKey = str_replace(['>'], ['-'], $row['ploutos_categoria']);
 
         $inst = ProductCentral::where('ploutos_cod', $row['ploutos_cod'])
                                 ->first();
 
         $categoryInst = ProductCategory::where('slug',
-                                Str::slug(Str::ascii($replacedArrCategoryKey))
+                                Str::slug(Str::ascii($replacedArrCategoryKey),'-')
                             )->first();
 
         if ($categoryInst == null) {
             throw new \Exception('Categoria nao nao localizada na base: '.json_encode([
                 'original' => $row['ploutos_categoria'],
-                'sluged' => Str::slug($row['ploutos_categoria']),
+                'sluged' => Str::slug(Str::ascii($replacedArrCategoryKey),'-'),
             ]));
         }
 
