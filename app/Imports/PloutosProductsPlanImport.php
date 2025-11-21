@@ -104,8 +104,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         $row['synced_erp'] =  $inst->synced_erp ?? false;
         $row['synced_ml'] =  $inst->synced_ml ?? false;
         $row['ai_adapted_the_content'] =  $inst->ai_adapted_the_content ?? false;
-        $row['category_id'] =  ProductCategory::where(
-                                                        'slug',
+        $row['category_id'] =  ProductCategory::where('slug',
                                                         Str::slug($row['ploutos_categoria'])
                                                     )->first()->uuid ?? null;
 
