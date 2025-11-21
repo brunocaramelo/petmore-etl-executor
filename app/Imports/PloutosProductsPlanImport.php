@@ -98,12 +98,13 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
     private function persistRow(array $row)
     {
         $dataExists = true;
+        $replacedArrCategoryKey = str_replace(['>'], [], $row['ploutos_categoria']);
 
         $inst = ProductCentral::where('ploutos_cod', $row['ploutos_cod'])
                                 ->first();
 
         $categoryInst = ProductCategory::where('slug',
-                                Str::slug(Str::ascii($row['ploutos_categoria']))
+                                Str::slug(Str::ascii($replacedArrCategoryKey))
                             )->first();
 
         if ($categoryInst == null) {

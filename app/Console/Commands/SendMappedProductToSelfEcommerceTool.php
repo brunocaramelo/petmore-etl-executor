@@ -33,7 +33,7 @@ class SendMappedProductToSelfEcommerceTool extends Command
 
         foreach ($pendingItems as $pending) {
 
-            // $delayToJob->addMinutes(rand(23, 44));
+            $delayToJob->addMinutes(rand(7, 20));
 
             SendMappedProductToSelfEcommerceJob::dispatch( $pending)
                                  ->delay($delayToJob);
