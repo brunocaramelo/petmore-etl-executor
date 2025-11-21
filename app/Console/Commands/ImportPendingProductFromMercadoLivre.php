@@ -36,7 +36,7 @@ class ImportPendingProductFromMercadoLivre extends Command
                                         ->where('is_active', true)
                                         ->whereNull('product_ml_id')
                                         ->whereNotNull('url_product_ml')
-                                        ->limit(1)
+                                        ->where('sku', 'PM12480764')
                                         ->get();
 
         \Log::info("(ImportPendingProductFromMercadoLivre) Itens pendentes encontrados para serem processados ".$pendingItems->count());
