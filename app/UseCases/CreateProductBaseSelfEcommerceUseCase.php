@@ -94,15 +94,15 @@ class CreateProductBaseSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') before createVariationAsyncItems');
 
 
-
-        $this->prepareAndcreateVariationItems($this->productnstance,
-            $productVatiations,
-            [
-                'attributeSetData' => $attributeSetArr,
-                'categoryAttrData' => $categoryAttrs,
-                'last_run' => $delayToJob,
-        ]);
-
+        if ($this->hasVariations) {
+            $this->prepareAndcreateVariationItems($this->productnstance,
+                $productVatiations,
+                [
+                    'attributeSetData' => $attributeSetArr,
+                    'categoryAttrData' => $categoryAttrs,
+                    'last_run' => $delayToJob,
+            ]);
+        }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after createVariationAsyncItems');
 
