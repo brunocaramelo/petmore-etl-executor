@@ -19,12 +19,21 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
+        $usedUrls = [];
 
         foreach ($rows as $row) {
+            if (!$this->checkIsNotEmptyRow($row)) continue;
 
-            if(! $this->checkIsNotEmptyRow($row)) continue;
+            $urlProductMl = $row["url_product_ml"];
 
-            $this->data[] =  [
+            // Se URL já foi processada, pula
+            if (in_array($urlProductMl, $usedUrls)) {
+                continue;
+            }
+
+            $usedUrls[] = $urlProductMl;
+
+            $this->data[] = [
                 "ploutos_cod" => $row["cod"],
                 "ploutos_cod_barras" => $row["cod_barras"],
                 "ploutos_descricao" => $row["descricao"],
@@ -42,10 +51,11 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
                 "ploutos_estoque_atual_rv" => $row["estoque_atual_rv"],
                 "ploutos_custo_medio_rv" => $row["custo_medio_rv"],
                 "ploutos_preco_venda" => $row["preco_venda"],
-                "url_product_ml" => $row["url_product_ml"],
-              ];
+                "url_product_ml" => $urlProductMl,
+            ];
         }
     }
+
 
     private function checkIsNotEmptyRow($row)
     {
@@ -65,6 +75,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
     {
         return $this->data;
     }
+
     public function persistData()
     {
         foreach($this->data as $toSave) {
