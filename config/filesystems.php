@@ -72,6 +72,18 @@ return [
             'visibility'     => 'public',
         ],
 
+        'choiced_cloud_storage_store' => [
+            'driver'         => 's3',
+            'key'            => env('AWS_STORE_ACCESS_KEY_ID'),
+            'secret'         => env('AWS_STORE_SECRET_ACCESS_KEY'),
+            'region'         => env('AWS_STORE_DEFAULT_REGION'),
+            'bucket'         => env('AWS_STORE_BUCKET'),
+            'endpoint'       => env('AWS_STORE_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_STORE_USE_PATH_STYLE_ENDPOINT', false),
+            'url'            => env('AWS_STORE_ENDPOINT') . '/' . env('AWS_STORE_BUCKET'),
+            'visibility'     => 'public',
+        ],
+
 
     ],
 
