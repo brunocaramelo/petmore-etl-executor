@@ -316,6 +316,20 @@ class CreateProductChildSelfEcommerceUseCase
 
     private function generateSkuToThisProduct($baseSku, $slugPartsGlobal)
     {
+        $rawSlug =  str_replace(
+            ['_option',' ', '.'],
+            ['', '', ''],
+            implode('_', $slugPartsGlobal)
+        );
+
+        $rawSlug = Str::ascii($rawSlug);
+
+        $rawSlug = preg_replace('/[^A-Za-z0-9_]/', '', $rawSlug);
+
+        $this->productnstance->sku = strtoupper(
+            Str::slug($baseSku, '_') . '_' . $rawSlug
+        );
+
         $this->productnstance->sku = strtoupper(Str::slug($baseSku, '_').'_'.str_replace(
             ['_option',' ', '.'],
             ['', '', ''],

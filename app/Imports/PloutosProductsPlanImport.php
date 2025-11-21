@@ -17,6 +17,17 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
 {
     private $data = [];
 
+    private function cleaningUrlProd($url)
+    {
+        $pos = strpos($url, '#');
+
+        if ($pos === false) {
+            return $url;
+        }
+
+        return substr($url, 0, $pos);
+    }
+
     public function collection(Collection $rows)
     {
         $usedUrls = [];
@@ -24,10 +35,9 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         foreach ($rows as $row) {
             if (!$this->checkIsNotEmptyRow($row)) continue;
 
-            $urlProductMl = $row["url_product_ml"];
+            $urlProductMl = $this->cleaningUrlProd($row["url_product_ml"]);
 
-            // Se URL já foi processada, pula
-            if (in_array($urlProductMl, $usedUrls)) {
+;            if (in_array($urlProductMl, $usedUrls)) {
                 continue;
             }
 
@@ -52,6 +62,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
                 "ploutos_custo_medio_rv" => $row["custo_medio_rv"],
                 "ploutos_preco_venda" => $row["preco_venda"],
                 "url_product_ml" => $urlProductMl,
+                "url_product_ml_original" => $row["url_product_ml"],
             ];
         }
     }
@@ -91,6 +102,17 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         $inst = ProductCentral::where('ploutos_cod', $row['ploutos_cod'])
                                 ->first();
 
+        $categoryInst = ProductCategory::where('slug',
+                                Str::slug(Str::ascii($row['ploutos_categoria']))
+                            )->first();
+
+        if ($categoryInst == null) {
+            throw new \Exception('Categoria nao nao localizada na base: '.json_encode([
+                'original' => $row['ploutos_categoria'],
+                'sluged' => Str::slug($row['ploutos_categoria']),
+            ]));
+        }
+
         $dataExists = ($inst instanceof ProductCentral);
 
         $codePloutosClean = str_replace(['.','/',' '],
@@ -105,9 +127,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         $row['synced_ml'] =  $inst->synced_ml ?? false;
         $row['synced_self_ecommerce'] =  $inst->synced_self_ecommerce ?? false;
         $row['ai_adapted_the_content'] =  $inst->ai_adapted_the_content ?? false;
-        $row['category_id'] =  ProductCategory::where('slug',
-                                                        Str::slug($row['ploutos_categoria'])
-                                                    )->first()->uuid ?? null;
+        $row['category_id'] =  $categoryInst->uuid ?? null;
 
         $row = $this->castValuesArray($row);
 

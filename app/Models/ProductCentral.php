@@ -43,6 +43,7 @@ class ProductCentral extends Model
         'synced_ml',
         'ai_adapted_the_content',
         'url_product_ml',
+        'url_product_ml_original',
         'product_erp_id',
         'product_ml_id',
         'product_rewrited_id',

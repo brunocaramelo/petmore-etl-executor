@@ -45,9 +45,13 @@ class CreateProductBaseSelfEcommerceUseCase
 
 
         $productVatiations = $this->productnstance->variations ?? [];
+        $productVatiationsAttributes = $productVatiations[0]['attributes'] ?? [];
+
         $categoryAttrs = $this->productnstance?->productCentral()->first()->category()->first() ?? null;
 
-        $this->hasVariations = (count($productVatiations) > 0);
+        $this->hasVariations = (count($productVatiations) > 0
+                                && count($productVatiationsAttributes) > 0
+                            );
 
         $categoryAttrsProductAttributesItems = $this->productnstance?->specifications ?? null;
 
@@ -64,7 +68,7 @@ class CreateProductBaseSelfEcommerceUseCase
             'items' => $categoryAttrsProductAttributesItems,
         ]);
 
-        $this->typeProduct = (is_array($productVatiations) && !empty($productVatiations)
+        $this->typeProduct = ($this->hasVariations
             ? 'configurable'
             : 'simple'
         );
