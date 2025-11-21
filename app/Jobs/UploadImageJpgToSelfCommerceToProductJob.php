@@ -28,7 +28,7 @@ class UploadImageJpgToSelfCommerceToProductJob implements ShouldQueue
 
     public function handle(): void
     {
-        $clearHttpPathStorage = 'https://petmore-public.br-se1.magaluobjects.com/petmore-public/';
+        $clearHttpPathStorage = 'https://br-se1.magaluobjects.com/petmore-public/';
 
         $clearPath = str_replace([$clearHttpPathStorage],[''], $this->pathOfImage);
 

@@ -68,9 +68,18 @@ class FindOrCreateProductGroupAttributeTextItemsAction
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
+        $findLocalyJustSlug = ProductGroupAttributeItem::where('slug', $params['data']['slug'])
+                                                ->first();
+
         if ($params['data']['has_founded']) {
             $createdExternal['attribute_id'] = $params['data']['find_localy']->self_ecommerce_identify;
         }
+
+        if ($findLocalyJustSlug) {
+            $createdExternal['attribute_id'] = $findLocalyJustSlug->self_ecommerce_identify;
+            $params['data']['has_founded'] = true;
+        }
+
 
         if (!$params['data']['has_founded']) {
             \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem to send',[
