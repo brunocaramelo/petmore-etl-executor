@@ -103,6 +103,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         $row['is_active'] =  $inst->is_active ?? true;
         $row['synced_erp'] =  $inst->synced_erp ?? false;
         $row['synced_ml'] =  $inst->synced_ml ?? false;
+        $row['synced_self_ecommerce'] =  $inst->synced_self_ecommerce ?? false;
         $row['ai_adapted_the_content'] =  $inst->ai_adapted_the_content ?? false;
         $row['category_id'] =  ProductCategory::where('slug',
                                                         Str::slug($row['ploutos_categoria'])
@@ -135,6 +136,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         $row['is_to_sell'] = $castValue->castValue($row['is_to_sell'] , 'boolean');
         $row['synced_erp'] = $castValue->castValue($row['synced_erp'] , 'boolean');
         $row['synced_ml'] = $castValue->castValue($row['synced_ml'] , 'boolean');
+        $row['synced_self_ecommerce'] = $castValue->castValue($row['synced_self_ecommerce'] , 'boolean');
         $row['ai_adapted_the_content'] = $castValue->castValue($row['ai_adapted_the_content'] , 'boolean');
 
        return $row;

@@ -48,6 +48,7 @@ class ProductCentral extends Model
         'product_rewrited_id',
         'ml_identify',
         'category_id',
+        'synced_self_ecommerce',
         'sku',
     ];
 
