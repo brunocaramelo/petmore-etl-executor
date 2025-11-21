@@ -41,7 +41,6 @@ class AttachCallbackMercadoLivreProductToProductCentralAction
 
         $instance->synced_ml = true;
         $instance->ml_identify = $responseApi['ml_identify'];
-        $instance->synced_self_ecommerce = true;
 
         $instance->save();
 
