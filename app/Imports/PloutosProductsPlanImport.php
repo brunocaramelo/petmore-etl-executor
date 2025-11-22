@@ -94,11 +94,17 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         }
     }
 
+    private function decodeUnicodeString($string)
+    {
+        return json_decode('"' . $string . '"');;
+    }
 
     private function persistRow(array $row)
     {
         $dataExists = true;
-        $replacedArrCategoryKey = str_replace(['>'], ['-'], $row['ploutos_categoria']);
+        $replacedArrCategoryKey = $this->decodeUnicodeString(
+            str_replace(['>',' '], ['-','-'], $row['ploutos_categoria'])
+        );
 
         $inst = ProductCentral::where('ploutos_cod', $row['ploutos_cod'])
                                 ->first();
@@ -109,6 +115,11 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
 
         if ($categoryInst == null) {
             throw new \Exception('Categoria nao nao localizada na base: '.json_encode([
+                'sku' => $inst->sku ?? 'PM'.str_pad(str_replace(['.','/',' '],
+                                        ['','',''],
+                                        $row['ploutos_cod']
+                                    ), 8, "0", STR_PAD_LEFT),
+                'nome' => $row['ploutos_descricao'],
                 'original' => $row['ploutos_categoria'],
                 'sluged' => Str::slug(Str::ascii($replacedArrCategoryKey),'-'),
             ]));
