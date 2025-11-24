@@ -314,30 +314,31 @@ class CreateProductChildSelfEcommerceUseCase
         return $this->consumer->createProduct($payload);
     }
 
+
     private function generateSkuToThisProduct($baseSku, $slugPartsGlobal)
     {
-        $rawSlug =  str_replace(
-            ['_option',' ', '.'],
-            ['', '', ''],
-            implode('_', $slugPartsGlobal)
-        );
+        $rawSlug = implode('_', $slugPartsGlobal);
 
+        $rawSlug = str_replace(['_option', ' ', '.'], ['', '', ''], $rawSlug);
         $rawSlug = Str::ascii($rawSlug);
-
         $rawSlug = preg_replace('/[^A-Za-z0-9_]/', '', $rawSlug);
 
-        $this->productnstance->sku = strtoupper(
-            Str::slug($baseSku, '_') . '_' . $rawSlug
-        );
+        $base = strtoupper(Str::slug($baseSku, '_'));
 
-        $this->productnstance->sku = strtoupper(Str::slug($baseSku, '_').'_'.str_replace(
-            ['_option',' ', '.'],
-            ['', '', ''],
-            implode('_', $slugPartsGlobal)
-        ));
+        $sku = strtoupper($base . '_' . $rawSlug);
 
-        return $this->productnstance->sku;
+        if (strlen($sku) > 64) {
+            $maxSlugLen = 64 - strlen($base) - 1;
+            $rawSlug = substr($rawSlug, 0, max(0, $maxSlugLen));
+            $sku = strtoupper($base . '_' . $rawSlug);
+        }
+
+        $this->productnstance->sku = $sku;
+
+        return $sku;
     }
+
+
 
     private function parseCustomAttributesFromThisChild($currentProduct, array $attributesSelf): array
     {
