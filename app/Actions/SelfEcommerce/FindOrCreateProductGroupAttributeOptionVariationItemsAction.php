@@ -17,12 +17,9 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         $findLocaly = ProductGroupAttributeItem::where('slug', $slugAttribute)
-                                                ->where('group_attribute_id', $options['group_attribute_id'])
                                                 ->first();
 
         $countTableItems = ProductGroupAttributeItem::count();
-
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') working 0');
 
         if ($findLocaly instanceof ProductGroupAttributeItem) {
 
@@ -64,19 +61,16 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
-        if ($params['data']['has_founded']) {
-            $createdExternal['attribute_id'] = $params['data']['find_localy']->id;
-
-            $params['data']['find_localy']->options = $this->addNewOptionAndReturn(
-                $params['data']['find_localy'],
-                 $params['data']['option'],
-                $params['consumerInstance'],
-            );
-
-            $params['data']['find_localy']->save();
-        }
 
         if (!$params['data']['has_founded']) {
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') not has_founded init',[
+                'attribute' => [
+                    'name' => $params['data']['name'],
+                    'slug' => $params['data']['slug'],
+                ],
+                'option' => $params['data']['option']
+            ]);
+
             $createdExternal = $params['consumerInstance']->createAttibuteSetItem([
                     "attribute" => [
                         "attribute_code" => $params['data']['slug'],
@@ -92,6 +86,8 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
             ]);
 
             usleep(rand(100, 300));
+
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') not has_founded finished', ['$createdExternal'=> $createdExternal]);
         }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success');
@@ -118,9 +114,10 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 
         $createdItem->options = $this->addNewOptionAndReturn(
             $createdItem,
-                $params['data']['option'],
+            $params['data']['option'],
             $params['consumerInstance'],
         );
+        $createdItem->save();
 
         return $createdItem;
     }

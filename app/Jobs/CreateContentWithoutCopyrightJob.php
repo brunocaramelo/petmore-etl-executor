@@ -25,7 +25,7 @@ class CreateContentWithoutCopyrightJob implements ShouldQueue
 
     public function timeout(): int
     {
-        return 1500;
+        return 5500;
     }
 
     /**
