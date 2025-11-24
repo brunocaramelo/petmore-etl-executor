@@ -324,19 +324,53 @@ class CreateProductChildSelfEcommerceUseCase
         $rawSlug = preg_replace('/[^A-Za-z0-9_]/', '', $rawSlug);
 
         $base = strtoupper(Str::slug($baseSku, '_'));
+        $slug = strtoupper($rawSlug);
 
-        $sku = strtoupper($base . '_' . $rawSlug);
+        $sku = $base . '_' . $slug;
 
         if (strlen($sku) > 64) {
-            $maxSlugLen = 64 - strlen($base) - 1;
-            $rawSlug = substr($rawSlug, 0, max(0, $maxSlugLen));
-            $sku = strtoupper($base . '_' . $rawSlug);
+
+            $parts = explode('_', $slug);
+            $abbreviated = [];
+
+            foreach ($parts as $word) {
+
+                if (preg_match('/^[0-9]+[A-Z]*$/i', $word)) {
+                    $abbreviated[] = $word;
+                    continue;
+                }
+
+                $len = strlen($word);
+
+                if ($len <= 3) {
+                    $abbreviated[] = $word;
+                    continue;
+                }
+
+                if ($len >= 4 && $len <= 6) {
+                    $abbreviated[] = substr($word, 0, 3);
+                    continue;
+                }
+
+                $wordOnlyConsonants = preg_replace('/[AEIOU]/i', '', $word);
+                $abbreviated[] = substr($wordOnlyConsonants, 0, 5);
+            }
+
+            $slug = implode('_', $abbreviated);
+            $sku = $base . '_' . $slug;
+
+            if (strlen($sku) > 64) {
+                $maxSlugLen = 64 - strlen($base) - 1;
+                $slug = substr($slug, 0, max(0, $maxSlugLen));
+                $sku = $base . '_' . $slug;
+            }
         }
 
         $this->productnstance->sku = $sku;
 
         return $sku;
     }
+
 
 
 
