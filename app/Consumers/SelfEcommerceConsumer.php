@@ -2,6 +2,7 @@
 
 namespace App\Consumers;
 
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
 class SelfEcommerceConsumer
@@ -25,114 +26,240 @@ class SelfEcommerceConsumer
 
     public function createAttibuteSet(array $params)
     {
-        $response = Http::retry(3, 10)
+        try {
+            $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
-                    ->post($this->baseApiPath.'/eav/attribute-sets', $params)
-                    ->throw();
+                    ->post($this->baseApiPath.'/eav/attribute-sets', $params);
 
-        if ($response->successful()) {
+            if ($response->failed()) {
+
+                    \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                        'status'  => $response->status(),
+                        'body'    => $response->body(),
+                        'json'    => $response->json(),
+                    ]);
+
+                    throw new RequestException($response);
+            }
+
             return $response->json();
-        }
 
-        return null;
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
+        }
     }
 
     public function createAttibuteSetItem(array $params)
     {
-        $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
-                    ->timeout(8999)
-                    ->post($this->baseApiPath.'/products/attributes', $params)
-                    ->throw();
+        try {
+            $response = Http::retry(3, 10)
+                        ->withToken($this->tokenAuth)
+                        ->timeout(8999)
+                        ->post($this->baseApiPath.'/products/attributes', $params)
+                        ;
 
-        if ($response->successful()) {
+            if ($response->failed()) {
+
+                    \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                        'status'  => $response->status(),
+                        'body'    => $response->body(),
+                        'json'    => $response->json(),
+                    ]);
+
+                    throw new RequestException($response);
+            }
+
             return $response->json();
-        }
 
-        return null;
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
+        }
     }
 
 
     public function attachAttibuteIntoGroupAttrSet(array $params)
     {
-        $response = Http::retry(3, 10)
+        try {
+            $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
                     ->post($this->baseApiPath.'/products/attribute-sets/attributes', $params)
-                    ->throw();
+                    ;
 
-        if ($response->successful()) {
-            return str_replace('"','', $response->body());
+            if ($response->failed()) {
+
+                            \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                                'status'  => $response->status(),
+                                'body'    => $response->body(),
+                                'json'    => $response->json(),
+                            ]);
+
+                            throw new RequestException($response);
+                    }
+
+                return $response->json();
+
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
-
-        return null;
     }
 
     public function attachOptionIntoAttibuteAttrSet($attributeId, array $params)
     {
-        $response = Http::retry(3, 10)
+
+        try{
+            $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
                     ->post($this->baseApiPath.'/products/attributes/'.$attributeId.'/options', $params)
-                    ->throw();
+                    ;
 
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->failed()) {
+
+                            \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                                'status'  => $response->status(),
+                                'body'    => $response->body(),
+                                'json'    => $response->json(),
+                            ]);
+
+                            throw new RequestException($response);
+                    }
+
+                return $response->json();
+
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
-
-        return null;
     }
 
     public function attachOptionAttibuteAttrIntoConfigurableProduct($productSku, array $params)
     {
-        $response = Http::retry(3, 10)
+        try {
+            $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
                     ->post($this->baseApiPath.'/configurable-products/'.$productSku.'/options', $params)
-                    ->throw();
+                    ;
 
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->failed()) {
+
+                            \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                                'status'  => $response->status(),
+                                'body'    => $response->body(),
+                                'json'    => $response->json(),
+                            ]);
+
+                            throw new RequestException($response);
+                    }
+
+                return $response->json();
+
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
-
-        return null;
     }
 
     public function attachProductChildIntoConfigurableProduct($productSku, array $params)
     {
-        $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
-                    ->timeout(8999)
-                    ->post($this->baseApiPath.'/configurable-products/'.$productSku.'/child', $params)
-                    ->throw();
+        try {
 
-        if ($response->successful()) {
-            return $response->json();
+            \Log::info(__CLASS__.' ('.__FUNCTION__.') (API TO SEND):', [
+                        'productSku'  => $productSku,
+                        'params'    => $params,
+                    ]);
+
+            $response = Http::retry(3, 10)
+                        ->withToken($this->tokenAuth)
+                        ->timeout(8999)
+                        ->post($this->baseApiPath.'/configurable-products/'.$productSku.'/child', $params);
+
+            if ($response->failed()) {
+
+                    \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                        'status'  => $response->status(),
+                        'body'    => $response->body(),
+                        'json'    => $response->json(),
+                    ]);
+
+                    throw new \Exception($response->body());
+                }
+
+                return $response->json();
+
+        } catch (\Throwable $e) {
+
+            \Log::error(__CLASS__.'::'.__FUNCTION__.' (EXCEPTION CAUGHT)', [
+                'exception' => $e->getMessage(),
+                'trace'     => $e->getTraceAsString(),
+            ]);
+
+            throw $e;
         }
 
-        return null;
     }
 
     public function attachOptionToAttributeItem($attrCode, array $option)
     {
-        $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
-                    ->timeout(8999)
-                    ->post($this->baseApiPath.'/products/attributes/'.$attrCode.'/options', [
-                        'option' => [
-                            'label' => $option['label'],
-                            'value' => (string) $option['value'],
-                            'sort_order' => $option['label'],
-                            'is_default' => false,
-                        ]
-                    ])->throw();
+        try {
+            $response = Http::retry(3, 10)
+                        ->withToken($this->tokenAuth)
+                        ->timeout(8999)
+                        ->post($this->baseApiPath.'/products/attributes/'.$attrCode.'/options', [
+                            'option' => [
+                                'label' => $option['label'],
+                                'value' => (string) $option['value'],
+                                'sort_order' => $option['label'],
+                                'is_default' => false,
+                            ]
+                        ]);
 
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->failed()) {
+
+                            \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                                'status'  => $response->status(),
+                                'body'    => $response->body(),
+                                'json'    => $response->json(),
+                            ]);
+
+                            throw new RequestException($response);
+                    }
+
+                return $response->json();
+
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
-
-        return null;
     }
 
     public function getGroupsFromAttributeSet(int $attributeSetId, ?string $groupName = null)
@@ -165,78 +292,164 @@ class SelfEcommerceConsumer
 
     public function addGroupAttibuteIntoAttributeSet(array $params)
     {
-        $response = Http::retry(3, 10)
+        try {
+            $response = Http::retry(3, 10)
                     ->withToken($this->tokenAuth)
                     ->timeout(8999)
                     ->post($this->baseApiPath.'/products/attribute-sets/groups', $params)
-                    ->throw();
+                    ;
 
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->failed()) {
+
+                        \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                            'status'  => $response->status(),
+                            'body'    => $response->body(),
+                            'json'    => $response->json(),
+                        ]);
+
+                        throw new RequestException($response);
+                    }
+
+                return $response->json();
+
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
-
-        return null;
     }
 
 
     public function createProduct(array $params)
     {
-        $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
-                    ->timeout(8999)
-                    ->post($this->baseApiPath.'/products', $params)
-                    ->throw();
+        try {
 
-        if ($response->successful()) {
+            $response = Http::retry(3, 10)
+                ->withToken($this->tokenAuth)
+                ->timeout(8999)
+                ->post($this->baseApiPath.'/products', $params);
+
+            if ($response->failed()) {
+
+                \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                    'status'  => $response->status(),
+                    'body'    => $response->body(),
+                    'json'    => $response->json(),
+                    'params'  => $params
+                ]);
+
+                throw new RequestException($response);
+            }
+
             return $response->json();
+
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
-
-        return null;
     }
-
 
     public function createMediaImagesIntoProductSku($productSku ,array $params)
     {
-        $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
-                    ->timeout(8999)
-                    ->post($this->baseApiPath."/products/{$productSku}/media", $params)
-                    ->throw();
+        try {
+            $response = Http::retry(3, 10)
+                        ->withToken($this->tokenAuth)
+                        ->timeout(8999)
+                        ->post($this->baseApiPath."/products/{$productSku}/media", $params)
+                        ;
 
-        if ($response->successful()) {
+            if ($response->failed()) {
+
+                    \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                        'status'  => $response->status(),
+                        'body'    => $response->body(),
+                        'json'    => $response->json(),
+                        'params'  => $params
+                    ]);
+
+                    throw new RequestException($response);
+                }
+
             return $response->json();
-        }
 
-        return null;
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
+        }
     }
 
 
     public function getProduct($identify)
     {
-        $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
-                    ->timeout(8999)
-                    ->get($this->baseApiPath.'/products/'.$identify);
+        try {
+            $response = Http::retry(3, 10)
+                        ->withToken($this->tokenAuth)
+                        ->timeout(8999)
+                        ->get($this->baseApiPath.'/products/'.$identify);
 
-        if ($response->successful()) {
+            if ($response->failed()) {
+
+                    \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                        'status'  => $response->status(),
+                        'body'    => $response->body(),
+                        'json'    => $response->json(),
+                    ]);
+
+                    throw new RequestException($response);
+                }
+
             return $response->json();
-        }
 
-        return null;
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
+        }
     }
 
     public function updateProduct($identify, array $params)
     {
-        $response = Http::retry(3, 10)
-                    ->withToken($this->tokenAuth)
-                    ->timeout(8999)
-                    ->put($this->baseApiPath.'/products/'.$identify, $params);
+        try{
+            $response = Http::retry(3, 10)
+                        ->withToken($this->tokenAuth)
+                        ->timeout(8999)
+                        ->put($this->baseApiPath.'/products/'.$identify, $params);
 
-        if ($response->successful()) {
-            return $response->json();
+            if ($response->failed()) {
+
+                        \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                            'status'  => $response->status(),
+                            'body'    => $response->body(),
+                            'json'    => $response->json(),
+                        ]);
+
+                        throw new RequestException($response);
+                    }
+
+                return $response->json();
+
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
         }
-
-        return null;
     }
 
     public function sendAuthApi()

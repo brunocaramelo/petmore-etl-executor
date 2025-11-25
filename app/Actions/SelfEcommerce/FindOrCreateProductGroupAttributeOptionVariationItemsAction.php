@@ -17,6 +17,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         $findLocaly = ProductGroupAttributeItem::where('slug', $slugAttribute)
+                                                ->where('group_attribute_id', $options['group_attribute_id'])
                                                 ->first();
 
         $countTableItems = ProductGroupAttributeItem::count();
@@ -61,6 +62,25 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
+        $findLocalyJustSlug = ProductGroupAttributeItem::where('slug', $params['data']['slug'])
+                                                ->first();
+
+        if ($params['data']['has_founded']) {
+            $createdExternal['attribute_id'] = $params['data']['find_localy']->self_ecommerce_identify;
+        }
+
+        if ($findLocalyJustSlug) {
+            $createdExternal['attribute_id'] = $findLocalyJustSlug->self_ecommerce_identify;
+            $params['data']['has_founded'] = true;
+
+            if (!array_filter($findLocalyJustSlug->options ?? [], fn($item) => ($item['label'] ?? null) === $params['data']['option'])) {
+                $findLocalyJustSlug->options = $this->addNewOptionAndReturn(
+                        $findLocalyJustSlug,
+                        $params['data']['option'],
+                        $params['consumerInstance'],
+                    );
+            }
+        }
 
         if (!$params['data']['has_founded']) {
             \Log::info(__CLASS__.' ('.__FUNCTION__.') not has_founded init',[
@@ -99,7 +119,13 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
             "sortOrder" => (int) $params['data']['sort_order'] ?? 0,
         ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success');
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem (attachAttibuteIntoGroupAttrSet) sended success', [
+            "attributeSetId" => $params['data']['group_attribute_id'],
+            "attributeGroupId" => $params['data']['group_attribute_subgroup_id'],
+            "attributeCode" => $params['data']['slug'],
+            "sortOrder" => (int) $params['data']['sort_order'] ?? 0,
+        ]);
+
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
 
         usleep(rand(50, 210));
@@ -117,7 +143,6 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
             $params['data']['option'],
             $params['consumerInstance'],
         );
-        $createdItem->save();
 
         return $createdItem;
     }
@@ -126,7 +151,10 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
-        $listOptions = $attributte->options ?? [];
+        $allTributeOption = ProductGroupAttributeItem::where('slug', $attributte->slug)
+                                                ->first();
+
+        $listOptions = $allTributeOption->options ?? [];
 
         $option = [
             'label' => $optionLabel,
@@ -134,6 +162,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
         ];
 
         if (array_filter($listOptions, fn($item) => ($item['label'] ?? null) === $optionLabel)) {
+            $this->updateOptionByAttSlug($allTributeOption->slug, $listOptions);
             return $listOptions;
         }
 
@@ -157,7 +186,22 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 
         $listOptions[] = $option;
 
+        $this->updateOptionByAttSlug($allTributeOption->slug, $listOptions);
+
         return $listOptions;
     }
 
+    private function updateOptionByAttSlug($slug, $options)
+    {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
+        ProductGroupAttributeItem::where('slug', $slug)
+                                ->update([
+                                    'options' => json_encode($options)
+                                ]);
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+    }
+
 }
+
