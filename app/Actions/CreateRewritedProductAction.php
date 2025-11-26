@@ -55,7 +55,6 @@ class CreateRewritedProductAction
         $jsonElement = json_encode([
             'complement' => $entity->description['complement']['html'],
             'small' => $entity->description['small']['html'],
-            'specifications' => $entity->specifications,
         ]);
 
         $promptTxt = config('custom-services.apis.ai_api.prompts.modify_product_to_not_copyright').': '.$jsonElement;
@@ -85,7 +84,7 @@ class CreateRewritedProductAction
                                 ],
                             ];
 
-        $entity->specifications = $responseApiFilled['specifications'];
+        $entity->specifications = $this->prepareAndParseEspecifications($entity->specifications);
 
         $entity->images = $this->reparseImagesToLocalAndReplaceEntity($entity->images, $entity->sku);
 
@@ -94,6 +93,26 @@ class CreateRewritedProductAction
         $entity->save();
 
         return $entity;
+    }
+
+    private function prepareAndParseEspecifications($originalList)
+    {
+        $returnArray = [];
+        $resultAux = [];
+
+        foreach ($originalList as $block) {
+            if (!isset($block['rows']) || !is_array($block['rows'])) {
+                continue;
+            }
+
+            foreach ($block['rows'] as $row) {
+                $resultAux[] = $row;
+            }
+        }
+
+        $returnArray = shuffle($resultAux);
+
+        return $returnArray;
     }
 
     private function fillJustJsonMessageFromResponse($text)
@@ -233,7 +252,7 @@ class CreateRewritedProductAction
 
             $returnVariations[$indexVariation]['attributes'] = $valueVariation['attributes'];
             $returnVariations[$indexVariation]['description'] = $parent->description;
-            $returnVariations[$indexVariation]['specifications'] = $this->reparseVariationsSpecifications($valueVariation['specifications'] ?? []);
+            $returnVariations[$indexVariation]['specifications'] = $this->$this->prepareAndParseEspecifications($valueVariation['specifications'] ?? []);
             $returnVariations[$indexVariation]['title'] = $valueVariation['title'];
             $returnVariations[$indexVariation]['price'] = $valueVariation['price'];
             $returnVariations[$indexVariation]['images'] = $this->reparseVariationsImagesToLocalAndReplaceEntity($valueVariation['images'] ?? [], $sluggedValues, $parent->sku);
@@ -242,16 +261,6 @@ class CreateRewritedProductAction
         }
 
         return $returnVariations;
-    }
-
-    private function reparseVariationsSpecifications($listVariationsOriginal) : array
-    {
-        $listVariations = $listVariationsOriginal;
-
-        $shuffledVariations = $listVariations;
-        shuffle($shuffledVariations);
-
-        return $listVariations;
     }
 
     private function reparseVariationsImagesToLocalAndReplaceEntity($listVariationsOriginal, $sluggedValues, $sku) : array
