@@ -360,9 +360,12 @@ class CreateProductChildSelfEcommerceUseCase
             $sku = $base . '_' . $slug;
 
             if (strlen($sku) > 64) {
-                $maxSlugLen = 64 - strlen($base) - 1;
+                $maxSlugLen = 64 - strlen($base) - 6;
                 $slug = substr($slug, 0, max(0, $maxSlugLen));
-                $sku = $base . '_' . $slug;
+
+                $randomChars = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 5);
+
+                $sku = $base . '_' . $slug . '_' . $randomChars;
             }
         }
 

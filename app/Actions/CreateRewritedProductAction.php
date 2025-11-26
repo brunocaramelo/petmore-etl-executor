@@ -87,7 +87,7 @@ class CreateRewritedProductAction
 
         $entity->images = $this->reparseImagesToLocalAndReplaceEntity($entity->images, $entity->sku);
 
-        $entity->variations = $this->reparseVariationsImagesToLocalAndReplaceEntity($entity->variations, $entity->sku);
+        $entity->variations = $this->reparseVariationsItems($entity->variations, $entity);
 
         $entity->save();
 
@@ -214,26 +214,54 @@ class CreateRewritedProductAction
         return $listLocalImages;
     }
 
-    private function reparseVariationsImagesToLocalAndReplaceEntity($listVariationsOriginal, $sku)
+    private function reparseVariationsItems($listVariationsOriginal, $parent) : array
     {
-        $listVariations = $listVariationsOriginal;
+        $returnVariations = [];
 
-        foreach ($listVariations as $indexVariations => $valueVariations) {
+        $shuffledVariationsItems = $listVariationsOriginal;
+        shuffle($shuffledVariationsItems);
 
-            $valuesAttributes = collect($valueVariations['attributes'])->map(function ($item) {
+        foreach ($shuffledVariationsItems as $indexVariation => $valueVariation) {
+
+            $valuesAttributes = collect($valueVariation['attributes'])->map(function ($item) {
                 return \Str::slug(trim(empty($item[1]['value']) ? 'no_category' : $item[1]['value']));
             });
 
             $sluggedValues = $valuesAttributes->implode('-');
 
-            foreach ($valueVariations['images'] as $indexImage => $valueImage) {
-                if(!empty($valueImage['thumbnail'])) $listVariations[$indexVariations]['images'][$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['thumbnail'], $sku, $sluggedValues);
-                if(!empty($valueImage['mid_size'])) $listVariations[$indexVariations]['images'][$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['mid_size'], $sku, $sluggedValues);
-                if(!empty($valueImage['full_size'])) $listVariations[$indexVariations]['images'][$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['full_size'], $sku, $sluggedValues);
-            }
+            $returnVariations[$indexVariation]['images'] = $this->reparseVariationsImagesToLocalAndReplaceEntity($valueVariation['images'] ?? [], $sluggedValues, $parent->sku);
+            $returnVariations[$indexVariation]['specifications'] = $this->reparseVariationsSpecifications($valueVariation);
+            $returnVariations[$indexVariation]['description'] = $parent->description;
+
         }
 
+        return $returnVariations;
+    }
+
+    private function reparseVariationsSpecifications($listVariationsOriginal)
+    {
+        $listVariations = $listVariationsOriginal;
+
+        $shuffledVariations = $listVariations;
+        shuffle($shuffledVariations);
+
         return $listVariations;
+    }
+
+    private function reparseVariationsImagesToLocalAndReplaceEntity($listVariationsOriginal, $sluggedValues, $sku) : arrray
+    {
+        $listVariations = $listVariationsOriginal;
+
+        $shuffledVariations = $listVariations;
+        shuffle($shuffledVariations);
+
+        foreach ($shuffledVariations as $indexImage => $valueImage) {
+            if(!empty($valueImage['thumbnail'])) $shuffledVariations[$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['thumbnail'], $sku, $sluggedValues);
+            if(!empty($valueImage['mid_size'])) $shuffledVariations[$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['mid_size'], $sku, $sluggedValues);
+            if(!empty($valueImage['full_size'])) $shuffledVariations[$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['full_size'], $sku, $sluggedValues);
+        }
+
+        return $shuffledVariations;
     }
 
 }
