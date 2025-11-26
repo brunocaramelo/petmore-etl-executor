@@ -369,9 +369,11 @@ class CreateProductChildSelfEcommerceUseCase
             }
         }
 
-        $this->productnstance->sku = $sku;
+        $skuLimited = substr($sku, 0, 63);
 
-        return $sku;
+        $this->productnstance->sku = $skuLimited;
+
+        return $skuLimited;
     }
 
 
