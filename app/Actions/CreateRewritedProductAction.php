@@ -252,7 +252,7 @@ class CreateRewritedProductAction
 
             $returnVariations[$indexVariation]['attributes'] = $valueVariation['attributes'];
             $returnVariations[$indexVariation]['description'] = $parent->description;
-            $returnVariations[$indexVariation]['specifications'] = $this->$this->prepareAndParseEspecifications($valueVariation['specifications'] ?? []);
+            $returnVariations[$indexVariation]['specifications'] = $this->prepareAndParseEspecifications($valueVariation['specifications'] ?? []);
             $returnVariations[$indexVariation]['title'] = $valueVariation['title'];
             $returnVariations[$indexVariation]['price'] = $valueVariation['price'];
             $returnVariations[$indexVariation]['images'] = $this->reparseVariationsImagesToLocalAndReplaceEntity($valueVariation['images'] ?? [], $sluggedValues, $parent->sku);
