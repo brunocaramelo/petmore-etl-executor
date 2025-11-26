@@ -260,7 +260,6 @@ class CreateRewritedProductAction
             $returnVariations[$indexVariation]['available'] = $valueVariation['available'] ?? null;
             $returnVariations[$indexVariation]['url'] = $valueVariation['url'] ?? null;
 
-            \Log::info('specifications transform', $returnVariations[$indexVariation]['specifications']);
         }
 
 
