@@ -230,7 +230,7 @@ class CreateRewritedProductAction
             $sluggedValues = $valuesAttributes->implode('-');
 
             $returnVariations[$indexVariation]['images'] = $this->reparseVariationsImagesToLocalAndReplaceEntity($valueVariation['images'] ?? [], $sluggedValues, $parent->sku);
-            $returnVariations[$indexVariation]['specifications'] = $this->reparseVariationsSpecifications($valueVariation);
+            $returnVariations[$indexVariation]['specifications'] = $this->reparseVariationsSpecifications($valueVariation['specifications'] ?? []);
             $returnVariations[$indexVariation]['description'] = $parent->description;
 
         }
@@ -238,7 +238,7 @@ class CreateRewritedProductAction
         return $returnVariations;
     }
 
-    private function reparseVariationsSpecifications($listVariationsOriginal)
+    private function reparseVariationsSpecifications($listVariationsOriginal) : array
     {
         $listVariations = $listVariationsOriginal;
 
@@ -248,7 +248,7 @@ class CreateRewritedProductAction
         return $listVariations;
     }
 
-    private function reparseVariationsImagesToLocalAndReplaceEntity($listVariationsOriginal, $sluggedValues, $sku) : arrray
+    private function reparseVariationsImagesToLocalAndReplaceEntity($listVariationsOriginal, $sluggedValues, $sku) : array
     {
         $listVariations = $listVariationsOriginal;
 
