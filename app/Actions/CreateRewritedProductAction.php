@@ -259,7 +259,10 @@ class CreateRewritedProductAction
             $returnVariations[$indexVariation]['images'] = $this->reparseVariationsImagesToLocalAndReplaceEntity($valueVariation['images'] ?? [], $sluggedValues, $parent->sku);
             $returnVariations[$indexVariation]['available'] = $valueVariation['available'] ?? null;
             $returnVariations[$indexVariation]['url'] = $valueVariation['url'] ?? null;
+
+            \Log::info('specifications transform', $returnVariations[$indexVariation]['specifications']);
         }
+
 
         return $returnVariations;
     }
