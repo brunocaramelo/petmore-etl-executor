@@ -18,6 +18,8 @@ class CreateRewritedProductAction
 {
     public function execute(ProductCentral $instance)
     {
+        $this->configureForHeavyOperations();
+
         $instanceToNew = $instance->productMl()->first();
         $instanceToNewArr = $instanceToNew->toArray();
 
@@ -262,6 +264,13 @@ class CreateRewritedProductAction
         }
 
         return $shuffledVariations;
+    }
+
+    public function configureForHeavyOperations()
+    {
+        ini_set('memory_limit', '4024M');
+        ini_set('max_execution_time', 2800);
+        ini_set('max_input_time', 900);
     }
 
 }
