@@ -231,10 +231,14 @@ class CreateRewritedProductAction
 
             $sluggedValues = $valuesAttributes->implode('-');
 
-            $returnVariations[$indexVariation]['images'] = $this->reparseVariationsImagesToLocalAndReplaceEntity($valueVariation['images'] ?? [], $sluggedValues, $parent->sku);
-            $returnVariations[$indexVariation]['specifications'] = $this->reparseVariationsSpecifications($valueVariation['specifications'] ?? []);
+            $returnVariations[$indexVariation]['attributes'] = $valueVariation['attributes'];
             $returnVariations[$indexVariation]['description'] = $parent->description;
-
+            $returnVariations[$indexVariation]['specifications'] = $this->reparseVariationsSpecifications($valueVariation['specifications'] ?? []);
+            $returnVariations[$indexVariation]['title'] = $valueVariation['title'];
+            $returnVariations[$indexVariation]['price'] = $valueVariation['price'];
+            $returnVariations[$indexVariation]['images'] = $this->reparseVariationsImagesToLocalAndReplaceEntity($valueVariation['images'] ?? [], $sluggedValues, $parent->sku);
+            $returnVariations[$indexVariation]['available'] = $valueVariation['available'] ?? null;
+            $returnVariations[$indexVariation]['url'] = $valueVariation['url'] ?? null;
         }
 
         return $returnVariations;
