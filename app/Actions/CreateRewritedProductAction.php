@@ -95,7 +95,7 @@ class CreateRewritedProductAction
         return $entity;
     }
 
-    private function prepareAndParseEspecifications($originalList)
+    private function prepareAndParseEspecifications($originalList) : array
     {
         $returnArray = [];
         $resultAux = [];
