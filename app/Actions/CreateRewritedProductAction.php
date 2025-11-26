@@ -110,6 +110,7 @@ class CreateRewritedProductAction
             }
         }
 
+        $returnArray = $resultAux;
         $returnArray = shuffle($resultAux);
 
         return $returnArray;
