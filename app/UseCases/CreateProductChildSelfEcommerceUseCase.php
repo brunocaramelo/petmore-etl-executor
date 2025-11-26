@@ -125,9 +125,9 @@ class CreateProductChildSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         $returnData = [];
-        foreach ($params['items'] as $itemAttrItems) {
-            foreach ($itemAttrItems['rows'] as $itemAttr) {
-
+        // foreach ($params['items'] as $itemAttrItems) {
+        //     foreach ($itemAttrItems['rows'] as $itemAttr) {
+        foreach ($params['items'] as $itemAttr) {
             $returnData[] = (new FindOrCreateProductGroupAttributeTextItemsAction)
                     ->execute(collect([
                         'group_attribute_id' => $params['group_attribute_id'],
@@ -139,7 +139,6 @@ class CreateProductChildSelfEcommerceUseCase
                         'sufix' => '_text',
                     ],
                  $this->consumer)['self_ecommerce_identify'];
-            }
         }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
@@ -152,13 +151,13 @@ class CreateProductChildSelfEcommerceUseCase
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
         $returnData = [];
-        foreach ($params['items'] as $itemAttrItems) {
-            foreach ($itemAttrItems['rows'] as $itemAttr) {
-                $returnData[] = [
-                    'attribute_code' => Str::slug($itemAttr['label'], '_').$params['sufix'],
-                    'value' => $itemAttr['value'],
-                ];
-            }
+        // foreach ($params['items'] as $itemAttrItems) {
+        //     foreach ($itemAttrItems['rows'] as $itemAttr) {
+        foreach ($params['items'] as $itemAttr) {
+            $returnData[] = [
+                'attribute_code' => Str::slug($itemAttr['label'], '_').$params['sufix'],
+                'value' => $itemAttr['value'],
+            ];
         }
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') after configurable attributes');
