@@ -54,12 +54,19 @@ class ImportPloutosPlansAndPersist extends Command
 
     public function handle()
     {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
         $this->cleanLocalStore();
         $this->importFromRemoteStorage();
 
         $plansPloutos = array_filter(Storage::disk('local')->files('import-plans-to-database'), function ($item) {
             return strpos($item, '.xlsx');
          });
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') importing plans: ', [
+            'plans' => $plansPloutos
+        ]);
+
 
          foreach ($plansPloutos as $planName) {
 
@@ -73,5 +80,7 @@ class ImportPloutosPlansAndPersist extends Command
          }
 
         $this->cleanLocalStore();
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
     }
 }

@@ -33,6 +33,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         $usedUrls = [];
 
         foreach ($rows as $row) {
+
             if (!$this->checkIsNotEmptyRow($row)) continue;
 
             $urlProductMl = $this->cleaningUrlProd($row["url_product_ml"]);
@@ -40,6 +41,13 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
 ;            if (in_array($urlProductMl, $usedUrls)) {
                 continue;
             }
+
+            // \Log::debug(__CLASS__.' ('.__FUNCTION__.') collectin ', [
+            //     'cod' => $row["cod"],
+            //     'descricao' => $row["descricao"],
+            //     'categoria' => $row["categoria"],
+            //     'ml_url' => $urlProductMl,
+            // ]);
 
             $usedUrls[] = $urlProductMl;
 
