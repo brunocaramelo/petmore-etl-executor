@@ -12,7 +12,7 @@ class FindOrCreateProductGroupAttributeAction
 {
     public function execute(Collection $param, SelfEcommerceConsumer $consumer)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $uniqueString = $param['slug'];
 
@@ -24,8 +24,8 @@ class FindOrCreateProductGroupAttributeAction
 
         if ($findLocaly instanceof ProductGroupAttribute) {
 
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') $findLocaly founded');
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName to execute');
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') $findLocaly founded');
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName to execute');
 
             $foundedGroup = $this->createAndGetGroupOfAttributeSetByName($findLocaly,
             [
@@ -34,8 +34,8 @@ class FindOrCreateProductGroupAttributeAction
                     ],
                     $consumer);
 
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName to executed');
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName to executed');
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished');
 
             return [
                 'id' => $findLocaly->id,
@@ -48,7 +48,7 @@ class FindOrCreateProductGroupAttributeAction
             ];
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') addAttributeInternal to execute');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') addAttributeInternal to execute');
 
         $createdLocaly = $this->addAttributeInternal([
             'data' => [
@@ -61,8 +61,8 @@ class FindOrCreateProductGroupAttributeAction
             'consumerInstance' => $consumer,
         ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') addAttributeInternal to executed');
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') addAttributeInternal to executed');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished');
 
         return [
             'slug' => $createdLocaly->slug,
@@ -75,7 +75,7 @@ class FindOrCreateProductGroupAttributeAction
 
     private function addAttributeInternal($params)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $skeletonId = 4;
         $entityTypeId = 4;
@@ -90,7 +90,7 @@ class FindOrCreateProductGroupAttributeAction
                 "entityTypeCode" => "catalog_product",
         ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         $createdInstance = ProductGroupAttribute::create([
                 'slug' => $params['data']['slug'],
@@ -116,7 +116,7 @@ class FindOrCreateProductGroupAttributeAction
 
     private function createAndGetGroupOfAttributeSetByName($productGroupAttrInstance, $params, $consumer)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName to execute');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName to execute');
 
         $currentGroups = $productGroupAttrInstance->self_ecommerce_group_fields ?? [];
 
@@ -155,8 +155,8 @@ class FindOrCreateProductGroupAttributeAction
 
         $productGroupAttrInstance->save();
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName executed');
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') createAndGetGroupOfAttributeSetByName executed');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished');
 
         return $foundGroup;
     }

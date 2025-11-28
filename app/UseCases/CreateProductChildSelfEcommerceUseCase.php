@@ -109,7 +109,7 @@ class CreateProductChildSelfEcommerceUseCase
 
     private function createAttributeSet(array $params): array
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         return  (new FindOrCreateProductGroupAttributeAction)
                 ->execute(collect([
@@ -122,7 +122,7 @@ class CreateProductChildSelfEcommerceUseCase
 
     private function createAttributeSetAttributes(array $params): array
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $returnData = [];
         // foreach ($params['items'] as $itemAttrItems) {
@@ -141,14 +141,14 @@ class CreateProductChildSelfEcommerceUseCase
                  $this->consumer)['self_ecommerce_identify'];
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return $returnData;
     }
 
     private function getFormatedCustomAttributesList($params): array
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $returnData = [];
         // foreach ($params['items'] as $itemAttrItems) {
@@ -160,7 +160,7 @@ class CreateProductChildSelfEcommerceUseCase
             ];
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') after configurable attributes');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') after configurable attributes');
 
         $returnData[] = [
             "attribute_code" => "description",
@@ -168,16 +168,16 @@ class CreateProductChildSelfEcommerceUseCase
         ];
 
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') after description');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') after description');
 
         $returnData[] = [
             "attribute_code" => "short_description",
             "value" => $this->getSafeHtmlCharsToJson($this->productnstance->description['small']['html'] ?? "short_description"),
         ];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') after short_description DEBUG:',$returnData);
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') after short_description DEBUG:',$returnData);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return $returnData;
     }
@@ -226,7 +226,7 @@ class CreateProductChildSelfEcommerceUseCase
     {
         $listCategories = $this->getCategoriesHierarquies($parentProduct->productCentral()->first()->category_id);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $extensionAttributes = [
             'stock_item' => [
@@ -247,7 +247,7 @@ class CreateProductChildSelfEcommerceUseCase
                 ],
             ];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') declare extensionAttributes',  [
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') declare extensionAttributes',  [
             '$listCategories->count() > 0' => $listCategories->count() > 0
         ]);
 
@@ -268,7 +268,7 @@ class CreateProductChildSelfEcommerceUseCase
         $customAttrVariationsComplete = [];
         $slugPartsGlobal = [];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') prepare declare $payload');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') prepare declare $payload');
 
         $customAttrVariationsComplete = $this->parseCustomAttributesFromThisChild($productData, $this->configs['variations_attributes']);
         if (!empty($customAttrVariationsComplete['slug_combined'])) {
@@ -302,13 +302,13 @@ class CreateProductChildSelfEcommerceUseCase
             ]
         ];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') after declare $payload DEBUG', [
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') after declare $payload DEBUG', [
             '$customAttrSelfPrd' => $customAttrSelfPrd,
             'customAttrVariationsComplete[attributes]' => $customAttrVariationsComplete['attributes'],
         ]);
 
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') prepare to send $this->consumer->createProduct', $payload);
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') prepare to send $this->consumer->createProduct', $payload);
 
         return $this->consumer->createProduct($payload);
     }
@@ -380,7 +380,7 @@ class CreateProductChildSelfEcommerceUseCase
 
     private function parseCustomAttributesFromThisChild($currentProduct, array $attributesSelf): array
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $attrReturn = [];
         $slugParts = [];
@@ -404,7 +404,7 @@ class CreateProductChildSelfEcommerceUseCase
             }
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished');
 
         return [
             'attributes' => $attrReturn,
@@ -415,7 +415,7 @@ class CreateProductChildSelfEcommerceUseCase
 
     private function createImagesIntoProduct($productSku, array $images,  $delayToJob): array
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
         //@TODO remover isso depois
         // return [];
 
@@ -429,11 +429,11 @@ class CreateProductChildSelfEcommerceUseCase
                     $this->consumer
             )->delay($delayToJob);
 
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') enviando item para UploadImageJpgToSelfCommerceToProductJob');
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') enviando item para UploadImageJpgToSelfCommerceToProductJob');
 
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished');
 
         return [
             'last_run' => $delayToJob,

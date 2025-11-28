@@ -114,11 +114,11 @@ class CreateProductBaseSelfEcommerceUseCase
 
     private function prepareAndcreateVariationItems($productParent, $childItems, $configsVariations)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $listOfAttrVariationsProduct = [];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') before createAttributeSet and createAttributeSetAttributesVariations in variations loop DEBUG:',[
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') before createAttributeSet and createAttributeSetAttributesVariations in variations loop DEBUG:',[
             '$childItems[0]->attributes', $childItems[0]['attributes'],
         ]);
 
@@ -155,14 +155,14 @@ class CreateProductBaseSelfEcommerceUseCase
             $this->consumer
         );
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') after sendAndPrepareOptionsVariationsComplete');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') after sendAndPrepareOptionsVariationsComplete');
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') before send variation to Queue');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') before send variation to Queue');
 
         foreach ($childItems as $variationItem) {
 
             $configsVariations['last_run']->addSeconds(rand(37, 70));
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') before createVariationItem');
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') before createVariationItem');
 
             $this->createVariationItem(
                 $this->productnstance,
@@ -173,17 +173,17 @@ class CreateProductBaseSelfEcommerceUseCase
                 $configsVariations['last_run']
             );
 
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') after createVariationItem');
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') after createVariationItem');
 
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') after send variation to Queue');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') after send variation to Queue');
     }
 
 
     private function sendAndPrepareOptionsVariationsComplete($productSku, $arrAttrVariations, $consumer)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         foreach ($arrAttrVariations as $arrAttrItem) {
 
@@ -204,14 +204,14 @@ class CreateProductBaseSelfEcommerceUseCase
             usleep(rand(20, 60));
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
     }
 
     private function createVariationItem($productParent, $auxArr , $childItem, $lastCarbonInstance)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') send to SendProductChidrenAndAttachParentJob::dispatch');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') send to SendProductChidrenAndAttachParentJob::dispatch');
 
         SendProductChidrenAndAttachParentJob::dispatch(
             (new ProductDto())->fill($childItem),
@@ -222,7 +222,7 @@ class CreateProductBaseSelfEcommerceUseCase
                 'variations_attributes' => $auxArr['variations_attributes'],
             ])->delay($lastCarbonInstance);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
     }
 
 
@@ -236,7 +236,7 @@ class CreateProductBaseSelfEcommerceUseCase
 
     private function createAttributeSet(array $params): array
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         return  (new FindOrCreateProductGroupAttributeAction)
                 ->execute(collect([
@@ -248,7 +248,7 @@ class CreateProductBaseSelfEcommerceUseCase
 
     private function createAttributeSetAttributesVariations(array $params)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $returnData = (new FindOrCreateProductGroupAttributeOptionVariationItemsAction)
                 ->execute(collect([
@@ -263,14 +263,14 @@ class CreateProductBaseSelfEcommerceUseCase
             ],
                 $this->consumer);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return $returnData;
     }
 
     private function createAttributeSetAttributes(array $params): array
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $returnData = [];
         // foreach ($params['items'] as $itemAttrItems) {
@@ -289,7 +289,7 @@ class CreateProductBaseSelfEcommerceUseCase
                  $this->consumer)['self_ecommerce_identify'];
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return $returnData;
     }
@@ -323,7 +323,7 @@ class CreateProductBaseSelfEcommerceUseCase
             "value" =>  Str::slug($this->productnstance->title.'-base', '-'),
         ];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return $returnData;
     }
@@ -423,14 +423,14 @@ class CreateProductBaseSelfEcommerceUseCase
             $payload['saveOptions'] = true;
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') prepare to send $this->consumer->createProduct', $payload);
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') prepare to send $this->consumer->createProduct', $payload);
 
         return $this->consumer->createProduct($payload);
     }
 
     private function createImagesIntoProduct($productSku, array $images,  $delayToJob): array
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
         //@TODO remover isso depois
         // return [];
 
@@ -444,11 +444,11 @@ class CreateProductBaseSelfEcommerceUseCase
                     $this->consumer
             )->delay($delayToJob);
 
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') enviando item para UploadImageJpgToSelfCommerceToProductJob');
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') enviando item para UploadImageJpgToSelfCommerceToProductJob');
 
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished');
 
         return [
             'last_run' => $delayToJob,

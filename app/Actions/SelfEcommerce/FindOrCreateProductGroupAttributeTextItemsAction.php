@@ -14,7 +14,7 @@ class FindOrCreateProductGroupAttributeTextItemsAction
     {
         $item = $param['item'];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $uniqueString = $item['label'];
 
@@ -38,7 +38,7 @@ class FindOrCreateProductGroupAttributeTextItemsAction
             ];
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') toSend');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') toSend');
 
         $createdLocaly = $this->addAttributeInternal([
             'data' => [
@@ -53,7 +53,7 @@ class FindOrCreateProductGroupAttributeTextItemsAction
             'consumerInstance' => $consumer,
         ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return [
             'slug' => $createdLocaly->slug,
@@ -66,7 +66,7 @@ class FindOrCreateProductGroupAttributeTextItemsAction
 
     private function addAttributeInternal($params)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $findLocalyJustSlug = ProductGroupAttributeItem::where('slug', $params['data']['slug'])
                                                 ->first();
@@ -82,7 +82,7 @@ class FindOrCreateProductGroupAttributeTextItemsAction
 
 
         if (!$params['data']['has_founded']) {
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem to send',[
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem to send',[
                     "attribute" => [
                         "attribute_code" => $params['data']['slug'],
                         "frontend_input" => "text",
@@ -112,8 +112,8 @@ class FindOrCreateProductGroupAttributeTextItemsAction
             usleep(100);
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success', $createdExternal);
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') attachAttibuteIntoGroupAttrSet to send', [
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success', $createdExternal);
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') attachAttibuteIntoGroupAttrSet to send', [
             "attributeSetId" => $params['data']['group_attribute_id'],
             "attributeGroupId" => $params['data']['group_attribute_subgroup_id'],
             "attributeCode" => $params['data']['slug'],
@@ -128,8 +128,8 @@ class FindOrCreateProductGroupAttributeTextItemsAction
             "sortOrder" => (int) $params['data']['sort_order'] ?? 0,
         ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success');
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         usleep(100);
 

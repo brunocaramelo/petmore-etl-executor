@@ -14,7 +14,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
     {
         $slugAttribute = Str::slug($param['item'], '_').$options['sufix'];
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $findLocaly = ProductGroupAttributeItem::where('slug', $slugAttribute)
                                                 ->where('group_attribute_id', $options['group_attribute_id'])
@@ -37,7 +37,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
             return $findLocaly;
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') working 1.1');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') working 1.1');
 
         $createdLocaly = $this->addAttributeInternal([
             'data' => [
@@ -53,14 +53,14 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
             'consumerInstance' => $consumer,
         ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         return $createdLocaly;
     }
 
     private function addAttributeInternal($params)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $findLocalyJustSlug = ProductGroupAttributeItem::where('slug', $params['data']['slug'])
                                                 ->first();
@@ -83,7 +83,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
         }
 
         if (!$params['data']['has_founded']) {
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') not has_founded init',[
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') not has_founded init',[
                 'attribute' => [
                     'name' => $params['data']['name'],
                     'slug' => $params['data']['slug'],
@@ -107,10 +107,10 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 
             usleep(rand(100, 300));
 
-            \Log::info(__CLASS__.' ('.__FUNCTION__.') not has_founded finished', ['$createdExternal'=> $createdExternal]);
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') not has_founded finished', ['$createdExternal'=> $createdExternal]);
         }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem sended success');
 
         $params['consumerInstance']->attachAttibuteIntoGroupAttrSet([
             "attributeSetId" => $params['data']['group_attribute_id'],
@@ -119,14 +119,14 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
             "sortOrder" => (int) $params['data']['sort_order'] ?? 0,
         ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem (attachAttibuteIntoGroupAttrSet) sended success', [
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') createAttibuteSetItem (attachAttibuteIntoGroupAttrSet) sended success', [
             "attributeSetId" => $params['data']['group_attribute_id'],
             "attributeGroupId" => $params['data']['group_attribute_subgroup_id'],
             "attributeCode" => $params['data']['slug'],
             "sortOrder" => (int) $params['data']['sort_order'] ?? 0,
         ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
 
         usleep(rand(50, 210));
 
@@ -149,7 +149,7 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 
     private function addNewOptionAndReturn($attributte , $optionLabel, $consumer) : array
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $allTributeOption = ProductGroupAttributeItem::where('slug', $attributte->slug)
                                                 ->first();
@@ -193,14 +193,14 @@ class FindOrCreateProductGroupAttributeOptionVariationItemsAction
 
     private function updateOptionByAttSlug($slug, $options)
     {
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         ProductGroupAttributeItem::where('slug', $slug)
                                 ->update([
                                     'options' => json_encode($options)
                                 ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finish');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finish');
     }
 
 }
