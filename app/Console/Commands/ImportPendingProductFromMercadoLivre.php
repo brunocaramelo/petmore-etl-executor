@@ -33,7 +33,7 @@ class ImportPendingProductFromMercadoLivre extends Command
         $delayToJob = Carbon::now();
 
         $pendingItems = ProductCentral::where('synced_ml', false)
-                                        ->where('is_active', true)
+                                            ->where('is_active', true)
                                         ->whereNull('product_ml_id')
                                         ->whereNotNull('url_product_ml')
                                         ->get();
@@ -42,7 +42,7 @@ class ImportPendingProductFromMercadoLivre extends Command
 
         foreach ($pendingItems as $pending) {
 
-           $delayToJob->addMinutes(rand(35, 71));
+           $delayToJob->addMinutes(rand(20, 65));
 
             MercadoLivreImportProductByUriAndAttachToProductCentralJob::dispatch($pending)
                                  ->delay($delayToJob);
