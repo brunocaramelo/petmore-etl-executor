@@ -47,7 +47,7 @@ class ModifyContentCopyRight extends Command
 
         foreach ($pendingItems as $pending) {
 
-            // $delayToJob->addMinutes(rand(19,47));
+            // $delayToJob->addMinutes(rand(15, 32));
 
             CreateContentWithoutCopyrightJob::dispatch(new CreateRewritedProductAction(), $pending)
                                  ->delay($delayToJob);
