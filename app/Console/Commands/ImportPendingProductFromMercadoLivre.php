@@ -40,9 +40,11 @@ class ImportPendingProductFromMercadoLivre extends Command
 
         \Log::info("(ImportPendingProductFromMercadoLivre) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
-        foreach ($pendingItems as $pending) {
+        foreach ($pendingItems as $indexPending => $pending) {
 
-           $delayToJob->addMinutes(rand(20, 45));
+           if ($indexPending > 0) {
+               $delayToJob->addMinutes(rand(20, 45));
+           }
 
             MercadoLivreImportProductByUriAndAttachToProductCentralJob::dispatch($pending)
                                  ->delay($delayToJob);
