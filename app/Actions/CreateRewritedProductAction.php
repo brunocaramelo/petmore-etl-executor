@@ -223,11 +223,23 @@ class CreateRewritedProductAction
 
     private function reparseImagesToLocalAndReplaceEntity($images, $sku)
     {
-        $listImages = $images;
+        $shuffledItems = $images;
+        shuffle($shuffledItems);
 
         $listLocalImages = [];
 
-        foreach ($listImages as $indexImage => $valueImage) {
+        $limitToRemoveItem = 3;
+        $needRemoveItem = (count($shuffledItems) > $limitToRemoveItem);
+
+        foreach ($shuffledItems as $indexImage => $valueImage) {
+            if ($needRemoveItem && 0 == $indexImage) {
+                \Log::debug("mais de $limitToRemoveItem, removendo imagem",[
+                    'index' => $indexImage,
+                    'thumbnail' => $valueImage['thumbnail'],
+                ]);
+                continue;
+            }
+
             if(!empty($valueImage['thumbnail'])) $listLocalImages[$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['thumbnail'], $sku, 'base');
             if(!empty($valueImage['mid_size'])) $listLocalImages[$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['mid_size'], $sku, 'base');
             if(!empty($valueImage['full_size'])) $listLocalImages[$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['full_size'], $sku, 'base');
