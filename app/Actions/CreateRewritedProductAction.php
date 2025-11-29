@@ -273,7 +273,18 @@ class CreateRewritedProductAction
         $shuffledVariations = $listVariations;
         shuffle($shuffledVariations);
 
+        $limitToRemoveItem = 3;
+        $needRemoveItem = (count($shuffledVariations) > $limitToRemoveItem);
+
         foreach ($shuffledVariations as $indexImage => $valueImage) {
+            if ($needRemoveItem && 0 == $indexImage) {
+                \Log::debug("mais de $limitToRemoveItem, removendo imagem",[
+                    'index' => $indexImage,
+                    'thumbnail' => $valueImage['thumbnail'],
+                ]);
+                continue;
+            }
+
             if(!empty($valueImage['thumbnail'])) $shuffledVariations[$indexImage]['thumbnail'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['thumbnail'], $sku, $sluggedValues);
             if(!empty($valueImage['mid_size'])) $shuffledVariations[$indexImage]['mid_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['mid_size'], $sku, $sluggedValues);
             if(!empty($valueImage['full_size'])) $shuffledVariations[$indexImage]['full_size'] = $this->downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($valueImage['full_size'], $sku, $sluggedValues);
