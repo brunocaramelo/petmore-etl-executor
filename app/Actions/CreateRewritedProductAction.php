@@ -31,8 +31,8 @@ class CreateRewritedProductAction
         $toRewrite = ProductRewrited::create($instanceToNewArr);
 
         \Log::debug(__CLASS__.' ('.__FUNCTION__.') starting proccess to', [
-            'sku' => $toRewrite->slug,
-            'title' => $toRewrite->title,
+            'sku' => $instanceToNewArr['sku'],
+            'title' => $instanceToNewArr['title'],
         ]);
 
         $aiConsumer = new AiApiConsumer([
