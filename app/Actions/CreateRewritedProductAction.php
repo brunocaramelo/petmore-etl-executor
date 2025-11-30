@@ -67,7 +67,7 @@ class CreateRewritedProductAction
             ]
         ]);
 
-        \Log::info('respoosta obtida de IA', $aiResponse);
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') respoosta obtida de IA', $aiResponse);
 
         $responseApiFilled = $this->fillJustJsonMessageFromResponse(
                     $aiResponse['candidates'][0]['content']['parts'][0]['text']
@@ -88,7 +88,12 @@ class CreateRewritedProductAction
 
         $entity->images = $this->reparseImagesToLocalAndReplaceEntity($entity->images, $entity->sku);
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') description, specifications and images setteds, now variations');
+
         $entity->variations = $this->reparseVariationsItems($entity->variations, $entity);
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished variations');
+
 
         $entity->save();
 
