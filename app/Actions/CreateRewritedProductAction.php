@@ -33,6 +33,7 @@ class CreateRewritedProductAction
         \Log::info(__CLASS__.' ('.__FUNCTION__.') starting proccess to', [
             'sku' => $instanceToNewArr['sku'],
             'title' => $instanceToNewArr['title'],
+            'count_variations' => count($instanceToNewArr['variations'] ?? []),
         ]);
 
         $aiConsumer = new AiApiConsumer([
