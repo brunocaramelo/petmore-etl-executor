@@ -11,3 +11,8 @@ php artisan create:modified-content-copy-right
 # php artisan export:mapped-product-to-erp
 
 php artisan export:mapped-product-to-self-ecommerce-tool
+
+## queue work
+
+php artisan queue:work --timeout=8600  --memory=4024 
+

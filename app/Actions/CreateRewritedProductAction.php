@@ -43,7 +43,7 @@ class CreateRewritedProductAction
         $instance->product_rewrited_id = $toRewrite->uuid;
         $instance->ai_adapted_the_content = true;
 
-        \Log::info('item processado com sucesso');
+        \Log::debug('item processado com sucesso');
 
         return $instance->save();
     }
@@ -67,7 +67,7 @@ class CreateRewritedProductAction
             ]
         ]);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') respoosta obtida de IA', $aiResponse);
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') respoosta obtida de IA', $aiResponse);
 
         $responseApiFilled = $this->fillJustJsonMessageFromResponse(
                     $aiResponse['candidates'][0]['content']['parts'][0]['text']
@@ -88,11 +88,11 @@ class CreateRewritedProductAction
 
         $entity->images = $this->reparseImagesToLocalAndReplaceEntity($entity->images, $entity->sku);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') description, specifications and images setteds, now variations');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') description, specifications and images setteds, now variations');
 
         $entity->variations = $this->reparseVariationsItems($entity->variations, $entity);
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished variations');
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished variations');
 
 
         $entity->save();
@@ -260,7 +260,14 @@ class CreateRewritedProductAction
         $shuffledVariationsItems = $listVariationsOriginal;
         shuffle($shuffledVariationsItems);
 
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') start integrations');
+
         foreach ($shuffledVariationsItems as $indexVariation => $valueVariation) {
+
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') start item process' ,[
+                'sku' => $valueVariation['sku'],
+                'title' => $valueVariation['title'],
+            ]);
 
             $valuesAttributes = collect($valueVariation['attributes'])->map(function ($item) {
                 return \Str::slug(trim(empty($item[1]['value']) ? 'no_category' : $item[1]['value']));
@@ -277,6 +284,7 @@ class CreateRewritedProductAction
             $returnVariations[$indexVariation]['available'] = $valueVariation['available'] ?? null;
             $returnVariations[$indexVariation]['url'] = $valueVariation['url'] ?? null;
 
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished item process to SKU: '.$valueVariation['sku']);
         }
 
 
@@ -328,6 +336,9 @@ class CreateRewritedProductAction
         ini_set('pcre.recursion_limit', 100000000);
 
         ini_set('session.gc_maxlifetime', 86400);
+
+        config(['app.debug' => true]);
+
     }
 
 }
