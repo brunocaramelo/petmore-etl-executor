@@ -291,7 +291,7 @@ class CreateRewritedProductAction
             $returnVariations[$indexVariation]['available'] = $valueVariation['available'] ?? null;
             $returnVariations[$indexVariation]['url'] = $valueVariation['url'] ?? null;
 
-            \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished item process to SKU: '.$valueVariation['sku']);
+            \Log::debug(__CLASS__.' ('.__FUNCTION__.') finished item process to title: '.$valueVariation['title']);
         }
 
 
