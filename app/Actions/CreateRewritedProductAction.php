@@ -30,6 +30,11 @@ class CreateRewritedProductAction
 
         $toRewrite = ProductRewrited::create($instanceToNewArr);
 
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') starting proccess to', [
+            'sku' => $toRewrite->slug,
+            'title' => $toRewrite->title,
+        ]);
+
         $aiConsumer = new AiApiConsumer([
             'base_path' => config('custom-services.apis.ai_api.base_path'),
             'api_key' => config('custom-services.apis.ai_api.api_key'),
