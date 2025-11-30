@@ -30,7 +30,7 @@ class CreateRewritedProductAction
 
         $toRewrite = ProductRewrited::create($instanceToNewArr);
 
-        \Log::debug(__CLASS__.' ('.__FUNCTION__.') starting proccess to', [
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') starting proccess to', [
             'sku' => $instanceToNewArr['sku'],
             'title' => $instanceToNewArr['title'],
         ]);
@@ -48,7 +48,7 @@ class CreateRewritedProductAction
         $instance->product_rewrited_id = $toRewrite->uuid;
         $instance->ai_adapted_the_content = true;
 
-        \Log::debug('item processado com sucesso');
+        \Log::info('item processado com sucesso SKU: '.$instanceToNewArr['sku']);
 
         return $instance->save();
     }
