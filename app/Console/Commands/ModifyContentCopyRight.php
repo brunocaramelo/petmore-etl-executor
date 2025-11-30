@@ -45,9 +45,10 @@ class ModifyContentCopyRight extends Command
 
         \Log::info("(ModifyContentCopyRight) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
-        foreach ($pendingItems as $pending) {
-
-            $delayToJob->addMinutes(rand(10, 32));
+        foreach ($pendingItems as $indexPending => $pending) {
+            if ($indexPending > 0) {
+                $delayToJob->addMinutes(rand(10, 32));
+            }
 
             CreateContentWithoutCopyrightJob::dispatch(new CreateRewritedProductAction(), $pending)
                                  ->delay($delayToJob);

@@ -307,9 +307,22 @@ class CreateRewritedProductAction
 
     public function configureForHeavyOperations()
     {
-        ini_set('memory_limit', '4024M');
-        ini_set('max_execution_time', 2800);
-        ini_set('max_input_time', 900);
+        ini_set('max_execution_time', 0);
+        set_time_limit(0);
+
+        ini_set('memory_limit', '-1');
+
+        ini_set('max_input_time', -1);
+        ini_set('max_input_vars', 100000);
+        ini_set('max_execution_time', 9800);
+
+        ini_set('output_buffering', 'Off');
+        ini_set('zlib.output_compression', 'Off');
+
+        ini_set('pcre.backtrack_limit', 100000000);
+        ini_set('pcre.recursion_limit', 100000000);
+
+        ini_set('session.gc_maxlifetime', 86400);
     }
 
 }
