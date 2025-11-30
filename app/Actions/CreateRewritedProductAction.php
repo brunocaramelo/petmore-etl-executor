@@ -270,8 +270,8 @@ class CreateRewritedProductAction
         foreach ($shuffledVariationsItems as $indexVariation => $valueVariation) {
 
             \Log::debug(__CLASS__.' ('.__FUNCTION__.') start item process' ,[
-                'sku' => $valueVariation['sku'],
                 'title' => $valueVariation['title'],
+                'price' => $valueVariation['price']['current'],
             ]);
 
             $valuesAttributes = collect($valueVariation['attributes'])->map(function ($item) {
@@ -279,6 +279,8 @@ class CreateRewritedProductAction
             });
 
             $sluggedValues = $valuesAttributes->implode('-');
+
+            $returnVariations[$indexVariation] = $valueVariation;
 
             $returnVariations[$indexVariation]['attributes'] = $valueVariation['attributes'];
             $returnVariations[$indexVariation]['description'] = $parent->description;
