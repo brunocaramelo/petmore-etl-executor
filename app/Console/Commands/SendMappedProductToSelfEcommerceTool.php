@@ -28,7 +28,6 @@ class SendMappedProductToSelfEcommerceTool extends Command
             ->where('ai_adapted_the_content', true)
             ->where('synced_self_ecommerce', false)
             // ->where('sku', 'PM04006090')
-            ->limit(2)
             ->get();
 
         \Log::info("(SendMappedProductToSelfEcommerceTool) Itens pendentes encontrados para serem processados ".$pendingItems->count());
