@@ -39,6 +39,11 @@ class CreateProductBaseSelfEcommerceUseCase
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') importing: ', [
+            'sku' => $this->productnstance->sku,
+            'sku' => $this->productnstance->title,
+        ]);
+
         $delayToJob = Carbon::now();
 
         $categoryAttrsProductAttributesItems = [];
@@ -406,7 +411,7 @@ class CreateProductBaseSelfEcommerceUseCase
                 "sku" => $productData->sku,
                 "name" => $productData->title,
                 "attribute_set_id" => $productData->attribute_set_id,
-                "price" => $this->hasVariations == false ? $productData->price['current'] : 0,
+                "price" => $this->hasVariations == false ? ($productData->price['current'] ?? 0) : 0,
                 "status" => 1,
                 "visibility" => 4,
                 "type_id" => $this->typeProduct,
