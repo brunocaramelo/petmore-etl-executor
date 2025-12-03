@@ -25,6 +25,17 @@ class CreateRewritedProductAction
 
         $instanceToNewArr['sku'] = $instance->sku;
 
+        if(empty($instanceToNewArr['title'])) {
+            $instanceToNewArr['title'] = $instance->title;
+        }
+
+        if(empty($instanceToNewArr['price'])) {
+            $instanceToNewArr['price'] = [
+                'current' => 11,
+                'currency' => 'R$',
+            ];
+        }
+
         if(isset($instanceToNewArr['_id'])) unset($instanceToNewArr['_id']);
         if(isset($instanceToNewArr['id'])) unset($instanceToNewArr['id']);
 
