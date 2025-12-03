@@ -39,6 +39,15 @@ class CreateProductBaseSelfEcommerceUseCase
     {
         \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
 
+
+        if(empty($this->productnstance->title)) {
+            $this->productnstance->title = $this->productnstance?->productCentral()->first()->ploutos_descricao;
+        }
+
+        if(empty($this->productnstance->price)) {
+            $this->productnstance->price = 11;
+        }
+
         \Log::info(__CLASS__.' ('.__FUNCTION__.') importing: ', [
             'sku' => $this->productnstance->sku,
             'title' => $this->productnstance->title,
