@@ -41,7 +41,8 @@ class CreateProductBaseSelfEcommerceUseCase
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') importing: ', [
             'sku' => $this->productnstance->sku,
-            'sku' => $this->productnstance->title,
+            'title' => $this->productnstance->title,
+            'tudo' => $this->productnstance->toArray(),
         ]);
 
         $delayToJob = Carbon::now();
