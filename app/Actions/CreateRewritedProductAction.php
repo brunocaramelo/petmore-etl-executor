@@ -26,7 +26,7 @@ class CreateRewritedProductAction
         $instanceToNewArr['sku'] = $instance->sku;
 
         if(empty($instanceToNewArr['title'])) {
-            $instanceToNewArr['title'] = $instance->title;
+            $instanceToNewArr['title'] = $instance->ploutos_descricao;
         }
 
         if(empty($instanceToNewArr['price'])) {
