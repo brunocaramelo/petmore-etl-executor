@@ -50,6 +50,7 @@ class ProductCentral extends Model
         'ml_identify',
         'category_id',
         'synced_self_ecommerce',
+        'product_self_commerce_id',
         'sku',
     ];
 

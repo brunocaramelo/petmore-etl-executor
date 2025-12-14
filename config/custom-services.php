@@ -38,8 +38,12 @@ return [
             'base_path' => env('AI_API_BASE_PATH'),
             'api_key' => env('AI_API_KEY'),
             'prompts' => [
-                          'modify_product_to_not_copyright' => env('AI_API_PROMPT_MODIFY_PRODUCT_TO_NOT_COPYRIGHT')
+                          'modify_product_to_not_copyright' => env('AI_API_PROMPT_MODIFY_PRODUCT_TO_NOT_COPYRIGHT'),
+                          'search_product_on_glbal_find_portal' => env('AI_API_PROMPT_SEARCH_PRODUCT_ON_GLBAL_FIND_PORTAL'),
                         ],
+            'system_config_instructions' => [
+                'web_search_techinical_infos_official_product' => env('AI_API_WEB_SEARCH_TECHINICAL_INFOS_OFFICIAL_PRODUCT'),
+            ]
         ]
     ]
 
