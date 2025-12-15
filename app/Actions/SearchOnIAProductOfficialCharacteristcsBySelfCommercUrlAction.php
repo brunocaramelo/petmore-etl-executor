@@ -32,7 +32,7 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
         ]);
 
         if ($config['search_and_storage_stage']) {
-            $this->modifyDescriptionFromEntityAndReturn(
+            $this->searchAndStorageOnStage(
                 $aiConsumer,
                 $instance
                 );
@@ -48,7 +48,7 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
     }
 
 
-    private function modifyDescriptionFromEntityAndReturn($aiConsumer, $entity)
+    private function searchAndStorageOnStage($aiConsumer, $entity)
     {
 
         $jsonElement = json_encode([
@@ -93,14 +93,11 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
             $lineWithJsonObject
         )['array'];
 
-        if (is_numeric($responseApiFilled['weight']) && is_numeric($responseApiFilled['weight'])) {
-
-            $entity->ean = strtolower($responseApiFilled['ean']) !='unknown' ? $responseApiFilled['ean'] : null;
-            $entity->weight = is_numeric($responseApiFilled['weight']) ? $responseApiFilled['weight'] : null;
-            $entity->height = is_numeric($responseApiFilled['weight']) ? $responseApiFilled['height'] : null;
-            $entity->width =  is_numeric($responseApiFilled['weight']) ? $responseApiFilled['width'] : null;
-            $entity->length = is_numeric($responseApiFilled['weight']) ? $responseApiFilled['length'] : null;
-        }
+        $entity->ean = strtolower($responseApiFilled['ean']) !='unknown' ? $responseApiFilled['ean'] : null;
+        $entity->weight = is_numeric($responseApiFilled['weight']) ? $responseApiFilled['weight'] : null;
+        $entity->height = is_numeric($responseApiFilled['weight']) ? $responseApiFilled['height'] : null;
+        $entity->width =  is_numeric($responseApiFilled['weight']) ? $responseApiFilled['width'] : null;
+        $entity->length = is_numeric($responseApiFilled['weight']) ? $responseApiFilled['length'] : null;
 
         $entity->has_searched = true;
 
