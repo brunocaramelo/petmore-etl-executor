@@ -26,6 +26,7 @@ class ProductSelfCommerceData extends Model
         'width',
         'depth',
         'length',
+        'has_searched',
     ];
 
     public function productCentral()

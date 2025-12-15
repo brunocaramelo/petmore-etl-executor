@@ -25,6 +25,9 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlJob implements Shou
 
     public function handle(): void
     {
-        $this->action->execute($this->entityCentral);
+        $this->action->execute($this->entityCentral,[
+            'search_and_storage_stage' => true,
+            'send_to_self_ecommerce' => true,
+        ]);
     }
 }

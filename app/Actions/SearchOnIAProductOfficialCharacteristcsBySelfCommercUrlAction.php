@@ -14,7 +14,7 @@ use Exception;
 
 class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
 {
-    public function execute(ProductSelfCommerceData $instance)
+    public function execute(ProductSelfCommerceData $instance, array $config)
     {
         $this->configureForHeavyOperations();
 
@@ -31,10 +31,12 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
             'api_key' => config('custom-services.apis.ai_api.api_key'),
         ]);
 
-        $this->modifyDescriptionFromEntityAndReturn(
-            $aiConsumer,
-            $instance
-            );
+        if ($config['search_and_storage_stage']) {
+            $this->modifyDescriptionFromEntityAndReturn(
+                $aiConsumer,
+                $instance
+                );
+        }
 
         if ($instance->TYPE =='simple') {
             $instanceCentral->product_self_commerce_id = $skuToFind;
@@ -54,35 +56,60 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
             'url' => $entity->url,
         ]);
 
-        $promptTxt = sprintf(config('custom-services.apis.ai_api.prompts.search_product_on_glbal_find_portal'),$jsonElement);
-        $systemConfigInstructions = sprintf(config('custom-services.apis.ai_api.system_config_instructions.web_search_techinical_infos_official_product'), $entity->NAME, $entity->URL);
+        $jsonElementResponseGoogleSearch = json_encode([
+            'ean' => 'STRING',
+            'name' => 'STRING',
+            'weight' => 'NUMBER',
+            'height' => 'NUMBER',
+            'width' => 'NUMBER',
+            'length' => 'NUMBER',
+        ]);
+
+        $promptTxt = sprintf(config('custom-services.apis.ai_api.prompts.search_product_on_glbal_find_portal'), $entity->NAME, $entity->URL, $jsonElementResponseGoogleSearch);
 
         $aiResponse = $aiConsumer->sendContentToModelAi(
-            $this->generatePayloadRequest(
-                        $promptTxt,
-                        $systemConfigInstructions
-                    )
+            $this->generatePayloadRequest($promptTxt)
         );
 
         \Log::debug(__CLASS__.' ('.__FUNCTION__.') request para IA, params: ', $jsonElement);
         \Log::debug(__CLASS__.' ('.__FUNCTION__.') respoosta obtida de IA', $aiResponse);
 
-        $responseApiFilled = $this->fillJustJsonMessageFromResponse(
-                    $aiResponse['candidates'][0]['content']['parts'][0]['text']
-                    )['array'];
+        $lineWithJsonObject = null;
+        $contentHasFoundedOfficial = false;
 
-        $entity->ean = $responseApiFilled['ean'];
-        $entity->weight = $responseApiFilled['weight'];
-        $entity->height = $responseApiFilled['height'];
-        $entity->width = $responseApiFilled['width'];
-        $entity->length = $responseApiFilled['length'];
+        foreach ($aiResponse['candidates'][0]['content']['parts'] as $contentReturn) {
+            if (stripos($contentReturn['text'], '``json') !== false) {
+                $contentHasFoundedOfficial = true;
+                $lineWithJsonObject = $contentReturn['text'];
+                break;
+            }
+        }
+
+        if (!$contentHasFoundedOfficial) {
+            return $entity;
+        }
+
+        $responseApiFilled = $this->fillJustJsonMessageFromResponse(
+            $lineWithJsonObject
+        )['array'];
+
+        if (is_numeric($responseApiFilled['weight']) && is_numeric($responseApiFilled['weight'])) {
+
+            $entity->ean = strtolower($responseApiFilled['ean']) !='unknown' ? $responseApiFilled['ean'] : null;
+            $entity->weight = is_numeric($responseApiFilled['weight']) ? $responseApiFilled['weight'] : null;
+            $entity->height = is_numeric($responseApiFilled['weight']) ? $responseApiFilled['height'] : null;
+            $entity->width =  is_numeric($responseApiFilled['weight']) ? $responseApiFilled['width'] : null;
+            $entity->length = is_numeric($responseApiFilled['weight']) ? $responseApiFilled['length'] : null;
+        }
+
+        $entity->has_searched = true;
 
         $entity->save();
 
         return $entity;
     }
 
-    private function generatePayloadRequest($contentsPart, $configSystemInstructions)
+    private function generatePayloadRequest($contentsPart)
     {
         return [
             "tools" => [
@@ -93,51 +120,6 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
                     "role" => "user",
                     "parts" => [
                         ["text" => $contentsPart]
-                    ]
-                ]
-            ],
-            "systemInstruction" => [
-                "parts" => [
-                    ["text" => $configSystemInstructions]
-                ]
-            ],
-            "generationConfig" => [
-                "responseMimeType" => "application/json",
-                "responseSchema" => [
-                    "type" => "OBJECT",
-                    "properties" => [
-                        "ean" => [
-                            "type" => "STRING",
-                            "description" => "Código EAN/GTIN do produto."
-                        ],
-                        "name" => [
-                            "type" => "STRING",
-                            "description" => "Nome do produto."
-                        ],
-                        "weight" => [
-                            "type" => "NUMBER",
-                            "description" => "Peso do produto com a unidade (ex: '1 kg')."
-                        ],
-                        "height" => [
-                            "type" => "NUMBER",
-                            "description" => "Altura da embalagem com a unidade (ex: '33 cm')."
-                        ],
-                        "width" => [
-                            "type" => "NUMBER",
-                            "description" => "Largura da embalagem com a unidade (ex: '20 cm')."
-                        ],
-                        "length" => [
-                            "type" => "NUMBER",
-                            "description" => "Comprimento/Profundidade da embalagem com a unidade (ex: '10 cm')."
-                        ]
-                    ],
-                    "required" => [
-                        "ean",
-                        "name",
-                        "weight",
-                        "height",
-                        "width",
-                        "length"
                     ]
                 ]
             ]
