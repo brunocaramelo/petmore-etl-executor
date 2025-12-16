@@ -14,18 +14,19 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlJob implements Shou
     use Queueable;
 
     private $action;
-    private $entityCentral;
+    private $entity;
 
     public function __construct(SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction $action,
-                                ProductSelfCommerceData $entityCentral
+                                ProductSelfCommerceData $entity
     ) {
+
         $this->action = $action;
-        $this->entityCentral = $entityCentral;
+        $this->entity = $entity;
     }
 
     public function handle(): void
     {
-        $this->action->execute($this->entityCentral,[
+        $this->action->execute($this->entity,[
             'search_and_storage_stage' => true,
             'send_to_self_ecommerce' => true,
         ]);

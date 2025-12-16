@@ -6,22 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+
+    protected $connection = 'mongodb';
+    protected $collection = 'product_self_commerce_data';
+
+    public function up()
     {
-        Schema::create('product_self_commerce_data', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::connection($this->connection)
+                ->create($this->collection, function ($collection) {
+            $collection->index('identify');
         });
+
+
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('product_self_commerce_data');
+        Schema::connection($this->connection)->dropIfExists($this->collection);
     }
+
 };

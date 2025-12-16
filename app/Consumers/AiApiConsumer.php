@@ -34,4 +34,21 @@ class AiApiConsumer
         return null;
     }
 
+    public function sendContentToModelAiBodyRawArr(array $dataToSend)
+    {
+        $response = Http::retry(1, 10)
+                    ->timeout(8999)
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'X-goog-api-key' => $this->apiKey
+                    ])
+                    ->post($this->baseApiPath, $dataToSend);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
 }

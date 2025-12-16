@@ -11,14 +11,15 @@ use App\Traits\HasUuid;
 class ProductSelfCommerceData extends Model
 {
     use HasUuid;
+
     protected $hidden = ['_id'];
     protected $collection = 'product_self_commerce_data';
     protected $primaryKey = 'uuid';
 
     protected $fillable = [
-        'url',
-        'name',
-        'type',
+        'URL',
+        'NAME',
+        'TYPE',
         'sku',
         'ean',
         'weight',
@@ -26,6 +27,9 @@ class ProductSelfCommerceData extends Model
         'width',
         'depth',
         'length',
+        'has_variation',
+        'parent_sku',
+        'entity_id',
         'has_searched',
     ];
 

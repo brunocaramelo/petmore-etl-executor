@@ -38,8 +38,9 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
                 );
         }
 
-        if ($instance->TYPE =='simple') {
+        if ($instance->TYPE == 'simple') {
             $instanceCentral->product_self_commerce_id = $skuToFind;
+            $instanceCentral->save();
         }
 
         \Log::info('item processado com sucesso SKU: '.$instance->sku);
@@ -50,29 +51,17 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
 
     private function searchAndStorageOnStage($aiConsumer, $entity)
     {
+        $promptTxt = sprintf(config('custom-services.apis.ai_api.prompts.search_product_on_glbal_find_portal'), $entity->NAME);
+        $systemInstructionText = sprintf(config('custom-services.apis.ai_api.system_config_instructions.web_search_techinical_infos_official_product'), $entity->NAME);
 
-        $jsonElement = json_encode([
-            'name' => $entity->title,
-            'url' => $entity->url,
-        ]);
+        $promptArr = $this->generatePayloadRequest($promptTxt, $systemInstructionText);
 
-        $jsonElementResponseGoogleSearch = json_encode([
-            'ean' => 'STRING',
-            'name' => 'STRING',
-            'weight' => 'NUMBER',
-            'height' => 'NUMBER',
-            'width' => 'NUMBER',
-            'length' => 'NUMBER',
-        ]);
+        // $promptArr['contents'][0][0]['parts']['text'] = json_encode($promptArr, JSON_UNESCAPED_UNICODE);
 
-        $promptTxt = sprintf(config('custom-services.apis.ai_api.prompts.search_product_on_glbal_find_portal'), $entity->NAME, $entity->URL, $jsonElementResponseGoogleSearch);
+        $aiResponse = $aiConsumer->sendContentToModelAiBodyRawArr($promptArr);
 
-        $aiResponse = $aiConsumer->sendContentToModelAi(
-            $this->generatePayloadRequest($promptTxt)
-        );
-
-        \Log::debug(__CLASS__.' ('.__FUNCTION__.') request para IA, params: ', $jsonElement);
-        \Log::debug(__CLASS__.' ('.__FUNCTION__.') respoosta obtida de IA', $aiResponse);
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') request para IA, params: ', [$promptArr, $systemInstructionText]);
+        \Log::debug(__CLASS__.' ('.__FUNCTION__.') respoosta obtida de IA', [$aiResponse]);
 
         $lineWithJsonObject = null;
         $contentHasFoundedOfficial = false;
@@ -106,7 +95,7 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
         return $entity;
     }
 
-    private function generatePayloadRequest($contentsPart)
+    private function generatePayloadRequest($contentsPart, $systemInstructionText)
     {
         return [
             "tools" => [
@@ -119,9 +108,17 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction
                         ["text" => $contentsPart]
                     ]
                 ]
-            ]
+            ],
+            "systemInstruction"=> [
+            "parts"=> [
+                [
+                    "text"=> $systemInstructionText
+                ],
+            ],
+        ],
         ];
     }
+
 
     private function fillJustJsonMessageFromResponse($text)
     {

@@ -33,13 +33,14 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlConsole extends Com
      */
     public function handle()
     {
+
+        // die($this->loadFileLocal());
+
         $delayToJob = Carbon::now();
 
-        $pendingItems = ProductSelfCommerceData::
-        where('TYPE','simple')
+        $pendingItems = ProductSelfCommerceData::where('TYPE','simple')
         ->limit(1)
         ->get();
-
 
         \Log::info("(SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlConsole) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
@@ -56,4 +57,21 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlConsole extends Com
         }
         \Log::info("(SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlConsole) Processo finalizado");
     }
+
+    private function loadFileLocal()
+    {
+        $arrFile = json_decode('', 1);
+
+        foreach ($arrFile as $item) {
+            unset($item['uuid']);
+            // dd($item);
+            $ent = new ProductSelfCommerceData($item);
+            $ent->save();
+
+        }
+    }
+
+
 }
+
+
