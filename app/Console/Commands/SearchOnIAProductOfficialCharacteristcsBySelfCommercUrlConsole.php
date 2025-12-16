@@ -39,14 +39,14 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlConsole extends Com
         $delayToJob = Carbon::now();
 
         $pendingItems = ProductSelfCommerceData::where('TYPE','simple')
-        ->limit(1)
+        ->where('has_searched', '<>' , true)
         ->get();
 
         \Log::info("(SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlConsole) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
         foreach ($pendingItems as $indexPending => $pending) {
             if ($indexPending > 0) {
-                $delayToJob->addMinutes(rand(10, 22));
+                $delayToJob->addMinutes(rand(14, 24));
             }
 
             SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlJob::dispatch(new SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction(), $pending)
