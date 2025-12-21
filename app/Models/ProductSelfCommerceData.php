@@ -31,6 +31,7 @@ class ProductSelfCommerceData extends Model
         'parent_sku',
         'entity_id',
         'has_searched',
+        'official_data_sended',
     ];
 
     public function productCentral()

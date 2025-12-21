@@ -151,8 +151,7 @@ class CreateProductChildSelfEcommerceUseCase
         \Log::debug(__CLASS__.' ('.__FUNCTION__.') init');
 
         $returnData = [];
-        // foreach ($params['items'] as $itemAttrItems) {
-        //     foreach ($itemAttrItems['rows'] as $itemAttr) {
+
         foreach ($params['items'] as $itemAttr) {
             $returnData[] = [
                 'attribute_code' => Str::slug($itemAttr['label'], '_').$params['sufix'],
@@ -316,59 +315,16 @@ class CreateProductChildSelfEcommerceUseCase
 
     private function generateSkuToThisProduct($baseSku, $slugPartsGlobal)
     {
-        $rawSlug = implode('_', $slugPartsGlobal);
+        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $max = strlen($chars) - 1;
+        $result = '';
+        $length = 10;
 
-        $rawSlug = str_replace(['_option', ' ', '.'], ['', '', ''], $rawSlug);
-        $rawSlug = Str::ascii($rawSlug);
-        $rawSlug = preg_replace('/[^A-Za-z0-9_]/', '', $rawSlug);
-
-        $base = strtoupper(Str::slug($baseSku, '_'));
-        $slug = strtoupper($rawSlug);
-
-        $sku = $base . '_' . $slug;
-
-        if (strlen($sku) > 64) {
-
-            $parts = explode('_', $slug);
-            $abbreviated = [];
-
-            foreach ($parts as $word) {
-
-                if (preg_match('/^[0-9]+[A-Z]*$/i', $word)) {
-                    $abbreviated[] = $word;
-                    continue;
-                }
-
-                $len = strlen($word);
-
-                if ($len <= 3) {
-                    $abbreviated[] = $word;
-                    continue;
-                }
-
-                if ($len >= 4 && $len <= 6) {
-                    $abbreviated[] = substr($word, 0, 3);
-                    continue;
-                }
-
-                $wordOnlyConsonants = preg_replace('/[AEIOU]/i', '', $word);
-                $abbreviated[] = substr($wordOnlyConsonants, 0, 5);
-            }
-
-            $slug = implode('_', $abbreviated);
-            $sku = $base . '_' . $slug;
-
-            if (strlen($sku) > 64) {
-                $maxSlugLen = 64 - strlen($base) - 6;
-                $slug = substr($slug, 0, max(0, $maxSlugLen));
-
-                $randomChars = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 5);
-
-                $sku = $base . '_' . $slug . '_' . $randomChars;
-            }
+        for ($i = 0; $i < $length; $i++) {
+            $result .= $chars[random_int(0, $max)];
         }
 
-        $skuLimited = substr($sku, 0, 63);
+        $skuLimited = 'PM'.$result;
 
         $this->productnstance->sku = $skuLimited;
 
