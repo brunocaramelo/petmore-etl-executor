@@ -66,6 +66,26 @@
           "type": "float",
           "required": true
         }
+      },
+      {
+        "plan_fields": [
+            "descricao_produto"
+        ],
+        "rule": {
+          "name": "plan_produto_descricao",
+          "type": "string",
+          "required": true
+        }
+      },
+      {
+        "plan_fields": [
+            "fabricante"
+        ],
+        "rule": {
+          "name": "plan_fabricante",
+          "type": "string",
+          "required": true
+        }
       }
     ]
   }
