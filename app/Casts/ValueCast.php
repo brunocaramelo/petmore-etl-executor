@@ -22,6 +22,10 @@ class ValueCast {
             return (boolean) $value;
         }
 
+        if ($castType =='string'){
+            return $value;
+        }
+
     }
 
 }

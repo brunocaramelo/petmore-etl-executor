@@ -1,35 +1,34 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\PlanImportEan;
 
 use Illuminate\Console\Command;
+
+use App\Imports\SupplierProductsPlanGetShippingDataImport;
+
 use Illuminate\Support\Facades\Storage;
-use App\Imports\PloutosProductsPlanImport;
+
 use Maatwebsite\Excel\Facades\Excel;
 
-class ImportPloutosPlansAndPersist extends Command
+class PlanImportEanAndShippingDataToSelfCommerce extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'import:ploutos-plans-and-persist';
+    protected $signature = 'import:plan-import-ean-and-shipping-data-to-self-commerce';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Etapa 1 - Importação de planilhas de produtos do Ploutos para Persistir no sistema';
-
-    /**
-     * Execute the console command.
-     */
+    protected $description = 'Command description';
 
     private function importFromRemoteStorage()
     {
-        $remoteFiles = array_filter(Storage::disk('choiced_cloud_storage')->files('petmore-public/import-plans/create-products'), function ($item) {
+        $remoteFiles = array_filter(Storage::disk('choiced_cloud_storage')->files('petmore-public/import-plans/update-shipping-data'), function ($item) {
            return strpos($item, '.xlsx');
         });
 
@@ -67,14 +66,12 @@ class ImportPloutosPlansAndPersist extends Command
             'plans' => $plansPloutos
         ]);
 
-
          foreach ($plansPloutos as $planName) {
 
-            $import = new PloutosProductsPlanImport();
+            $import = new SupplierProductsPlanGetShippingDataImport();
+            $import->handle();
 
-            Excel::import($import,
-            Storage::disk('local')->path($planName)
-            );
+            Excel::import($import, Storage::disk('local')->path($planName));
 
             $import->persistData();
          }
@@ -83,4 +80,5 @@ class ImportPloutosPlansAndPersist extends Command
 
         \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
     }
+
 }
