@@ -15,18 +15,8 @@ use App\Models\ProductSelfCommerceData;
 use Illuminate\Support\Facades\Artisan;
 class PlanImportEanAndShippingDataToSelfCommerce extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'import:plan-import-ean-and-shipping-data-to-self-commerce {--send_my_app=no} {--just_send_my_app=no}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Command description';
 
     private function importFromRemoteStorage()
