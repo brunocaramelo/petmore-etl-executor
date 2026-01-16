@@ -32,8 +32,9 @@ class ProductSelfCommerceData extends Model
         'entity_id',
         'has_searched',
         'official_data_sended',
-        'supplier_product_description',
-        'supplier_name',
+        'external_supplier_product_description',
+        'external_supplier_name',
+        'external_supplier_sku',
     ];
 
     public function productCentral()

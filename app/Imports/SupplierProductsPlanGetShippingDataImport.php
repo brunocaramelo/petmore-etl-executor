@@ -50,7 +50,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
     {
         foreach ($this->data as $row) {
 
-            $updateDatas = ProductSelfCommerceData::whereIn('sku', explode(self::PLAN_SKU_SEPARATOR, $row['local_sku']))
+            $updateDatas = ProductSelfCommerceData::whereIn('sku', explode(self::PLAN_SKU_SEPARATOR, $row['local_sku']) ?? ['NENHUM_SKU'] )
                                                   ->where('has_searched', false)
                                                   ->get();
 
@@ -66,8 +66,9 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                     'length' => $row['length'],
                     'weight' => $row['weight'],
                     'width' => $row['width'],
-                    'supplier_product_description' => $row['supplier_product_description'],
-                    'supplier_name' => $row['supplier_name'],
+                    'external_supplier_product_description' => $row['supplier_product_description'],
+                    'external_supplier_name' => $row['supplier_name'],
+                    'external_supplier_sku' => $row['supplier_sku'],
                 ]);
             }
         }

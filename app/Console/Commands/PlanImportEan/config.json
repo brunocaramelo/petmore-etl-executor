@@ -79,6 +79,16 @@
       },
       {
         "plan_fields": [
+            "codigo"
+        ],
+        "rule": {
+          "name": "supplier_sku",
+          "type": "string",
+          "required": true
+        }
+      },
+      {
+        "plan_fields": [
             "fabricante"
         ],
         "rule": {

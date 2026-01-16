@@ -83,7 +83,6 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
     private function importPlans($plansPloutos): bool
     {
         foreach ($plansPloutos as $planName) {
-
             $import = new SupplierProductsPlanGetShippingDataImport();
             $import->handle();
 
@@ -97,7 +96,7 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
 
     private function sendToEMyApp(): bool
     {
-        if ($this->option('send_my_app') !== 'yes') {
+        if ($this->option('send_my_app') !== 'yes' || $this->option('just_send_my_app') !== 'yes') {
             return false;
         }
 
