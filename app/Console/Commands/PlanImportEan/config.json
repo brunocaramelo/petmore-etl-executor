@@ -72,7 +72,7 @@
             "descricao_produto"
         ],
         "rule": {
-          "name": "plan_produto_descricao",
+          "name": "supplier_product_description",
           "type": "string",
           "required": true
         }
@@ -82,7 +82,7 @@
             "fabricante"
         ],
         "rule": {
-          "name": "plan_fabricante",
+          "name": "supplier_name",
           "type": "string",
           "required": true
         }

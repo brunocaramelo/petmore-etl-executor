@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Carbon\Carbon;
 use App\Casts\ConfigRowProcessor;
 use App\Casts\ValueCast;
+use App\Models\ProductSelfCommerceData;
 
 use Illuminate\Support\Str;
 
@@ -15,6 +16,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 {
     private $config = [];
     private $data = [];
+    private const PLAN_SKU_SEPARATOR = ';';
 
     public function collection(Collection $rows)
     {
@@ -29,9 +31,6 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
             $this->data[$index] = $fieldsTranlated;
             $this->data[$index]['local_sku'] = $identifyTranlated;
-
-            if($index < 1) continue;
-            dd($identifyTranlated, $fieldsTranlated);
 
         }
     }
@@ -49,7 +48,29 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
     public function persistData()
     {
-        return $this->data;
+        foreach ($this->data as $row) {
+
+            $updateDatas = ProductSelfCommerceData::whereIn('sku', explode(self::PLAN_SKU_SEPARATOR, $row['local_sku']))
+                                                  ->where('has_searched', false)
+                                                  ->get();
+
+            if($updateDatas->empty()){
+                continue;
+            }
+
+            foreach ($updateDatas as $updateData) {
+                $updateData->update([
+                    'has_searched' => true,
+                    'ean' => $row['ean'],
+                    'height' => $row['height'],
+                    'length' => $row['length'],
+                    'weight' => $row['weight'],
+                    'width' => $row['width'],
+                    'supplier_product_description' => $row['supplier_product_description'],
+                    'supplier_name' => $row['supplier_name'],
+                ]);
+            }
+        }
     }
 
     public function handle()

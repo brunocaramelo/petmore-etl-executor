@@ -19,11 +19,7 @@ class SendMantainAdjustNeedleProductToSelfEcommerceTool extends Command
 
     public function handle()
     {
-        $pendingItems = ProductSelfCommerceData::where('TYPE','simple')
-        // ->where('has_variation', '=' , 0)
-        ->where('TYPE', 'simple')
-        // ->where('official_data_sended', '<>', true)
-        ->where('has_searched', true)
+        $pendingItems = ProductSelfCommerceData::where('has_searched', true)
         ->get();
 
         \Log::info("(SendMantainAdjustNeedleProductToSelfEcommerceTool) Itens pendentes encontrados para serem processados ".$pendingItems->count());

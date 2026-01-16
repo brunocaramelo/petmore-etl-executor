@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Storage;
 
 use Maatwebsite\Excel\Facades\Excel;
 
+use App\Models\ProductSelfCommerceData;
+
+use Illuminate\Support\Facades\Artisan;
 class PlanImportEanAndShippingDataToSelfCommerce extends Command
 {
     /**
@@ -17,7 +20,7 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
      *
      * @var string
      */
-    protected $signature = 'import:plan-import-ean-and-shipping-data-to-self-commerce';
+    protected $signature = 'import:plan-import-ean-and-shipping-data-to-self-commerce {--send_my_app=no} {--just_send_my_app=no}';
 
     /**
      * The console command description.
@@ -66,7 +69,20 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
             'plans' => $plansPloutos
         ]);
 
-         foreach ($plansPloutos as $planName) {
+        if ($this->option('just_send_my_app') == 'no') {
+            $this->importPlans($plansPloutos);
+        }
+
+        $this->sendToEMyApp();
+
+        $this->cleanLocalStore();
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+    }
+
+    private function importPlans($plansPloutos): bool
+    {
+        foreach ($plansPloutos as $planName) {
 
             $import = new SupplierProductsPlanGetShippingDataImport();
             $import->handle();
@@ -76,9 +92,18 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
             $import->persistData();
          }
 
-        $this->cleanLocalStore();
+        return true;
+    }
 
-        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
+    private function sendToEMyApp(): bool
+    {
+        if ($this->option('send_my_app') !== 'yes') {
+            return false;
+        }
+
+        Artisan::call('maintain:prepare-changes-product-to-self-ecommerce-tool-to-hub-integration');
+
+        return true;
     }
 
 }
