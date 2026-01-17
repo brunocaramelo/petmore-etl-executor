@@ -92,7 +92,7 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
 
     private function sendToEMyApp(): bool
     {
-        if ($this->option('send_my_app') !== 'yes' || $this->option('just_send_my_app') === 'no') {
+        if ($this->option('send_my_app') !== 'yes' && $this->option('just_send_my_app') === 'no') {
             return false;
         }
 
