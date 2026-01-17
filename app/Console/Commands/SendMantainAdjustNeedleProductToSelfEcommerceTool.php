@@ -41,7 +41,7 @@ class SendMantainAdjustNeedleProductToSelfEcommerceTool extends Command
 
             sleep(rand(5, 9));
 
-            $this->executeRulesSelfProduct($consumerInstance, $pending);
+            $this->sendOfficialAttrs($consumerInstance, $pending);
 
            \Log::info("(SendMantainAdjustNeedleProductToSelfEcommerceTool) Job para item ".($pending->sku ?? 'sku')." para envio ao ecommerce com atraso para: " . $delayToJob);
 
@@ -50,53 +50,25 @@ class SendMantainAdjustNeedleProductToSelfEcommerceTool extends Command
 
     }
 
-
-    private function executeRulesSelfProduct($consumer, $pending)
+    private function sendOfficialAttrs($consumer, $itemParam)
     {
-        return $this->regenerateSkuChildAndSendOfficialAttrs($consumer, $pending);
-    }
-
-    private function regenerateSkuChildAndSendOfficialAttrs($consumer, $itemParam)
-    {
-        $currentSkuChild = 'PM'.$this->randomUpperAlnum(10);
-        // $currentSkuChild = $itemParam->sku;
-
         $consumer->updateProduct($itemParam->sku,
             $this->prepareParamsToSendUpdate(
-                $currentSkuChild,
                 $itemParam
             )
         );
 
-        $itemParam->sku = $currentSkuChild;
         $itemParam->official_data_sended = true;
 
         $itemParam->save();
 
     }
 
-    private function randomUpperAlnum(int $length): string
-    {
-        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $max = strlen($chars) - 1;
-        $result = '';
-
-        for ($i = 0; $i < $length; $i++) {
-            $result .= $chars[random_int(0, $max)];
-        }
-
-        return $result;
-    }
-
-    private function prepareParamsToSendUpdate($sku, $instance)
+    private function prepareParamsToSendUpdate($instance)
     {
         $result = [
             'id' => $instance->entity_id,
-            'sku' => $sku
         ];
-
-        // $result = [
-        // ];
 
         if (($instance->has_searched ?? false) == true) {
             if (is_numeric(trim($instance->ean))) {
