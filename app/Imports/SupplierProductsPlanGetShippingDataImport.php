@@ -5,12 +5,9 @@ namespace App\Imports;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Collection;
-use Carbon\Carbon;
 use App\Casts\ConfigRowProcessor;
 use App\Casts\ValueCast;
 use App\Models\ProductSelfCommerceData;
-
-use Illuminate\Support\Str;
 
 class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHeadingRow
 {
@@ -54,11 +51,14 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                                                   ->where('has_searched', false)
                                                   ->get();
 
-            if($updateDatas->empty()){
+            if ($updateDatas->isEmpty()){
                 continue;
             }
 
             foreach ($updateDatas as $updateData) {
+
+                \Log::info('Produto Localizado, preparando atualizacao :', $row);
+
                 $updateData->update([
                     'has_searched' => true,
                     'ean' => $row['ean'],

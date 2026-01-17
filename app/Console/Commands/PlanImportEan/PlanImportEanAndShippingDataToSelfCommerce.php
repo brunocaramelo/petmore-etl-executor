@@ -74,6 +74,8 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
             return false;
         }
 
+        \Log::info('(PlanImportEanAndShippingDataToSelfCommerce) - importPlans: inicio');
+
         foreach ($plansPloutos as $planName) {
             $import = new SupplierProductsPlanGetShippingDataImport();
             $import->handle();
@@ -81,16 +83,20 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
             Excel::import($import, Storage::disk('local')->path($planName));
 
             $import->persistData();
-         }
+        }
+
+        \Log::info('(PlanImportEanAndShippingDataToSelfCommerce) - importPlans: fim');
 
         return true;
     }
 
     private function sendToEMyApp(): bool
     {
-        if ($this->option('send_my_app') !== 'yes' || $this->option('just_send_my_app') !== 'yes') {
+        if ($this->option('send_my_app') !== 'yes' || $this->option('just_send_my_app') === 'no') {
             return false;
         }
+
+        \Log::info('(PlanImportEanAndShippingDataToSelfCommerce) - sendToEMyApp: enviando para job de envio ao self ecommerce');
 
         Artisan::call('maintain:prepare-changes-product-to-self-ecommerce-tool-to-hub-integration');
 
