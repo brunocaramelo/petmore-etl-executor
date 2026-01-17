@@ -70,7 +70,7 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
 
     private function importPlans($plansPloutos): bool
     {
-        if ($this->option('just_send_my_app') == 'no') {
+        if ($this->option('just_send_my_app') == 'yes') {
             return false;
         }
 
