@@ -42,13 +42,6 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            // \Log::debug(__CLASS__.' ('.__FUNCTION__.') collectin ', [
-            //     'cod' => $row["cod"],
-            //     'descricao' => $row["descricao"],
-            //     'categoria' => $row["categoria"],
-            //     'ml_url' => $urlProductMl,
-            // ]);
-
             $usedUrls[] = $urlProductMl;
 
             $this->data[] = [
@@ -81,7 +74,13 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         return (
             !empty($row['cod'])
             && !empty($row['url_product_ml'])
+            && $this->checkCorrectUrl($row['url_product_ml'])
         );
+    }
+
+    private function checkCorrectUrl($url)
+    {
+        return str_contains(strtolower($url), 'mercadolivre');
     }
 
 
