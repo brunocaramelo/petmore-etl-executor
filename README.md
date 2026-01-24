@@ -7,6 +7,8 @@ php artisan queue:work --tries=10 --timeout=36001
 
 php artisan create:modified-content-copy-right
 
+php artisan import:plan-import-ean-and-shipping-data-to-self-commerce {--send_my_app=no} {--just_send_my_app=no}
+
 -- deprecated
 # php artisan export:mapped-product-to-erp
 
