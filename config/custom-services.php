@@ -50,23 +50,23 @@ return [
         'minutes' => [
             'mercado-livre-scrap' => [
                 'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
-                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+                'max' => env('INTERVAL_JOB_ML_SCRAP_MAX', 13),
             ],
             'modify-copyright' => [
-                'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
-                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+                'min' => env('INTERVAL_JOB_ML_COPYRIGHT_MIN', 5),
+                'max' => env('INTERVAL_JOB_ML_COPYRIGHT_MAX', 13),
             ],
             'send-self-ecommerce' => [
-                'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
-                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+                'min' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MIN', 5),
+                'max' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MAX', 13),
             ],
             'send-ean-and-shipping-data-self-ecommerce' => [
-                'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
-                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+                'min' => env('INTERVAL_JOB_ML_SEND_UPDATE_SHIPPING_DATA_MIN', 5),
+                'max' => env('INTERVAL_JOB_ML_SEND_UPDATE_SHIPPING_DATA_MAX', 13),
             ],
             'send-erp-platform' => [
-                'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
-                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+                'min' => env('INTERVAL_JOB_ML_SEND_ERP_PLATFORM_MIN', 5),
+                'max' => env('INTERVAL_JOB_ML_SEND_ERP_PLATFORM_MAX', 13),
             ],
         ]
     ]
