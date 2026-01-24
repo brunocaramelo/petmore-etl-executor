@@ -20,6 +20,9 @@ class SendMappedProductToSelfEcommerceTool extends Command
     {
         $delayToJob = Carbon::now();
 
+        $delayMinutesJobMin = config('custom-services.jobs_intervals.minutes.send-self-ecommerce.min');
+        $delayMinutesJobMax = config('custom-services.jobs_intervals.minutes.send-self-ecommerce.max');
+
         $pendingItems = ProductCentral::where('synced_ml', true)
             ->where('is_active', true)
             ->whereNotNull('url_product_ml')
@@ -34,7 +37,7 @@ class SendMappedProductToSelfEcommerceTool extends Command
 
         foreach ($pendingItems as $indexPending => $pending) {
             if ($indexPending > 0) {
-                $delayToJob->addMinutes(rand(10, 30));
+                $delayToJob->addMinutes(rand($delayMinutesJobMin, $delayMinutesJobMax));
             }
 
             SendMappedProductToSelfEcommerceJob::dispatch( $pending)

@@ -45,6 +45,26 @@ return [
                 'web_search_techinical_infos_official_product' => env('AI_API_WEB_SEARCH_TECHINICAL_INFOS_OFFICIAL_PRODUCT'),
             ]
         ]
+    ],
+    'jobs_intervals' => [
+        'minutes' => [
+            'mercado-livre-scrap' => [
+                'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
+                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+            ],
+            'modify-copyright' => [
+                'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
+                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+            ],
+            'send-self-ecommerce' => [
+                'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
+                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+            ],
+            'send-erp-platform' => [
+                'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
+                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+            ],
+        ]
     ]
 
 ];

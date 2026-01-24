@@ -38,6 +38,9 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlConsole extends Com
 
         $delayToJob = Carbon::now();
 
+        $delayMinutesJobMin = config('custom-services.jobs_intervals.minutes.send-ean-and-shipping-data-self-ecommerce.min');
+        $delayMinutesJobMax = config('custom-services.jobs_intervals.minutes.send-ean-and-shipping-data-self-ecommerce.max');
+
         $pendingItems = ProductSelfCommerceData::where('TYPE','simple')
         ->where('has_searched', '<>' , true)
         ->get();
@@ -46,7 +49,7 @@ class SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlConsole extends Com
 
         foreach ($pendingItems as $indexPending => $pending) {
             if ($indexPending > 0) {
-                $delayToJob->addMinutes(rand(14, 24));
+                $delayToJob->addMinutes(rand($delayMinutesJobMin, $delayMinutesJobMax));
             }
 
             SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlJob::dispatch(new SearchOnIAProductOfficialCharacteristcsBySelfCommercUrlAction(), $pending)

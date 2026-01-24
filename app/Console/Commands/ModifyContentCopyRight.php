@@ -42,12 +42,14 @@ class ModifyContentCopyRight extends Command
             ->where('ai_adapted_the_content', false)
             ->get();
 
+        $delayMinutesJobMin = config('custom-services.jobs_intervals.minutes.modify-copyright.min');
+        $delayMinutesJobMax = config('custom-services.jobs_intervals.minutes.modify-copyright.max');
 
         \Log::info("(ModifyContentCopyRight) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
         foreach ($pendingItems as $indexPending => $pending) {
             if ($indexPending > 0) {
-                $delayToJob->addMinutes(rand(10, 22));
+                $delayToJob->addMinutes(rand($delayMinutesJobMin, $delayMinutesJobMax));
             }
 
             CreateContentWithoutCopyrightJob::dispatch(new CreateRewritedProductAction(), $pending)

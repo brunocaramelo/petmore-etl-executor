@@ -144,10 +144,14 @@ class CreateRewritedProductAction
 
             $jsonString = trim($matches[1]);
 
-            $data = json_decode($jsonString, true);
+            $jsonString = preg_replace('/(?<!\\\\)\n/', '\\n', $jsonString);
+            $jsonString = preg_replace('/(?<!\\\\)\r/', '', $jsonString);
+            $jsonString = preg_replace('/(?<!\\\\)\t/', '\\t', $jsonString);
+
+            $data = json_decode($jsonString, true, 512, JSON_INVALID_UTF8_IGNORE);
 
             if (json_last_error() === JSON_ERROR_NONE) {
-               return [
+                return [
                     'json' => $jsonString,
                     'array' => $data,
                 ];
@@ -156,7 +160,7 @@ class CreateRewritedProductAction
             throw new \Exception("Erro ao decodificar JSON: " . json_last_error_msg());
         }
 
-        throw new \Exception("Bloco JSON não encontrado no texto: ".$text);
+        throw new \Exception("Bloco JSON não encontrado no texto: " . $text);
     }
 
     private function downloadAndTransformMlImagesToRemoteStorageAndReturnPathAnd($urlRemote, $skuSelf, $subDir)
