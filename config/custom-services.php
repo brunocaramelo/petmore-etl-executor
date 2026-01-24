@@ -60,6 +60,10 @@ return [
                 'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
                 'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
             ],
+            'send-ean-and-shipping-data-self-ecommerce' => [
+                'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
+                'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
+            ],
             'send-erp-platform' => [
                 'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
                 'max' => env('INTERVAL_JOB_ML_SCRAP_MIN', 13),
