@@ -25,6 +25,7 @@ return [
             ]
         ],
         'self_ecommerce' => [
+            'domain_url' => env('ECOMMERCE_DOMAIN'),
             'base_url' => env('ECOMMERCE_BASE_URL'),
             'admin_username' => env('ECOMMERCE_CONSUMER_USER', 'none'),
             'admin_password' => env('ECOMMERCE_CONSUMER_PASSWORD', 'none'),

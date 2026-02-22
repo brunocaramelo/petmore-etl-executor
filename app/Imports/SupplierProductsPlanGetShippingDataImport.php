@@ -62,13 +62,13 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                 $updateData->update([
                     'has_searched' => true,
                     'ean' => $row['ean'],
-                    'height' => $row['height'],
-                    'length' => $row['length'],
-                    'weight' => $row['weight'],
-                    'width' => $row['width'],
-                    'external_supplier_product_description' => $row['supplier_product_description'],
-                    'external_supplier_name' => $row['supplier_name'],
-                    'external_supplier_sku' => $row['supplier_sku'],
+                    'height' => $row['height'] ?? null,
+                    'length' => $row['length'] ?? null,
+                    'weight' => $row['weight'] ?? null,
+                    'width' => $row['width'] ?? null,
+                    'external_supplier_product_description' => $row['supplier_product_description'] ?? null,
+                    'external_supplier_name' => $row['supplier_name'] ?? null,
+                    'external_supplier_sku' => $row['supplier_sku'] ?? null,
                 ]);
             }
         }

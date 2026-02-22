@@ -421,6 +421,43 @@ class SelfEcommerceConsumer
         }
     }
 
+    public function getProductsFilterPaginate($filters)
+    {
+        try {
+
+            $response = Http::retry(3, 10)
+                        ->withToken($this->tokenAuth)
+                        ->timeout(8999)
+                        ->get($this->baseApiPath.'/rest/all/V1/products',[
+                            'searchCriteria' => [
+                                'currentPage' => $filters['currentPage'],
+                                'pageSize'    => $filters['pageSize'],
+                            ]
+                        ]);
+
+            if ($response->failed()) {
+
+                    \Log::error(__CLASS__.' ('.__FUNCTION__.') (API RETURN):', [
+                        'status'  => $response->status(),
+                        'body'    => $response->body(),
+                        'json'    => $response->json(),
+                    ]);
+
+                    throw new RequestException($response);
+                }
+
+            return $response->json();
+
+        } catch (\Exception $e) {
+
+            throw new \Exception(
+                __CLASS__.' ('.__FUNCTION__.') (EXCEPTION RETURN):' . $e->getMessage(),
+                $e->getCode(),
+                $e
+            );
+        }
+    }
+
     public function updateProduct($identify, array $params)
     {
         try{

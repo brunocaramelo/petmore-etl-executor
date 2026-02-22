@@ -69,7 +69,8 @@
       },
       {
         "plan_fields": [
-            "descricao_produto"
+            "descricao_produto",
+            "descricao"
         ],
         "rule": {
           "name": "supplier_product_description",
@@ -79,7 +80,8 @@
       },
       {
         "plan_fields": [
-            "codigo"
+            "codigo",
+            "sku"
         ],
         "rule": {
           "name": "supplier_sku",
