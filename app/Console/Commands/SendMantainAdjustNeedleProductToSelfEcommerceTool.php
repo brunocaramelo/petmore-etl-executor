@@ -40,7 +40,7 @@ class SendMantainAdjustNeedleProductToSelfEcommerceTool extends Command
 
             $delayToJob = Carbon::now();
 
-            sleep(rand(5, 9));
+            sleep(rand(5, 21));
 
             $this->sendOfficialAttrs($consumerInstance, $pending);
 
@@ -77,21 +77,27 @@ class SendMantainAdjustNeedleProductToSelfEcommerceTool extends Command
                     'attribute_code' => 'ean',
                     'value' => trim($instance->ean)
                 ];
+
+                // $result['ean']= trim($instance->ean);
             }
+
             if (is_numeric(trim($instance->height))) {
                 $result['custom_attributes'][] = [
                     'attribute_code' => 'volume_height',
                     'value' => trim($instance->height)
                 ];
             }
+
             if (is_numeric(trim($instance->weight))) {
                 $result['weight'] = trim($instance->weight);
             }
+
             if (is_numeric(trim($instance->length))) {
                 $result['custom_attributes'][] = [
                     'attribute_code' => 'volume_length',
                     'value' => trim($instance->length)
                 ];            }
+
             if (is_numeric(trim($instance->width))) {
                 $result['custom_attributes'][] = [
                     'attribute_code' => 'volume_width',
