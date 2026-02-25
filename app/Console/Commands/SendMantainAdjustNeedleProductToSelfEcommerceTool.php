@@ -40,7 +40,10 @@ class SendMantainAdjustNeedleProductToSelfEcommerceTool extends Command
 
             $delayToJob = Carbon::now();
 
-            sleep(rand(5, 21));
+            sleep(rand(
+                    config('custom-services.jobs_intervals.minutes.send-ean-and-shipping-data-self-ecommerce.min'),
+                    config('custom-services.jobs_intervals.minutes.send-ean-and-shipping-data-self-ecommerce.max'),
+                ));
 
             $this->sendOfficialAttrs($consumerInstance, $pending);
 

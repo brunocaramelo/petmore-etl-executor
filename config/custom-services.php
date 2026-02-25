@@ -61,6 +61,10 @@ return [
                 'min' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MIN', 5),
                 'max' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MAX', 13),
             ],
+            'send-self-ecommerce-maintance' => [
+                'min' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MAINTANCE_MIN', 10),
+                'max' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MAINTANCE_MAX', 21),
+            ],
             'send-ean-and-shipping-data-self-ecommerce' => [
                 'min' => env('INTERVAL_JOB_ML_SEND_UPDATE_SHIPPING_DATA_MIN', 5),
                 'max' => env('INTERVAL_JOB_ML_SEND_UPDATE_SHIPPING_DATA_MAX', 13),

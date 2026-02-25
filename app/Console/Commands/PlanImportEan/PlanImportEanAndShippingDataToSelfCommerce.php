@@ -15,7 +15,7 @@ use App\Models\ProductSelfCommerceData;
 use Illuminate\Support\Facades\Artisan;
 class PlanImportEanAndShippingDataToSelfCommerce extends Command
 {
-    protected $signature = 'import:plan-import-ean-and-shipping-data-to-self-commerce {--send_my_app=no} {--just_send_my_app=no}';
+    protected $signature = 'import:plan-import-ean-and-shipping-data-to-self-commerce {--send_my_app=no} {--just_send_my_app=no} {--convert_meters_to_centimeters=yes}';
 
     protected $description = 'Command description';
 
@@ -78,6 +78,7 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
 
         foreach ($plansPloutos as $planName) {
             $import = new SupplierProductsPlanGetShippingDataImport();
+            $import->setNeedRoundToInt(($this->option('convert_meters_to_centimeters') ==='yes'));
             $import->handle();
 
             Excel::import($import, Storage::disk('local')->path($planName));

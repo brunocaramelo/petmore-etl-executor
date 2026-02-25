@@ -14,6 +14,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
     private $config = [];
     private $data = [];
     private const PLAN_SKU_SEPARATOR = ';';
+    private $needRoundToInt = false;
 
     public function collection(Collection $rows)
     {
@@ -32,6 +33,18 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
         }
     }
 
+    private function doRoundToInt(?float $value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if ($this->needRoundToInt === true) {
+            return (int) round($value);
+        }
+
+        return (int) $value;
+    }
 
     public function headingRow(): int
     {
@@ -62,10 +75,10 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                 $updateData->update([
                     'has_searched' => true,
                     'ean' => $row['ean'],
-                    'height' => $row['height'] ?? null,
-                    'length' => $row['length'] ?? null,
+                    'height' => $this->doRoundToInt($row['height'] ?? null),
+                    'length' => $this->doRoundToInt($row['length'] ?? null),
                     'weight' => $row['weight'] ?? null,
-                    'width' => $row['width'] ?? null,
+                    'width' => $this->doRoundToInt($row['width'] ?? null),
                     'external_supplier_product_description' => $row['supplier_product_description'] ?? null,
                     'external_supplier_name' => $row['supplier_name'] ?? null,
                     'external_supplier_sku' => $row['supplier_sku'] ?? null,
@@ -77,6 +90,11 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
     public function handle()
     {
         $this->setConfig();
+    }
+
+    public function setNeedRoundToInt(bool $condition)
+    {
+        $this->needRoundToInt = $condition;
     }
 
 
