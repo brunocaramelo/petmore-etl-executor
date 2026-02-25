@@ -26,6 +26,7 @@
       {
         "plan_fields": [
             "largura_prod",
+            "largura",
             "largura_unidade"
         ],
         "rule": {
@@ -37,7 +38,8 @@
       {
         "plan_fields": [
             "comprim_prod",
-            "comprimento_unidade"
+            "comprimento_unidade",
+            "comprimento"
         ],
         "rule": {
           "name": "length",
@@ -47,6 +49,7 @@
       },
       {
         "plan_fields": [
+            "altura",
             "altura_prod",
             "altura_unidade"
         ],
@@ -58,6 +61,7 @@
       },
       {
         "plan_fields": [
+            "peso",
             "peso_unit",
             "peso_unidade"
         ],
