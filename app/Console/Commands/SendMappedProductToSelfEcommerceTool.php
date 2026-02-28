@@ -37,8 +37,7 @@ class SendMappedProductToSelfEcommerceTool extends Command
             $delayToJob->addSeconds(rand(1, 2));
 
             SendMappedProductToSelfEcommerceJob::dispatch( $pending)
-                                 ->delay($delayToJob)
-                                 ->onQueue('send-self-ecommerce');
+                                 ->delay($delayToJob);
 
            \Log::info("(SendMappedProductToSelfEcommerceTool) Job para item ".($pending->sku ?? 'sku')." para envio ao bling com atraso para: " . $delayToJob);
 
