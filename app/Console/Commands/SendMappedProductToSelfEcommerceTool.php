@@ -30,7 +30,7 @@ class SendMappedProductToSelfEcommerceTool extends Command
             ->has('productRewrited')
             ->with('productRewrited')
             ->where('ai_adapted_the_content', true)
-            ->where('synced_self_ecommerce', false)
+            // ->where('synced_self_ecommerce', false)
             ->whereHas('productRewrited', function ($query) {
                 $query->whereIn('sku', ["PM00006840",
                 "PM00006842",
