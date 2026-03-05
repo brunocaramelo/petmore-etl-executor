@@ -50,26 +50,32 @@ return [
     'jobs_intervals' => [
         'minutes' => [
             'mercado-livre-scrap' => [
+                'queue' => env('QUEUE_NAME_MERCADO_LIVRE_SCRAP', 'queue_mercado_livre_scrap'),
                 'min' => env('INTERVAL_JOB_ML_SCRAP_MIN', 5),
                 'max' => env('INTERVAL_JOB_ML_SCRAP_MAX', 13),
             ],
             'modify-copyright' => [
+                'queue' => env('QUEUE_NAME_MODIFY_COPYRIGHT', 'queue_modify_copyright'),
                 'min' => env('INTERVAL_JOB_ML_COPYRIGHT_MIN', 5),
                 'max' => env('INTERVAL_JOB_ML_COPYRIGHT_MAX', 13),
             ],
             'send-self-ecommerce' => [
+                'queue' => env('QUEUE_NAME_SEND_SELF_ECOMMERCE', 'queue_send_self_ecommerce'),
                 'min' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MIN', 5),
                 'max' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MAX', 13),
             ],
             'send-self-ecommerce-maintance' => [
+                'queue' => env('QUEUE_NAME_SEND_MAINTAIN_SELF_ECOMMERCE', 'queue_send_self_ecommerce_maintance'),
                 'min' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MAINTANCE_MIN', 10),
                 'max' => env('INTERVAL_JOB_ML_SEND_SELF_ECOMMERCE_MAINTANCE_MAX', 21),
             ],
             'send-ean-and-shipping-data-self-ecommerce' => [
+                'queue' => env('QUEUE_NAME_SEND_MAINTAIN_SHIPPING_DATA_SELF_ECOMMERCE', 'queue_send_self_ecommerce_shipping_data_maintance'),
                 'min' => env('INTERVAL_JOB_ML_SEND_UPDATE_SHIPPING_DATA_MIN', 5),
                 'max' => env('INTERVAL_JOB_ML_SEND_UPDATE_SHIPPING_DATA_MAX', 13),
             ],
             'send-erp-platform' => [
+                'queue' => env('QUEUE_NAME_SEND_ERP_PLATFORM', 'queue_send_erp_platform'),
                 'min' => env('INTERVAL_JOB_ML_SEND_ERP_PLATFORM_MIN', 5),
                 'max' => env('INTERVAL_JOB_ML_SEND_ERP_PLATFORM_MAX', 13),
             ],

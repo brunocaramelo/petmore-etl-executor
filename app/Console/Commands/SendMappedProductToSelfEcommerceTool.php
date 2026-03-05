@@ -22,6 +22,7 @@ class SendMappedProductToSelfEcommerceTool extends Command
 
         $delayMinutesJobMin = config('custom-services.jobs_intervals.minutes.send-self-ecommerce.min');
         $delayMinutesJobMax = config('custom-services.jobs_intervals.minutes.send-self-ecommerce.max');
+        $queueJobName = config('custom-services.jobs_intervals.minutes.send-self-ecommerce.queue');
 
         $pendingItems = ProductCentral::where('synced_ml', true)
             ->where('is_active', true)
@@ -30,7 +31,6 @@ class SendMappedProductToSelfEcommerceTool extends Command
             ->with('productRewrited')
             ->where('ai_adapted_the_content', true)
             ->where('synced_self_ecommerce', false)
-            // ->where('sku', 'PM04006090')
             ->get();
 
         \Log::info("(SendMappedProductToSelfEcommerceTool) Itens pendentes encontrados para serem processados ".$pendingItems->count());
@@ -41,7 +41,8 @@ class SendMappedProductToSelfEcommerceTool extends Command
             }
 
             SendMappedProductToSelfEcommerceJob::dispatch( $pending)
-                                 ->delay($delayToJob);
+                                ->onQueue($queueJobName)
+                                ->delay($delayToJob);
 
            \Log::info("(SendMappedProductToSelfEcommerceTool) Job para item ".($pending->sku ?? 'sku')." para envio ao ecommerce com atraso para: " . $delayToJob);
 
