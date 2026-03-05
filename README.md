@@ -16,5 +16,18 @@ php artisan export:mapped-product-to-self-ecommerce-tool
 
 ## queue work
 
-php artisan queue:work --timeout=8600  --memory=4024 
+php artisan queue:work --timeout=8600  --memory=4024
 
+php artisan queue:work --timeout=8600  --memory=4024 --queue=queue_mercado_livre_scrap 
+
+php artisan queue:work --timeout=8600  --memory=4024 --queue=queue_modify_copyright 
+
+php artisan queue:work --timeout=8600  --memory=4024 --queue=queue_send_self_ecommerce 
+
+php artisan queue:work --timeout=8600  --memory=4024 --queue=queue_send_self_ecommerce_maintance 
+
+php artisan queue:work --timeout=8600  --memory=4024 --queue=queue_send_self_ecommerce_shipping_data_maintance 
+
+### tambem posivel
+
+php artisan queue:work --timeout=8600  --memory=4024 --queue=queue_send_self_ecommerce,default 
