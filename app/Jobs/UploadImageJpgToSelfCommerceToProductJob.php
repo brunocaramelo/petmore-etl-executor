@@ -22,16 +22,7 @@ class UploadImageJpgToSelfCommerceToProductJob implements ShouldQueue
     ) {
         $this->productSku = $productSku;
         $this->pathOfImage = $pathOfImage;
-        // $this->consumer = $consumer;
-
-        $this->consumer = new \App\Consumers\SelfEcommerceConsumer(
-                new \App\Consumers\SelfEcommerceAuthConsumer(
-                    config('custom-services.apis.self_ecommerce.admin_username'),
-                    config('custom-services.apis.self_ecommerce.admin_password')
-                ), [
-            'base_path' => config('custom-services.apis.self_ecommerce.base_url'),
-            'auto_login' => true,
-        ]);
+        $this->consumer = $consumer;
 
         $this->onQueue(config('custom-services.jobs_intervals.minutes.send-self-ecommerce.queue'));
 }
