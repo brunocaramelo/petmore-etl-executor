@@ -13,7 +13,7 @@ use App\Jobs\SendMappedProductToSelfEcommerceJob;
 class SendMappedProductToSelfEcommerceTool extends Command
 {
 
-    protected $signature = 'export:mapped-product-to-self-ecommerce-tool {--forced_list_skus=?}';
+    protected $signature = 'export:mapped-product-to-self-ecommerce-tool {--forced_list_skus=}';
     protected $description = 'Envio de dados mapeados de produto ao Ecommerce proprio.';
 
     public function handle()
