@@ -18,8 +18,8 @@ class SendMappedProductToSelfEcommerceTool extends Command
 
     public function handle()
     {
-        $skusForcedByParam = explode(',', $this->option('forced_list_skus'));
-
+        $skusForcedByParam = empty($skusForcedByParam) ? null : explode(',', $this->option('forced_list_skus'));
+        
         $delayToJob = Carbon::now();
 
         $delayMinutesJobMin = config('custom-services.jobs_intervals.minutes.send-self-ecommerce.min');
