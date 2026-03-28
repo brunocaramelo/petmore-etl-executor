@@ -61,7 +61,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
         foreach ($this->data as $row) {
 
             $updateDatas = ProductSelfCommerceData::whereIn('sku', explode(self::PLAN_SKU_SEPARATOR, $row['local_sku']) ?? ['NENHUM_SKU'] )
-                                                //   ->where('has_searched', false)
+                                                  ->where('has_searched', false)
                                                   ->get();
 
             if ($updateDatas->isEmpty()){
