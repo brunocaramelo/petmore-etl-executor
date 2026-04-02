@@ -20,6 +20,7 @@ class AttachMercadoLivreProductToProductCentralAction
 
         $consumer->invokeProductWebHook([
             'targetUrl' => $instance->url_product_ml,
+            'productName' => $instance->ploutos_descricao ?? "",
             'callbackUrl' => config('custom-services.apis.mercado_livre_scrapper.callback_url'),
             'externalId' => $instance->uuid,
         ]);

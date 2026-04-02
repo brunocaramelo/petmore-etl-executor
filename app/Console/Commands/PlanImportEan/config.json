@@ -1,0 +1,108 @@
+  {
+    "reference": [
+      {
+        "plan_fields": [
+            "petmore_sku"
+        ],
+        "rule": {
+          "name": "petmore_sku",
+          "type": "string",
+          "required": true
+        }
+      }
+    ],
+    "infos": [
+      {
+        "plan_fields": [
+            "ean",
+            "ean_codigo_de_barras_unitario"
+        ],
+        "rule": {
+          "name": "ean",
+          "type": "string",
+          "required": true
+        }
+      },
+      {
+        "plan_fields": [
+            "largura_prod",
+            "largura",
+            "largura_unidade"
+        ],
+        "rule": {
+          "name": "width",
+          "type": "float",
+          "required": true
+        }
+      },
+      {
+        "plan_fields": [
+            "comprim_prod",
+            "comprimento_unidade",
+            "comprimento"
+        ],
+        "rule": {
+          "name": "length",
+          "type": "float",
+          "required": true
+        }
+      },
+      {
+        "plan_fields": [
+            "altura",
+            "altura_prod",
+            "altura_unidade"
+        ],
+        "rule": {
+          "name": "height",
+          "type": "float",
+          "required": true
+        }
+      },
+      {
+        "plan_fields": [
+            "peso",
+            "peso_unit",
+            "peso_unidade"
+        ],
+        "rule": {
+          "name": "weight",
+          "type": "float",
+          "required": true
+        }
+      },
+      {
+        "plan_fields": [
+            "descricao_produto",
+            "descricao"
+        ],
+        "rule": {
+          "name": "supplier_product_description",
+          "type": "string",
+          "required": true
+        }
+      },
+      {
+        "plan_fields": [
+            "codigo",
+            "sku"
+        ],
+        "rule": {
+          "name": "supplier_sku",
+          "type": "string",
+          "required": true
+        }
+      },
+      {
+        "plan_fields": [
+            "fabricante"
+        ],
+        "rule": {
+          "name": "supplier_name",
+          "type": "string",
+          "required": true
+        }
+      }
+    ]
+  }
+

@@ -2,17 +2,36 @@
 
 use Illuminate\Support\Str;
 
-$optionsToMongoDb = [];
+$optionsToMongoDb = [
+    'retryWrites' => false,
+    'useTransactions' => false,
+];
 
-if (env('MONGO_EXTERNAL_INSTANCE', false)) {
-    $optionsToMongoDb = [
-             'database' => env('MONGO_DB_AUTH_SOURCE', 'admin'), // Define o banco de dados de autenticação
+$mongoDbCfg = [
+    'driver'   => 'mongodb',
+    'dsn'      => env('DB_DSN', null),
+    'database' => env('DB_DATABASE', 'petmore-stage'),
+];
+
+if (env('MONGO_ACCESS_BY_DSN', true) == false) {
+    if (env('MONGO_EXTERNAL_INSTANCE', false)) {
+        $optionsToMongoDb = [
+            'database' => env('MONGO_DB_AUTH_SOURCE', 'admin'),
             'ssl' => env('MONGO_DB_USE_SSL', false),
-            'replicaSet' => env('MONGO_REPLICA_SET', null),
             'readPreference' => 'primary',
         ];
-}
+    }
 
+    $mongoDbCfg = [
+        'driver' => 'mongodb',
+        'host' => env('DB_HOST', '127.0.0.1'),
+        'port' => env('DB_PORT', 27017),
+        'database' => env('DB_DATABASE', 'your_mongodb_database'),
+        'username' => env('DB_USERNAME'),
+        'password' => env('DB_PASSWORD'),
+        'options' => $optionsToMongoDb
+    ];
+}
 
 return [
 
@@ -124,15 +143,7 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
-        'mongodb' => [
-            'driver' => 'mongodb',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', 27017),
-            'database' => env('DB_DATABASE', 'your_mongodb_database'),
-            'username' => env('DB_USERNAME'),
-            'password' => env('DB_PASSWORD'),
-            'options' => $optionsToMongoDb
-        ],
+        'mongodb' => $mongoDbCfg,
 
     ],
 

@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-
+use Illuminate\Support\Facades\Storage;
+use App\Imports\PloutosProductsPlanImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ImportPloutosPlansAndPersist extends Command
 {
@@ -24,23 +26,61 @@ class ImportPloutosPlansAndPersist extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+
+    private function importFromRemoteStorage()
     {
-        $plansPloutos = array_filter(\Storage::disk('local')->files('ploutos-plans'), function ($item) {
+        $remoteFiles = array_filter(Storage::disk('choiced_cloud_storage')->files('petmore-public/import-plans/create-products'), function ($item) {
+           return strpos($item, '.xlsx');
+        });
+
+        foreach ($remoteFiles as $planName) {
+            Storage::disk('local')->put('import-plans-to-database/'.basename($planName),
+                Storage::disk('choiced_cloud_storage')->get($planName)
+            );
+        }
+    }
+
+    private function cleanLocalStore()
+    {
+         $plansPloutos = array_filter(Storage::disk('local')->files('import-plans-to-database'), function ($item) {
             return strpos($item, '.xlsx');
          });
 
          foreach ($plansPloutos as $planName) {
+            Storage::disk('local')->delete($planName);
+        }
+    }
 
-            $import = new \App\Imports\PloutosProductsPlanImport();
 
-            \Maatwebsite\Excel\Facades\Excel::import($import,
-                                            \Storage::disk('local')->path($planName)
-                                        );
+    public function handle()
+    {
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') init');
+
+        $this->cleanLocalStore();
+        $this->importFromRemoteStorage();
+
+        $plansPloutos = array_filter(Storage::disk('local')->files('import-plans-to-database'), function ($item) {
+            return strpos($item, '.xlsx');
+         });
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') importing plans: ', [
+            'plans' => $plansPloutos
+        ]);
+
+
+         foreach ($plansPloutos as $planName) {
+
+            $import = new PloutosProductsPlanImport();
+
+            Excel::import($import,
+            Storage::disk('local')->path($planName)
+            );
 
             $import->persistData();
-
-
          }
+
+        $this->cleanLocalStore();
+
+        \Log::info(__CLASS__.' ('.__FUNCTION__.') finished');
     }
 }

@@ -10,6 +10,8 @@ use Exception;
 use App\Consumers\{SelfEcommerceAuthConsumer,
                   SelfEcommerceConsumer};
 
+use Illuminate\Http\Client\RequestException;
+
 class SendMappedProductToSelfEcommerceAction
 {
     public function execute(ProductCentral $productCentral)
@@ -28,11 +30,24 @@ class SendMappedProductToSelfEcommerceAction
                 $productCentral->productRewrited))
             ->handle();
 
-        // \Log::info('(SendMappedProductToErpAction) payload para o bling abaixo sem: ');
-        // \Log::info(json_encode($dataTransformed));
+
+        $productCentral->synced_self_ecommerce = true;
+
+        $productCentral->save();
+
+
+        } catch (RequestException $error) {
+            $response = $error->response;
+
+            \Log::error('HTTP error', ['code'=> $response->status(),
+                                        'body' => $response->body()
+                                    ]);
+
+            throw new \Exception('SendMappedProductToErpAction exception : '.$error->getMessage());
 
         } catch (Exception $e) {
             report($e);
+
 
             throw new \Exception('SendMappedProductToErpAction exception : '.$e->getMessage());
         }

@@ -19,11 +19,13 @@ class ProductGroupAttribute extends Model
         'breadcrumb',
         'name',
         'sort_order',
-        'self_ecommerce_id',
+        'self_ecommerce_identify',
+        'self_ecommerce_group_fields',
     ];
 
     protected $casts = [
         'breadcrumb' => 'array',
+        'self_ecommerce_group_fields' => 'array',
     ];
 
 

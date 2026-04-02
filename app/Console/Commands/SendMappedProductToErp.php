@@ -20,6 +20,10 @@ class SendMappedProductToErp extends Command
     {
         $delayToJob = Carbon::now();
 
+        $delayMinutesJobMin = config('custom-services.jobs_intervals.minutes.send-erp-platform.min');
+        $delayMinutesJobMax = config('custom-services.jobs_intervals.minutes.send-erp-platform.max');
+        $queueJobName = config('custom-services.jobs_intervals.minutes.send-erp-platform.queue');
+
         $pendingItems = ProductCentral::where('synced_ml', true)
             ->where('is_active', true)
             ->whereNotNull('url_product_ml')
@@ -35,11 +39,11 @@ class SendMappedProductToErp extends Command
 
         foreach ($pendingItems as $pending) {
 
-            // $delayToJob->addSeconds(rand(61, 123));
-            $delayToJob->addSeconds(rand(1, 2));
+            $delayToJob->addMinutes(rand($delayMinutesJobMin, $delayMinutesJobMax));
 
             SendMappedProductToErpJob::dispatch( $pending)
-                                 ->delay($delayToJob);
+                                ->onQueue($queueJobName)
+                                ->delay($delayToJob);
 
            \Log::info("(SendMappedProductToErp) Job para item ".($pending->sku ?? 'sku')." para envio ao bling com atraso para: " . $delayToJob);
 

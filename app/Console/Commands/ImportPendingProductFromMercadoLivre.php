@@ -38,15 +38,21 @@ class ImportPendingProductFromMercadoLivre extends Command
                                         ->whereNotNull('url_product_ml')
                                         ->get();
 
+        $delayMinutesJobMin = config('custom-services.jobs_intervals.minutes.mercado-livre-scrap.min');
+        $delayMinutesJobMax = config('custom-services.jobs_intervals.minutes.mercado-livre-scrap.max');
+        $queueJobName = config('custom-services.jobs_intervals.minutes.mercado-livre-scrap.queue');
+
         \Log::info("(ImportPendingProductFromMercadoLivre) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
-        foreach ($pendingItems as $pending) {
+        foreach ($pendingItems as $indexPending => $pending) {
 
-        //    $delayToJob->addSeconds(rand(205, 409));
-           $delayToJob->addSeconds(2);
+           if ($indexPending > 0) {
+               $delayToJob->addMinutes(rand($delayMinutesJobMin, $delayMinutesJobMax));
+           }
 
             MercadoLivreImportProductByUriAndAttachToProductCentralJob::dispatch($pending)
-                                 ->delay($delayToJob);
+                                ->onQueue($queueJobName)
+                                ->delay($delayToJob);
 
             \Log::info("(ImportPendingProductFromMercadoLivre) Job para item ".($pending->sku ?? 'sku')." de busca no mercado livre despachado com atraso para: " . $delayToJob." , para o produto: ".($pending->url_product_ml ?? 'URL'));
 

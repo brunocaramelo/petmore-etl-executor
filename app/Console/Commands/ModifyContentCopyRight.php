@@ -42,15 +42,20 @@ class ModifyContentCopyRight extends Command
             ->where('ai_adapted_the_content', false)
             ->get();
 
+        $delayMinutesJobMin = config('custom-services.jobs_intervals.minutes.modify-copyright.min');
+        $delayMinutesJobMax = config('custom-services.jobs_intervals.minutes.modify-copyright.max');
+        $queueJobName = config('custom-services.jobs_intervals.minutes.modify-copyright.queue');
 
         \Log::info("(ModifyContentCopyRight) Itens pendentes encontrados para serem processados ".$pendingItems->count());
 
-        foreach ($pendingItems as $pending) {
-
-            $delayToJob->addSeconds(rand(65,135));
+        foreach ($pendingItems as $indexPending => $pending) {
+            if ($indexPending > 0) {
+                $delayToJob->addMinutes(rand($delayMinutesJobMin, $delayMinutesJobMax));
+            }
 
             CreateContentWithoutCopyrightJob::dispatch(new CreateRewritedProductAction(), $pending)
-                                 ->delay($delayToJob);
+                                ->onQueue($queueJobName)
+                                ->delay($delayToJob);
 
            \Log::info("(ModifyContentCopyRight) Job para item ".($pending->sku ?? 'sku')." de busca no conteudo para copy right free despachado com atraso para: " . $delayToJob);
 

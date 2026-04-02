@@ -17,14 +17,34 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
 {
     private $data = [];
 
+    private function cleaningUrlProd($url)
+    {
+        $pos = strpos($url, '#');
+
+        if ($pos === false) {
+            return $url;
+        }
+
+        return substr($url, 0, $pos);
+    }
+
     public function collection(Collection $rows)
     {
+        $usedUrls = [];
 
         foreach ($rows as $row) {
 
-            if(! $this->checkIsNotEmptyRow($row)) continue;
+            if (!$this->checkIsNotEmptyRow($row)) continue;
 
-            $this->data[] =  [
+            $urlProductMl = $this->cleaningUrlProd($row["url_product_ml"]);
+
+;            if (in_array($urlProductMl, $usedUrls)) {
+                continue;
+            }
+
+            $usedUrls[] = $urlProductMl;
+
+            $this->data[] = [
                 "ploutos_cod" => $row["cod"],
                 "ploutos_cod_barras" => $row["cod_barras"],
                 "ploutos_descricao" => $row["descricao"],
@@ -42,17 +62,25 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
                 "ploutos_estoque_atual_rv" => $row["estoque_atual_rv"],
                 "ploutos_custo_medio_rv" => $row["custo_medio_rv"],
                 "ploutos_preco_venda" => $row["preco_venda"],
-                "url_product_ml" => $row["url_product_ml"],
-              ];
+                "url_product_ml" => $urlProductMl,
+                "url_product_ml_original" => $row["url_product_ml"],
+            ];
         }
     }
+
 
     private function checkIsNotEmptyRow($row)
     {
         return (
             !empty($row['cod'])
             && !empty($row['url_product_ml'])
+            && $this->checkCorrectUrl($row['url_product_ml'])
         );
+    }
+
+    private function checkCorrectUrl($url)
+    {
+        return str_contains(strtolower($url), 'mercadolivre');
     }
 
 
@@ -65,6 +93,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
     {
         return $this->data;
     }
+
     public function persistData()
     {
         foreach($this->data as $toSave) {
@@ -72,13 +101,36 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         }
     }
 
+    private function decodeUnicodeString($string)
+    {
+        return json_decode('"' . $string . '"');;
+    }
 
     private function persistRow(array $row)
     {
         $dataExists = true;
+        $replacedArrCategoryKey = $this->decodeUnicodeString(
+            str_replace(['>',' '], ['-','-'], $row['ploutos_categoria'])
+        );
 
         $inst = ProductCentral::where('ploutos_cod', $row['ploutos_cod'])
                                 ->first();
+
+        $categoryInst = ProductCategory::where('slug',
+                                Str::slug(Str::ascii($replacedArrCategoryKey),'-')
+                            )->first();
+
+        if ($categoryInst == null) {
+            throw new \Exception('Categoria nao nao localizada na base: '.json_encode([
+                'sku' => $inst->sku ?? 'PM'.str_pad(str_replace(['.','/',' '],
+                                        ['','',''],
+                                        $row['ploutos_cod']
+                                    ), 8, "0", STR_PAD_LEFT),
+                'nome' => $row['ploutos_descricao'],
+                'original' => $row['ploutos_categoria'],
+                'sluged' => Str::slug(Str::ascii($replacedArrCategoryKey),'-'),
+            ]));
+        }
 
         $dataExists = ($inst instanceof ProductCentral);
 
@@ -92,11 +144,9 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         $row['is_active'] =  $inst->is_active ?? true;
         $row['synced_erp'] =  $inst->synced_erp ?? false;
         $row['synced_ml'] =  $inst->synced_ml ?? false;
+        $row['synced_self_ecommerce'] =  $inst->synced_self_ecommerce ?? false;
         $row['ai_adapted_the_content'] =  $inst->ai_adapted_the_content ?? false;
-        $row['category_id'] =  ProductCategory::where(
-                                                        'slug',
-                                                        Str::slug($row['ploutos_categoria'])
-                                                    )->first()->uuid ?? null;
+        $row['category_id'] =  $categoryInst->uuid ?? null;
 
         $row = $this->castValuesArray($row);
 
@@ -125,6 +175,7 @@ class PloutosProductsPlanImport implements ToCollection, WithHeadingRow
         $row['is_to_sell'] = $castValue->castValue($row['is_to_sell'] , 'boolean');
         $row['synced_erp'] = $castValue->castValue($row['synced_erp'] , 'boolean');
         $row['synced_ml'] = $castValue->castValue($row['synced_ml'] , 'boolean');
+        $row['synced_self_ecommerce'] = $castValue->castValue($row['synced_self_ecommerce'] , 'boolean');
         $row['ai_adapted_the_content'] = $castValue->castValue($row['ai_adapted_the_content'] , 'boolean');
 
        return $row;
