@@ -35,6 +35,8 @@ class ProductSelfCommerceData extends Model
         'external_supplier_product_description',
         'external_supplier_name',
         'external_supplier_sku',
+        'ecommerce_supplier_brand',
+        'ecommerce_supplier_factory',
     ];
 
     public function productCentral()
