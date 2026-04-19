@@ -108,19 +108,19 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                                                   ->where('can_update', true)
                                                   ->get();
 
-            dd('checando linha, achou regisrtro :', [$updateDatas->isEmpty(), $row]);
+            \Log::info('checando linha, achou regisrtro :', [$updateDatas->isEmpty(), $row]);
             if ($updateDatas->isEmpty()){
                 return false;
             }
 
-            foreach ($updateDatas as $updateData) {
+            // foreach ($updateDatas as $updateData) {
 
-                dd('Produto Localizado, preparando atualizacao :', $row);
-                \Log::info('Produto Localizado, preparando atualizacao :', $row);
-                $choicedValuesToUpdate =$this->choiceUpdateData($row, $updateData);
+                // dd('Produto Localizado, preparando atualizacao :', $row);
+                // \Log::info('Produto Localizado, preparando atualizacao :', $row);
+                // $choicedValuesToUpdate =$this->choiceUpdateData($row, $updateData);
 
-                $updateData->update($choicedValuesToUpdate);
-            }
+                // $updateData->update($choicedValuesToUpdate);
+            // }
 
         return true;
     }
