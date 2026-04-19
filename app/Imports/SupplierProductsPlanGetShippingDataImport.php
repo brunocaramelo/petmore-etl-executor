@@ -21,7 +21,6 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
         $translator = new ConfigRowProcessor($this->config);
 
         foreach ($rows as $index => $row) {
-
             $rowArr = $row->all();
 
             $identifyTranlated = $translator->getIdentifyValue($rowArr);
@@ -29,9 +28,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
             $this->data[$index] = $fieldsTranlated;
             $this->data[$index]['local_sku'] = $identifyTranlated;
-
-            }
-            dd($this->data);
+        }
     }
 
     private function doRoundToInt(float|string|int|null $value): ?int
