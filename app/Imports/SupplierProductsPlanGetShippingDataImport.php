@@ -31,6 +31,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
             $this->data[$index] = $fieldsTranlated;
         }
+        dd($this->data);
     }
 
     private function doRoundToInt(float|string|int|null $value): ?int
