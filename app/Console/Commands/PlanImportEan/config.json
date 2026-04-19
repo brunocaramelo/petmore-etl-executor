@@ -110,7 +110,7 @@
         "rule": {
           "name": "supplier_preco_padrao",
           "type": "string",
-          "required": true
+          "required": false
         }
      },
      {
@@ -120,7 +120,7 @@
         "rule": {
           "name": "supplier_desconto_percentual",
           "type": "string",
-          "required": true
+          "required": false
         }
     },
     {
@@ -130,7 +130,7 @@
         "rule": {
           "name": "supplier_valor_final",
           "type": "string",
-          "required": true
+          "required": false
         }
     },
     {
@@ -140,7 +140,7 @@
         "rule": {
           "name": "seller_sugestao_venda",
           "type": "string",
-          "required": true
+          "required": false
         }
     },
     {
@@ -150,7 +150,7 @@
         "rule": {
           "name": "seller_markup",
           "type": "string",
-          "required": true
+          "required": false
         }
     }
     ]

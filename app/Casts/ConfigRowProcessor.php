@@ -107,9 +107,9 @@ class ConfigRowProcessor
                 }
             }
 
-            if (!isset($processed[$field]) && ($mapping['required'] ?? false)) {
-                $processed[$field] = null;
-            }
+            // if (!isset($processed[$field]) && ($mapping['required'] ?? false)) {
+            //     $processed[$field] = null;
+            // }
         }
 
         return $processed;
