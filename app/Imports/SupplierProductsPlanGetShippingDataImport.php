@@ -30,8 +30,8 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
             $this->data[$index] = $fieldsTranlated;
             $this->data[$index]['local_sku'] = $identifyTranlated;
 
-            dd($this->data[$index]);
-        }
+            }
+            dd($this->data);
     }
 
     private function doRoundToInt(float|string|int|null $value): ?int
