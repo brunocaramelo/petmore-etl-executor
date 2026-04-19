@@ -109,7 +109,7 @@
         ],
         "rule": {
           "name": "supplier_preco_padrao",
-          "type": "float",
+          "type": "string",
           "required": false
         }
      },
@@ -119,7 +119,7 @@
         ],
         "rule": {
           "name": "supplier_desconto_percentual",
-          "type": "float",
+          "type": "string",
           "required": false
         }
     },
@@ -129,7 +129,7 @@
         ],
         "rule": {
           "name": "supplier_valor_final",
-          "type": "float",
+          "type": "string",
           "required": false
         }
     },
@@ -139,7 +139,7 @@
         ],
         "rule": {
           "name": "seller_sugestao_venda",
-          "type": "float",
+          "type": "string",
           "required": false
         }
     },
@@ -149,7 +149,7 @@
         ],
         "rule": {
           "name": "seller_markup",
-          "type": "int",
+          "type": "string",
           "required": false
         }
     }
