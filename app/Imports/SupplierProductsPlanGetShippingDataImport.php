@@ -33,7 +33,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
         }
     }
 
-    private function doRoundToInt(?float $value): ?int
+    private function doRoundToInt(float|string|int|null $value): ?int
     {
         if ($value === null) {
             return null;
@@ -44,6 +44,28 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
         }
 
         return (int) $value;
+    }
+
+    private function doFloatMoney(float|string|null $value): ?float
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        if (is_float($value)) {
+            return $value;
+        }
+
+        $cleanValue = preg_replace('/[^0-9.,]/', '', $value);
+
+        if (str_contains($cleanValue, ',') && str_contains($cleanValue, '.')) {
+            $cleanValue = str_replace('.', '', $cleanValue);
+            $cleanValue = str_replace(',', '.', $cleanValue);
+        } elseif (str_contains($cleanValue, ',')) {
+            $cleanValue = str_replace(',', '.', $cleanValue);
+        }
+
+        return (float) $cleanValue;
     }
 
     public function headingRow(): int
@@ -61,7 +83,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
         foreach ($this->data as $row) {
 
             $updateDatas = ProductSelfCommerceData::whereIn('sku', explode(self::PLAN_SKU_SEPARATOR, $row['local_sku']) ?? ['NENHUM_SKU'] )
-                                                //   ->where('has_searched', false)
+                                                  ->where('can_update', true)
                                                   ->get();
 
             if ($updateDatas->isEmpty()){
@@ -72,17 +94,11 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
                 \Log::info('Produto Localizado, preparando atualizacao :', $row);
 
-                $updateData->update([
-                    'has_searched' => true,
-                    'ean' => $row['ean'],
-                    'height' => $this->doRoundToInt($row['height'] ?? null),
-                    'length' => $this->doRoundToInt($row['length'] ?? null),
-                    'weight' => $row['weight'] ?? null,
-                    'width' => $this->doRoundToInt($row['width'] ?? null),
-                    'external_supplier_product_description' => $row['supplier_product_description'] ?? null,
-                    'external_supplier_name' => $row['supplier_name'] ?? null,
-                    'external_supplier_sku' => $row['supplier_sku'] ?? null,
-                ]);
+                $choicedValuesToUpdate =$this->choiceUpdateData($row, $updateData);
+
+                dd($choicedValuesToUpdate);
+
+                $updateData->update($choicedValuesToUpdate);
             }
         }
     }
@@ -102,6 +118,55 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
     {
         $configFilPath = base_path('app/Console/Commands/PlanImportEan/config.json');
         $this->config = json_decode(file_get_contents($configFilPath), true);
+    }
+
+    private function preferOriginData($new, $old)
+    {
+        return !empty($new) ? $new : (!empty($old) ? $old : null);
+    }
+
+    private function choiceUpdateData($row, $updateData)
+    {
+        $ean = $this->preferOriginData($row['ean'] ?? null, $updateData->ean ?? null);
+        $height = $this->preferOriginData($this->doRoundToInt($row['height']) ?? null, $updateData->height ?? null);
+        $length = $this->preferOriginData($this->doRoundToInt($row['length']) ?? null, $updateData->length ?? null);
+        $weight = $this->preferOriginData($row['weight'] ?? null, $updateData->weight ?? null);
+        $width = $this->preferOriginData($this->doRoundToInt($row['width']) ?? null, $updateData->width ?? null);
+        $externalSupplierProductDescription = $this->preferOriginData(
+            $row['supplier_product_description'] ?? null,
+            $updateData->external_supplier_product_description ?? null
+        );
+        $externalSupplierName = $this->preferOriginData(
+            $row['supplier_name'] ?? null,
+            $updateData->external_supplier_name ?? null
+        );
+        $externalSupplierSku = $this->preferOriginData(
+            $row['supplier_sku'] ?? null,
+            $updateData->external_supplier_sku ?? null
+        );
+        $supplierPrecoPadrao = $this->preferOriginData($this->doFloatMoney($row['supplier_preco_padrao']) ?? null, $updateData->supplier_preco_padrao ?? null);
+        $supplierDescontoPercentual = $this->preferOriginData($this->doFloatMoney($row['supplier_desconto_fornecedor']) ?? null, $updateData->supplier_desconto_percentual ?? null);
+        $supplierValorFinal = $this->preferOriginData($this->doFloatMoney($row['supplier_valor_final']) ?? null, $updateData->supplier_valor_final ?? null);
+        $sellerSugestaoVenda = $this->preferOriginData($this->doFloatMoney($row['seller_sugestao_venda']) ?? null, $updateData->seller_sugestao_venda ?? null);
+        $sellerMarkup = $this->preferOriginData($this->doFloatMoney($row['seller_markup']) ?? null, $updateData->seller_markup ?? null);
+
+        return [
+            'has_searched' => true,
+            'ean' => $ean,
+            'height' => $height,
+            'length' => $length,
+            'weight' => $weight,
+            'width' => $width,
+            'external_supplier_product_description' => $externalSupplierProductDescription,
+            'external_supplier_name' => $externalSupplierName,
+            'external_supplier_sku' => $externalSupplierSku,
+            'supplier_preco_padrao' => $supplierPrecoPadrao,
+            'supplier_desconto_percentual' => $supplierDescontoPercentual,
+            'supplier_valor_final' => $supplierValorFinal,
+            'seller_sugestao_venda' => $sellerSugestaoVenda,
+            'seller_markup' => $sellerMarkup,
+        ];
+
     }
 
 }

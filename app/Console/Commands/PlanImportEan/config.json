@@ -102,7 +102,56 @@
           "type": "string",
           "required": true
         }
-      }
+      },
+      {
+        "plan_fields": [
+            "supplier_preco_padrao"
+        ],
+        "rule": {
+          "name": "supplier_preco_padrao",
+          "type": "float",
+          "required": false
+        }
+     },
+     {
+        "plan_fields": [
+            "supplier_desconto_percentual"
+        ],
+        "rule": {
+          "name": "supplier_desconto_percentual",
+          "type": "float",
+          "required": false
+        }
+    },
+    {
+        "plan_fields": [
+            "supplier_valor_final"
+        ],
+        "rule": {
+          "name": "supplier_valor_final",
+          "type": "float",
+          "required": false
+        }
+    },
+    {
+        "plan_fields": [
+            "seller_sugestao_venda"
+        ],
+        "rule": {
+          "name": "seller_sugestao_venda",
+          "type": "float",
+          "required": false
+        }
+    },
+    {
+        "plan_fields": [
+            "seller_markup"
+        ],
+        "rule": {
+          "name": "seller_markup",
+          "type": "int",
+          "required": false
+        }
+    }
     ]
   }
-
