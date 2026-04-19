@@ -148,10 +148,10 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
     private function choiceUpdateData($row, $updateData)
     {
         $ean = $this->preferOriginData($row['ean'] ?? null, $updateData->ean ?? null);
-        $height = $this->preferOriginData($this->doRoundToInt($row['height']) ?? null, $updateData->height ?? null);
-        $length = $this->preferOriginData($this->doRoundToInt($row['length']) ?? null, $updateData->length ?? null);
+        $height = $this->preferOriginData($this->doRoundToInt($row['height'] ?? null), $updateData->height ?? null);
+        $length = $this->preferOriginData($this->doRoundToInt($row['length'] ?? null), $updateData->length ?? null);
         $weight = $this->preferOriginData($row['weight'] ?? null, $updateData->weight ?? null);
-        $width = $this->preferOriginData($this->doRoundToInt($row['width']) ?? null, $updateData->width ?? null);
+        $width = $this->preferOriginData($this->doRoundToInt($row['width'] ?? null), $updateData->width ?? null);
         $externalSupplierProductDescription = $this->preferOriginData(
             $row['supplier_product_description'] ?? null,
             $updateData->external_supplier_product_description ?? null
@@ -164,11 +164,11 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
             $row['supplier_sku'] ?? null,
             $updateData->external_supplier_sku ?? null
         );
-        $supplierPrecoPadrao = $this->preferOriginData($this->doFloatMoney($row['supplier_preco_padrao']) ?? null, $updateData->supplier_preco_padrao ?? null);
-        $supplierDescontoPercentual = $this->preferOriginData($this->doFloatMoney($row['supplier_desconto_percentual']) ?? null, $updateData->supplier_desconto_percentual ?? null);
-        $supplierValorFinal = $this->preferOriginData($this->doFloatMoney($row['supplier_valor_final']) ?? null, $updateData->supplier_valor_final ?? null);
-        $sellerSugestaoVenda = $this->preferOriginData($this->doFloatMoney($row['seller_sugestao_venda']) ?? null, $updateData->seller_sugestao_venda ?? null);
-        $sellerMarkup = $this->preferOriginData($this->doRoundToInt($row['seller_markup']) ?? null, $updateData->seller_markup ?? null);
+        $supplierPrecoPadrao = $this->preferOriginData($this->doFloatMoney($row['supplier_preco_padrao'] ?? null), $updateData->supplier_preco_padrao ?? null);
+        $supplierDescontoPercentual = $this->preferOriginData($this->doFloatMoney($row['supplier_desconto_percentual'] ?? null), $updateData->supplier_desconto_percentual ?? null);
+        $supplierValorFinal = $this->preferOriginData($this->doFloatMoney($row['supplier_valor_final'] ?? null), $updateData->supplier_valor_final ?? null);
+        $sellerSugestaoVenda = $this->preferOriginData($this->doFloatMoney($row['seller_sugestao_venda'] ?? null), $updateData->seller_sugestao_venda ?? null);
+        $sellerMarkup = $this->preferOriginData($this->doRoundToInt($row['seller_markup'] ?? null), $updateData->seller_markup ?? null);
 
         return [
             'has_searched' => true,
