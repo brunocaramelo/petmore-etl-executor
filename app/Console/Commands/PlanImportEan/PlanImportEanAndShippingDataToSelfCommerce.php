@@ -86,8 +86,6 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
             $import->persistData();
         }
 
-        \Log::info('(PlanImportEanAndShippingDataToSelfCommerce) - importPlans: fim');
-
         return true;
     }
 
