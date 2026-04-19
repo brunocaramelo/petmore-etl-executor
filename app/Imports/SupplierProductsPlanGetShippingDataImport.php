@@ -95,7 +95,9 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
                 \Log::info('Produto Localizado, preparando atualizacao :', $row);
 
-                $choicedValuesToUpdate =$this->choiceUpdateData($row, $updateData);
+                $choicedValuesToUpdate = $this->choiceUpdateData($row, $updateData);
+
+                dd(' before update numero um', $choicedValuesToUpdate);
 
                 $updateData->update($choicedValuesToUpdate);
 
