@@ -108,6 +108,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                                                   ->where('can_update', true)
                                                   ->get();
 
+            dd('checando linha, achou regisrtro :', [$updateDatas->isEmpty(), $row]);
             if ($updateDatas->isEmpty()){
                 return false;
             }
