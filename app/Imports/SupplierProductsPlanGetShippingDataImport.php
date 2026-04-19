@@ -114,8 +114,8 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
             foreach ($updateDatas as $updateData) {
 
+                dd('Produto Localizado, preparando atualizacao :', $row);
                 \Log::info('Produto Localizado, preparando atualizacao :', $row);
-
                 $choicedValuesToUpdate =$this->choiceUpdateData($row, $updateData);
 
                 $updateData->update($choicedValuesToUpdate);
