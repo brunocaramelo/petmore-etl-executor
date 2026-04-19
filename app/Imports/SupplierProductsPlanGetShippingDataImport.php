@@ -27,7 +27,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
             $identifyTranlated = $translator->getIdentifyValue($rowArr);
             $fieldsTranlated = $translator->processField($rowArr);
 
-            \Log::info('(SupplierProductsPlanGetShippingDataImport) linha pre-processamento', $fieldsTranlated);
+            dd($fieldsTranlated);
 
             $this->data[$index] = $fieldsTranlated;
             $this->data[$index]['local_sku'] = $identifyTranlated;
@@ -97,8 +97,6 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                 \Log::info('Produto Localizado, preparando atualizacao :', $row);
 
                 $choicedValuesToUpdate =$this->choiceUpdateData($row, $updateData);
-
-                dd($choicedValuesToUpdate);
 
                 $updateData->update($choicedValuesToUpdate);
             }
