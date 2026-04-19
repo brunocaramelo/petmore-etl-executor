@@ -39,7 +39,7 @@ class ProductSelfCommerceData extends Model
         'ecommerce_supplier_factory',
         'supplier_name',
         'supplier_preco_padrao',
-        'supplier_desconto_fornecedor',
+        'supplier_desconto_percentual',
         'supplier_valor_final',
         'seller_sugestao_venda',
         'seller_markup',
