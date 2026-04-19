@@ -83,7 +83,7 @@ class PlanImportEanAndShippingDataToSelfCommerce extends Command
 
             Excel::import($import, Storage::disk('local')->path($planName));
 
-            $import->persistData();
+            // $import->persistData();
         }
 
         return true;

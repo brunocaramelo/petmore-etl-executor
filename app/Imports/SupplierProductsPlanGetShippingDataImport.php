@@ -30,8 +30,9 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
             $fieldsTranlated['local_sku'] = $identifyTranlated;
 
             $this->data[$index] = $fieldsTranlated;
+
+            $this->persistDataSingle($fieldsTranlated);
         }
-        dd($this->data);
     }
 
     private function doRoundToInt(float|string|int|null $value): ?int
@@ -82,7 +83,6 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
     public function persistData()
     {
         foreach ($this->data as $row) {
-            dd('persistData',$row);
             $updateDatas = ProductSelfCommerceData::whereIn('sku', explode(self::PLAN_SKU_SEPARATOR, $row['local_sku']) ?? ['NENHUM_SKU'] )
                                                   ->where('can_update', true)
                                                   ->get();
@@ -100,6 +100,28 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                 $updateData->update($choicedValuesToUpdate);
             }
         }
+    }
+
+    public function persistDataSingle($row)
+    {
+            $updateDatas = ProductSelfCommerceData::whereIn('sku', explode(self::PLAN_SKU_SEPARATOR, $row['local_sku']) ?? ['NENHUM_SKU'] )
+                                                  ->where('can_update', true)
+                                                  ->get();
+
+            if ($updateDatas->isEmpty()){
+                return false;
+            }
+
+            foreach ($updateDatas as $updateData) {
+
+                \Log::info('Produto Localizado, preparando atualizacao :', $row);
+
+                $choicedValuesToUpdate =$this->choiceUpdateData($row, $updateData);
+
+                $updateData->update($choicedValuesToUpdate);
+            }
+
+        return true;
     }
 
     public function handle()
