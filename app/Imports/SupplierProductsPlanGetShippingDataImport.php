@@ -80,7 +80,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
     public function persistData()
     {
-        dd($this->data[3]);
+        dd($this->data);
         foreach ($this->data as $row) {
             $updateDatas = ProductSelfCommerceData::whereIn('sku', explode(self::PLAN_SKU_SEPARATOR, $row['local_sku']) ?? ['NENHUM_SKU'] )
                                                   ->where('can_update', true)
