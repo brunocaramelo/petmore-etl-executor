@@ -5,7 +5,7 @@
             "petmore_sku"
         ],
         "rule": {
-          "name": "petmore_sku",
+          "name": "local_sku",
           "type": "string",
           "required": true
         }
