@@ -98,6 +98,8 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                 $choicedValuesToUpdate =$this->choiceUpdateData($row, $updateData);
 
                 $updateData->update($choicedValuesToUpdate);
+
+                dd('update numero um', $updateData->toArray());
             }
         }
     }
