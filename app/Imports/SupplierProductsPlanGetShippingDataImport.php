@@ -27,11 +27,10 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
             $identifyTranlated = $translator->getIdentifyValue($rowArr);
             $fieldsTranlated = $translator->processField($rowArr);
 
-            dd($fieldsTranlated);
-
             $this->data[$index] = $fieldsTranlated;
             $this->data[$index]['local_sku'] = $identifyTranlated;
 
+            dd($this->data[$index]);
         }
     }
 
