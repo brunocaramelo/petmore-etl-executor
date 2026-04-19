@@ -13,6 +13,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 {
     private $config = [];
     private $data = [];
+    private $dataAux = [];
     private const PLAN_SKU_SEPARATOR = ',';
     private $needRoundToInt = false;
 
@@ -29,7 +30,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
             $fieldsTranlated['local_sku'] = $identifyTranlated;
 
             $this->data[$index] = $fieldsTranlated;
-            dd($this->data);
+            $this->dataAux[$index] = $fieldsTranlated;
         }
     }
 
@@ -80,7 +81,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
     public function persistData()
     {
-        dd($this->data);
+        dd($this->dataAux);
         foreach ($this->data as $row) {
             $updateDatas = ProductSelfCommerceData::whereIn('sku', explode(self::PLAN_SKU_SEPARATOR, $row['local_sku']) ?? ['NENHUM_SKU'] )
                                                   ->where('can_update', true)
