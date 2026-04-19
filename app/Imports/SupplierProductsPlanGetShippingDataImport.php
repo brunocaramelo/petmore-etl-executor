@@ -27,7 +27,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
             $identifyTranlated = $translator->getIdentifyValue($rowArr);
 
             $fieldsTranlated = $translator->processField($rowArr);
-            $fieldsTranlated['local_sku'] = $identifyTranlated;
+            $fieldsTranlated['petmore_sku'] = $identifyTranlated;
 
             $this->data[$index] = $fieldsTranlated;
 
@@ -109,6 +109,7 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
                                                   ->get();
 
             \Log::info('checando linha, achou regisrtro :', [$updateDatas->isEmpty(), $row]);
+
             if ($updateDatas->isEmpty()){
                 return false;
             }
