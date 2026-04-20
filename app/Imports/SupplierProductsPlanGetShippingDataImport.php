@@ -116,7 +116,6 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
             foreach ($updateDatas as $updateData) {
                 \Log::info('Produto Localizado, preparando atualizacao :', $row);
                 $choicedValuesToUpdate =$this->choiceUpdateData($row, $updateData);
-                //dd(' before update numero um', $choicedValuesToUpdate);
 
                 $updateData->update($choicedValuesToUpdate);
             }
@@ -150,11 +149,11 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
     {
         $markupFiltered = (!empty($row['seller_markup']) && is_numeric($row['seller_markup']) && strpos((string)$row['seller_markup'], '.') !== false)
         ? $row['seller_markup'] * 100
-        : $row['seller_markup'];
+        : $row['seller_markup'] ?? null;
 
         $supplierDescontoPercentualFiltered = (!empty($row['supplier_desconto_percentual']) && is_numeric($row['supplier_desconto_percentual']) && strpos((string)$row['supplier_desconto_percentual'], '.') !== false)
         ? $row['supplier_desconto_percentual'] * 100
-        : $row['supplier_desconto_percentual'];
+        : $row['supplier_desconto_percentual'] ?? null;
 
         $ean = $this->preferOriginData($row['ean'] ?? null, $updateData->ean ?? null);
         $height = $this->preferOriginData($this->doRoundToInt($row['height'] ?? null), $updateData->height ?? null);
