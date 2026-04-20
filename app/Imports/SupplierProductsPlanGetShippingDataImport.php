@@ -148,11 +148,11 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
 
     private function choiceUpdateData($row, $updateData)
     {
-        $markupFiltered = (isset($row['seller_markup']) && is_numeric($row['seller_markup']) && strpos((string)$row['seller_markup'], '.') !== false)
+        $markupFiltered = (!empty($row['seller_markup']) && is_numeric($row['seller_markup']) && strpos((string)$row['seller_markup'], '.') !== false)
         ? $row['seller_markup'] * 100
         : $row['seller_markup'];
 
-        $supplierDescontoPercentualFiltered = (isset($row['supplier_desconto_percentual']) && is_numeric($row['supplier_desconto_percentual']) && strpos((string)$row['supplier_desconto_percentual'], '.') !== false)
+        $supplierDescontoPercentualFiltered = (!empty($row['supplier_desconto_percentual']) && is_numeric($row['supplier_desconto_percentual']) && strpos((string)$row['supplier_desconto_percentual'], '.') !== false)
         ? $row['supplier_desconto_percentual'] * 100
         : $row['supplier_desconto_percentual'];
 
