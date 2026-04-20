@@ -161,18 +161,22 @@ class SupplierProductsPlanGetShippingDataImport implements ToCollection, WithHea
         $length = $this->preferOriginData($this->doRoundToInt($row['length'] ?? null), $updateData->length ?? null);
         $weight = $this->preferOriginData($row['weight'] ?? null, $updateData->weight ?? null);
         $width = $this->preferOriginData($this->doRoundToInt($row['width'] ?? null), $updateData->width ?? null);
+
         $externalSupplierProductDescription = $this->preferOriginData(
             $row['supplier_product_description'] ?? null,
             $updateData->external_supplier_product_description ?? null
         );
+
         $externalSupplierName = $this->preferOriginData(
             $row['supplier_name'] ?? null,
             $updateData->external_supplier_name ?? null
         );
+
         $externalSupplierSku = $this->preferOriginData(
             $row['supplier_sku'] ?? null,
             $updateData->external_supplier_sku ?? null
         );
+
         $supplierPrecoPadrao = $this->preferOriginData($this->doFloatMoney($row['supplier_preco_padrao'] ?? null), $updateData->supplier_preco_padrao ?? null);
         $supplierDescontoPercentual = $this->preferOriginData($this->doRoundToInt($supplierDescontoPercentualFiltered ?? null), $updateData->supplier_desconto_percentual ?? null);
         $supplierValorFinal = $this->preferOriginData($this->doFloatMoney($row['supplier_valor_final'] ?? null), $updateData->supplier_valor_final ?? null);
